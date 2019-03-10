@@ -1,0 +1,15 @@
+{
+  "name": "esy-autoconf",
+  "version": "2.10.000",
+  "description": "Autoconf packaged for esy",
+  "esy": {
+    "buildsInSource": true,
+    "build": [
+      ["chmod", "755", "./configure", "./test.bash"],
+      ["ln", "-s", "/usr/bin/true", "#{ self.install / 'bin' / 'makeinfo' }"],
+      ["bash", "-c", "#{os == 'windows' ? './configure --prefix=$cur__install --host x86_64-w64-mingw32' : './configure --prefix=$cur__install'}"],
+      ["make"],
+      ["make", "install"]
+    ]
+  }
+}
