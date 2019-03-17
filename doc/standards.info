@@ -1,5 +1,5 @@
-Ceci est le fichier Info standards.info, produit par Makeinfo version
-4.2b à partir standards.texi.
+This is standards.info, produced by makeinfo version 4.3 from
+standards.texi.
 
 START-INFO-DIR-ENTRY
 * Standards: (standards).        GNU coding standards.
@@ -4826,68 +4826,68 @@ Index
 
 
 Tag Table:
-Node: Top709
-Node: Preface1411
-Node: Legal Issues3629
-Node: Reading Non-Free Code4092
-Node: Contributions5815
-Node: Trademarks7964
-Node: Design Advice9022
-Node: Source Language9605
-Node: Compatibility11612
-Node: Using Extensions13235
-Node: Standard C14806
-Node: Conditional Compilation17204
-Node: Program Behavior18498
-Node: Semantics19416
-Node: Libraries24104
-Node: Errors25344
-Node: User Interfaces27120
-Node: Graphical Interfaces28720
-Node: Command-Line Interfaces29750
-Node: Option Table35816
-Node: Memory Usage50820
-Node: File Usage51840
-Node: Writing C52583
-Node: Formatting53432
-Node: Comments57490
-Node: Syntactic Conventions60788
-Node: Names64195
-Node: System Portability66399
-Node: CPU Portability68779
-Node: System Functions72030
-Node: Internationalization77232
-Node: Mmap80380
-Node: Documentation81085
-Node: GNU Manuals82189
-Node: Doc Strings and Manuals87241
-Node: Manual Structure Details88789
-Node: License for Manuals90202
-Node: Manual Credits91171
-Node: Printed Manuals91559
-Node: NEWS File92240
-Node: Change Logs92912
-Node: Change Log Concepts93661
-Node: Style of Change Logs95516
-Node: Simple Changes97562
-Node: Conditional Changes98797
-Node: Indicating the Part Changed100210
-Node: Man Pages100728
-Node: Reading other Manuals102347
-Node: Managing Releases103131
-Node: Configuration103893
-Node: Makefile Conventions110793
-Node: Makefile Basics111594
-Node: Utilities in Makefiles114759
-Node: Command Variables116895
-Node: Directory Variables120463
-Node: Standard Targets131348
-Ref: Standard Targets-Footnote-1142599
-Node: Install Command Categories142699
-Node: Releases147272
-Node: References151355
-Node: Copying This Manual152763
-Node: GNU Free Documentation License152977
-Node: Index172846
+Node: Top687
+Node: Preface1389
+Node: Legal Issues3607
+Node: Reading Non-Free Code4070
+Node: Contributions5793
+Node: Trademarks7942
+Node: Design Advice9000
+Node: Source Language9583
+Node: Compatibility11590
+Node: Using Extensions13213
+Node: Standard C14784
+Node: Conditional Compilation17182
+Node: Program Behavior18476
+Node: Semantics19394
+Node: Libraries24082
+Node: Errors25322
+Node: User Interfaces27098
+Node: Graphical Interfaces28698
+Node: Command-Line Interfaces29728
+Node: Option Table35794
+Node: Memory Usage50798
+Node: File Usage51818
+Node: Writing C52561
+Node: Formatting53410
+Node: Comments57468
+Node: Syntactic Conventions60766
+Node: Names64173
+Node: System Portability66377
+Node: CPU Portability68757
+Node: System Functions72008
+Node: Internationalization77210
+Node: Mmap80358
+Node: Documentation81063
+Node: GNU Manuals82167
+Node: Doc Strings and Manuals87219
+Node: Manual Structure Details88767
+Node: License for Manuals90180
+Node: Manual Credits91149
+Node: Printed Manuals91537
+Node: NEWS File92218
+Node: Change Logs92890
+Node: Change Log Concepts93639
+Node: Style of Change Logs95494
+Node: Simple Changes97540
+Node: Conditional Changes98775
+Node: Indicating the Part Changed100188
+Node: Man Pages100706
+Node: Reading other Manuals102325
+Node: Managing Releases103109
+Node: Configuration103871
+Node: Makefile Conventions110771
+Node: Makefile Basics111572
+Node: Utilities in Makefiles114737
+Node: Command Variables116873
+Node: Directory Variables120441
+Node: Standard Targets131326
+Ref: Standard Targets-Footnote-1142577
+Node: Install Command Categories142677
+Node: Releases147250
+Node: References151333
+Node: Copying This Manual152741
+Node: GNU Free Documentation License152955
+Node: Index172824
 
 End Tag Table
