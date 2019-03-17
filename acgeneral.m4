@@ -52,7 +52,7 @@ dnl
 divert(-1)dnl Throw away output until AC_INIT is called.
 changequote([, ])
 
-define(AC_ACVERSION, 2.11)
+define(AC_ACVERSION, 2.12)
 
 dnl Some old m4's don't support m4exit.  But they provide
 dnl equivalent functionality by core dumping because of the
@@ -72,17 +72,20 @@ dnl ### Defining macros
 
 
 dnl m4 output diversions.  We let m4 output them all in order at the end,
-dnl except that we explicitly undivert AC_DIVERSION_SED.
+dnl except that we explicitly undivert AC_DIVERSION_SED, AC_DIVERSION_CMDS,
+dnl and AC_DIVERSION_ICMDS.
 
 dnl AC_DIVERSION_NOTICE - 1 (= 0)	AC_REQUIRE'd #! /bin/sh line
 define(AC_DIVERSION_NOTICE, 1)dnl	copyright notice & option help strings
 define(AC_DIVERSION_INIT, 2)dnl		initialization code
-define(AC_DIVERSION_SED, 3)dnl		variable substitutions in config.status
-define(AC_DIVERSION_NORMAL_4, 4)dnl	AC_REQUIRE'd code, 4 level deep
-define(AC_DIVERSION_NORMAL_3, 5)dnl	AC_REQUIRE'd code, 3 level deep
-define(AC_DIVERSION_NORMAL_2, 6)dnl	AC_REQUIRE'd code, 2 level deep
-define(AC_DIVERSION_NORMAL_1, 7)dnl	AC_REQUIRE'd code, 1 level deep
-define(AC_DIVERSION_NORMAL, 8)dnl	the tests and output code
+define(AC_DIVERSION_NORMAL_4, 3)dnl	AC_REQUIRE'd code, 4 level deep
+define(AC_DIVERSION_NORMAL_3, 4)dnl	AC_REQUIRE'd code, 3 level deep
+define(AC_DIVERSION_NORMAL_2, 5)dnl	AC_REQUIRE'd code, 2 level deep
+define(AC_DIVERSION_NORMAL_1, 6)dnl	AC_REQUIRE'd code, 1 level deep
+define(AC_DIVERSION_NORMAL, 7)dnl	the tests and output code
+define(AC_DIVERSION_SED, 8)dnl		variable substitutions in config.status
+define(AC_DIVERSION_CMDS, 9)dnl		extra shell commands in config.status
+define(AC_DIVERSION_ICMDS, 10)dnl	extra initialization in config.status
 
 dnl Change the diversion stream to STREAM, while stacking old values.
 dnl AC_DIVERT_PUSH(STREAM)
@@ -633,11 +636,14 @@ changequote([, ])dnl
 done
 
 # NLS nuisances.
-# Only set LANG and LC_ALL to C if already set.
-# These must not be set unconditionally because not all systems understand
-# e.g. LANG=C (notably SCO).
-if test "${LC_ALL+set}" = set; then LC_ALL=C; export LC_ALL; fi
+# Only set these to C if already set.  These must not be set unconditionally
+# because not all systems understand e.g. LANG=C (notably SCO).
+# Fixing LC_MESSAGES prevents Solaris sh from translating var values in `set'!
+# Non-C LC_CTYPE values break the ctype check.
 if test "${LANG+set}"   = set; then LANG=C;   export LANG;   fi
+if test "${LC_ALL+set}" = set; then LC_ALL=C; export LC_ALL; fi
+if test "${LC_MESSAGES+set}" = set; then LC_MESSAGES=C; export LC_MESSAGES; fi
+if test "${LC_CTYPE+set}"    = set; then LC_CTYPE=C;    export LC_CTYPE;    fi
 
 # confdefs.h avoids OS command line length limits that DEFS can exceed.
 rm -rf conftest* confdefs.h
@@ -1049,14 +1055,27 @@ define(AC_CACHE_SAVE,
 # --recheck option to rerun configure.
 #
 EOF
-changequote(, )dnl
 dnl Allow a site initialization script to override cache values.
+# The following way of writing the cache mishandles newlines in values,
+# but we know of no workaround that is simple, portable, and efficient.
+# So, don't put newlines in cache variables' values.
 # Ultrix sh set writes to stderr and can't be redirected directly,
 # and sets the high bit in the cache file unless we assign to the vars.
-# HP-UX 10.01 sh prints single quotes around any value that contains spaces.
+changequote(, )dnl
 (set) 2>&1 |
-sed -n "s/^\([a-zA-Z0-9_]*_cv_[a-zA-Z0-9_]*\)='*\([^']*\)'*/\1=\${\1='\2'}/p"\
-  >> confcache
+  case `(ac_space=' '; set) 2>&1` in
+  *ac_space=\ *)
+    # `set' does not quote correctly, so add quotes (double-quote substitution
+    # turns \\\\ into \\, and sed turns \\ into \).
+    sed -n \
+      -e "s/'/'\\\\''/g" \
+      -e "s/^\\([a-zA-Z0-9_]*_cv_[a-zA-Z0-9_]*\\)=\\(.*\\)/\\1=\${\\1='\\2'}/p"
+    ;;
+  *)
+    # `set' quotes correctly as required by POSIX, so do not add quotes.
+    sed -n -e 's/^\([a-zA-Z0-9_]*_cv_[a-zA-Z0-9_]*\)=\(.*\)/\1=${\1=\2}/p'
+    ;;
+  esac >> confcache
 changequote([, ])dnl
 if cmp -s $cache_file confcache; then
   :
@@ -1178,6 +1197,7 @@ ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='${CC-cc} -c $CFLAGS $CPPFLAGS conftest.$ac_ext 1>&AC_FD_CC'
 ac_link='${CC-cc} -o conftest $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS 1>&AC_FD_CC'
+cross_compiling=$ac_cv_prog_cc_cross
 ])
 
 dnl AC_LANG_CPLUSPLUS()
@@ -1188,6 +1208,7 @@ ac_ext=C
 ac_cpp='$CXXCPP $CPPFLAGS'
 ac_compile='${CXX-g++} -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext 1>&AC_FD_CC'
 ac_link='${CXX-g++} -o conftest $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS 1>&AC_FD_CC'
+cross_compiling=$ac_cv_prog_cxx_cross
 ])
 
 dnl Push the current language on a stack.
@@ -1420,6 +1441,31 @@ fi
 undefine([AC_VAR_NAME])dnl
 ])
 
+dnl Sets WORKING_VAR to yes if the current compiler works, else no;
+dnl sets CROSS-VAR to yes if it produces non-native executables, else no.
+dnl Before calling this, call AC_LANG_* to set the right language.
+dnl AC_TRY_COMPILER(TEST-PROGRAM, WORKING-VAR, CROSS-VAR)
+AC_DEFUN(AC_TRY_COMPILER,
+[cat > conftest.$ac_ext <<EOF
+[#]line __oline__ "configure"
+#include "confdefs.h"
+[$1]
+EOF
+if AC_TRY_EVAL(ac_link) && test -s conftest; then
+  [$2]=yes
+  # If we can't run a trivial program, we are probably using a cross compiler.
+  if (./conftest; exit) 2>/dev/null; then
+    [$3]=no
+  else
+    [$3]=yes
+  fi
+else
+  echo "configure: failed program was:" >&AC_FD_CC
+  cat conftest.$ac_ext >&AC_FD_CC
+  [$2]=no
+fi
+rm -fr conftest*])
+
 
 dnl ### Checking for libraries
 
@@ -1449,7 +1495,7 @@ char $2();
 ]),
 	    [$2()],
 	    eval "ac_cv_lib_$ac_lib_var=yes",
-	    eval "ac_cv_lib_$ac_lib_var=no")dnl
+	    eval "ac_cv_lib_$ac_lib_var=no")
 LIBS="$ac_save_LIBS"
 ])dnl
 if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
@@ -1482,7 +1528,7 @@ AC_MSG_CHECKING([for -l[]AC_LIB_NAME])
 AC_CACHE_VAL(AC_CV_NAME,
 [ac_save_LIBS="$LIBS"
 LIBS="-l[]AC_LIB_NAME[] $4 $LIBS"
-AC_TRY_LINK( , [main()], AC_CV_NAME=yes, AC_CV_NAME=no)dnl
+AC_TRY_LINK( , [main()], AC_CV_NAME=yes, AC_CV_NAME=no)
 LIBS="$ac_save_LIBS"
 ])dnl
 AC_MSG_RESULT($AC_CV_NAME)
@@ -1591,8 +1637,7 @@ ifelse([$4], , , [  rm -rf conftest*
   $4
 ])dnl
 fi
-rm -f conftest*]
-)
+rm -f conftest*])
 
 
 dnl ### Examining libraries
@@ -1604,7 +1649,7 @@ AC_DEFUN(AC_COMPILE_CHECK,
 [AC_OBSOLETE([$0], [; instead use AC_TRY_COMPILE or AC_TRY_LINK, and AC_MSG_CHECKING and AC_MSG_RESULT])dnl
 ifelse([$1], , , [AC_CHECKING([for $1])
 ])dnl
-AC_TRY_LINK([$2], [$3], [$4], [$5])dnl
+AC_TRY_LINK([$2], [$3], [$4], [$5])
 ])
 
 dnl AC_TRY_LINK(INCLUDES, FUNCTION-BODY,
@@ -1630,8 +1675,7 @@ ifelse([$4], , , [  rm -rf conftest*
   $4
 ])dnl
 fi
-rm -f conftest*]
-)
+rm -f conftest*])
 
 
 dnl ### Checking for run-time features
@@ -1640,8 +1684,7 @@ dnl ### Checking for run-time features
 dnl AC_TRY_RUN(PROGRAM, [ACTION-IF-TRUE [, ACTION-IF-FALSE
 dnl            [, ACTION-IF-CROSS-COMPILING]]])
 AC_DEFUN(AC_TRY_RUN,
-[AC_REQUIRE([AC_C_CROSS])dnl
-if test "$cross_compiling" = yes; then
+[if test "$cross_compiling" = yes; then
   ifelse([$4], ,
     [errprint(__file__:__line__: warning: [AC_TRY_RUN] called without default to allow cross compiling
 )dnl
@@ -1664,8 +1707,9 @@ extern "C" void exit(int);
 ])dnl
 [$1]
 EOF
-AC_TRY_EVAL(ac_link)
-if test -s conftest && (./conftest; exit) 2>/dev/null; then
+if AC_TRY_EVAL(ac_link) && test -s conftest && (./conftest; exit) 2>/dev/null
+then
+dnl Don't remove the temporary files here, so they can be examined.
   ifelse([$2], , :, [$2])
 else
   echo "configure: failed program was:" >&AC_FD_CC
@@ -1742,7 +1786,7 @@ choke me
 #else
 $1();
 #endif
-], eval "ac_cv_func_$1=yes", eval "ac_cv_func_$1=no")])dnl
+], eval "ac_cv_func_$1=yes", eval "ac_cv_func_$1=no")])
 if eval "test \"`echo '$ac_cv_func_'$1`\" = yes"; then
   AC_MSG_RESULT(yes)
   ifelse([$2], , :, [$2])
@@ -1809,8 +1853,8 @@ AC_DEFUN(AC_CHECK_TYPE,
 AC_MSG_CHECKING(for $1)
 AC_CACHE_VAL(ac_cv_type_$1,
 [AC_EGREP_CPP(dnl
-changequote(<<<,>>>)dnl
-<<<$1[^a-zA-Z_0-9]>>>dnl
+changequote(<<,>>)dnl
+<<$1[^a-zA-Z_0-9]>>dnl
 changequote([,]), [#include <sys/types.h>
 #if STDC_HEADERS
 #include <stdlib.h>
@@ -1834,12 +1878,26 @@ dnl Link each of the existing files SOURCE... to the corresponding
 dnl link name in DEST...
 dnl AC_LINK_FILES(SOURCE..., DEST...)
 AC_DEFUN(AC_LINK_FILES,
-[define([AC_LIST_FILES], [$1])define([AC_LIST_LINKS], [$2])])
+[dnl
+define([AC_LIST_FILES], ifdef([AC_LIST_FILES], [AC_LIST_FILES ],)[$1])dnl
+define([AC_LIST_LINKS], ifdef([AC_LIST_LINKS], [AC_LIST_LINKS ],)[$2])])
+
+dnl Add additional commands for AC_OUTPUT to put into config.status.
+dnl Use diversions instead of macros so we can be robust in the
+dnl presence of commas in $1 and/or $2.
+dnl AC_OUTPUT_COMMANDS(EXTRA-CMDS, INIT-CMDS)
+AC_DEFUN(AC_OUTPUT_COMMANDS,
+[AC_DIVERT_PUSH(AC_DIVERSION_CMDS)dnl
+[$1]
+AC_DIVERT_POP()dnl
+AC_DIVERT_PUSH(AC_DIVERSION_ICMDS)dnl
+[$2]
+AC_DIVERT_POP()])
 
 dnl AC_CONFIG_SUBDIRS(DIR ...)
 AC_DEFUN(AC_CONFIG_SUBDIRS,
 [AC_REQUIRE([AC_CONFIG_AUX_DIR_DEFAULT])dnl
-define([AC_LIST_SUBDIRS], [$1])dnl
+define([AC_LIST_SUBDIRS], ifdef([AC_LIST_SUBDIRS], [AC_LIST_SUBDIRS ],)[$1])dnl
 subdirs="AC_LIST_SUBDIRS"
 AC_SUBST(subdirs)dnl
 ])
@@ -1921,12 +1979,13 @@ cat >> $CONFIG_STATUS <<EOF
 AC_OUTPUT_FILES($1)
 ifdef([AC_LIST_HEADER], [AC_OUTPUT_HEADER(AC_LIST_HEADER)])dnl
 ifdef([AC_LIST_LINKS], [AC_OUTPUT_LINKS(AC_LIST_FILES, AC_LIST_LINKS)])dnl
-ifelse([$3], , ,
-[EOF
+EOF
 cat >> $CONFIG_STATUS <<EOF
+undivert(AC_DIVERSION_ICMDS)dnl
 $3
 EOF
-cat >> $CONFIG_STATUS <<\EOF])
+cat >> $CONFIG_STATUS <<\EOF
+undivert(AC_DIVERSION_CMDS)dnl
 $2
 exit 0
 EOF
@@ -2021,11 +2080,10 @@ CONFIG_FILES=\${CONFIG_FILES-"$1"}
 EOF
 cat >> $CONFIG_STATUS <<\EOF
 for ac_file in .. $CONFIG_FILES; do if test "x$ac_file" != x..; then
-dnl Specifying an input file breaks the trap to clean up on interrupt,
-dnl but that's not a huge problem.
-  # Support "outfile[:infile]", defaulting infile="outfile.in".
+changequote(, )dnl
+  # Support "outfile[:infile[:infile...]]", defaulting infile="outfile.in".
   case "$ac_file" in
-  *:*) ac_file_in=`echo "$ac_file"|sed 's%.*:%%'`
+  *:*) ac_file_in=`echo "$ac_file"|sed 's%[^:]*:%%'`
        ac_file=`echo "$ac_file"|sed 's%:.*%%'` ;;
   *) ac_file_in="${ac_file}.in" ;;
   esac
@@ -2033,7 +2091,6 @@ dnl but that's not a huge problem.
   # Adjust a relative srcdir, top_srcdir, and INSTALL for subdirectories.
 
   # Remove last slash and all that follows it.  Not all systems have dirname.
-changequote(, )dnl
   ac_dir=`echo $ac_file|sed 's%/[^/][^/]*$%%'`
 changequote([, ])dnl
   if test "$ac_dir" != "$ac_file" && test "$ac_dir" != .; then
@@ -2075,13 +2132,16 @@ changequote([, ])dnl
 # $configure_input" ;;
   *) ac_comsub= ;;
   esac
+
+  ac_file_inputs=`echo $ac_file_in|sed -e "s%^%$ac_given_srcdir/%" -e "s%:% $ac_given_srcdir/%g"`
   sed -e "$ac_comsub
 s%@configure_input@%$configure_input%g
 s%@srcdir@%$srcdir%g
 s%@top_srcdir@%$top_srcdir%g
 ifdef([AC_PROVIDE_AC_PROG_INSTALL], [s%@INSTALL@%$INSTALL%g
 ])dnl
-" $ac_given_srcdir/$ac_file_in | eval "$ac_sed_cmds" > $ac_file
+dnl The parens around the eval prevent an "illegal io" in Ultrix sh.
+" $ac_file_inputs | (eval "$ac_sed_cmds") > $ac_file
 dnl This would break Makefile dependencies.
 dnl  if cmp -s $ac_file conftest.out 2>/dev/null; then
 dnl    echo "$ac_file is unchanged"
@@ -2120,7 +2180,7 @@ ac_eC=' '
 ac_eD='%g'
 changequote([, ])dnl
 
-if test -z "$CONFIG_HEADERS"; then
+if test "${CONFIG_HEADERS+set}" != set; then
 EOF
 dnl Support passing AC_CONFIG_HEADER a value containing shell variables.
 cat >> $CONFIG_STATUS <<EOF
@@ -2129,17 +2189,20 @@ EOF
 cat >> $CONFIG_STATUS <<\EOF
 fi
 for ac_file in .. $CONFIG_HEADERS; do if test "x$ac_file" != x..; then
-  # Support "outfile[:infile]", defaulting infile="outfile.in".
+changequote(, )dnl
+  # Support "outfile[:infile[:infile...]]", defaulting infile="outfile.in".
   case "$ac_file" in
-  *:*) ac_file_in=`echo "$ac_file"|sed 's%.*:%%'`
+  *:*) ac_file_in=`echo "$ac_file"|sed 's%[^:]*:%%'`
        ac_file=`echo "$ac_file"|sed 's%:.*%%'` ;;
   *) ac_file_in="${ac_file}.in" ;;
   esac
+changequote([, ])dnl
 
   echo creating $ac_file
 
   rm -f conftest.frag conftest.in conftest.out
-  cp $ac_given_srcdir/$ac_file_in conftest.in
+  ac_file_inputs=`echo $ac_file_in|sed -e "s%^%$ac_given_srcdir/%" -e "s%:% $ac_given_srcdir/%g"`
+  cat $ac_file_inputs > conftest.in
 
 EOF
 
