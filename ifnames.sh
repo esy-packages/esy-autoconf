@@ -1,6 +1,6 @@
 #! @SHELL@
 # ifnames - print the identifiers used in C preprocessor conditionals
-# Copyright (C) 1994, 1995 Free Software Foundation, Inc.
+# Copyright 1994, 1995, 1999, 2000 Free Software Foundation, Inc.
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,52 +23,69 @@
 # Written by David MacKenzie <djm@gnu.ai.mit.edu>
 # and Paul Eggert <eggert@twinsun.com>.
 
-usage="\
-Usage: ifnames [-h] [--help] [-m dir] [--macrodir=dir] [--version] [file...]"
-show_version=no
+me=`echo "$0" | sed -e 's,.*/,,'`
 
-: ${AC_MACRODIR=@datadir@}
+usage="\
+Usage: $0 [OPTION] ...  [FILE] ...
+
+Scan all of the C source FILES (or the standard input, if none are
+given) and write to the standard output a sorted list of all the
+identifiers that appear in those files in \`#if', \`#elif', \`#ifdef', or
+\`#ifndef' directives.  Print each identifier on a line, followed by a
+space-separated list of the files in which that identifier occurs.
+
+  -h, --help      print this help, then exit
+  -V, --version   print version number, then exit
+
+Report bugs to <bug-autoconf@gnu.org>."
+
+version="\
+ifnames (@PACKAGE_NAME@) @VERSION@
+Written by David J. MacKenzie and Paul Eggert.
+
+Copyright 1994, 1995, 1999, 2000 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+
+help="\
+Try \`$me --help' for more information."
 
 while test $# -gt 0; do
-  case "$1" in 
-  -h | --help | --h* )
+  case "$1" in
+  --help | -h )
     echo "$usage"; exit 0 ;;
-  --macrodir=* | --m*=* )
-    AC_MACRODIR="`echo \"$1\" | sed -e 's/^[^=]*=//'`"
-    shift ;;
-  -m | --macrodir | --m* )
-    shift
-    test $# -eq 0 && { echo "$usage" 1>&2; exit 1; }
-    AC_MACRODIR="$1"
-    shift ;;
-  --version | --versio | --versi | --vers)
-    show_version=yes; shift ;;
+  --version | -V )
+    echo "$version"; exit 0 ;;
   --)     # Stop option processing.
     shift; break ;;
-  -*) echo "$usage" 1>&2; exit 1 ;;
+  -*)
+    exec >&2
+    echo "$me: invalid option $1"
+    echo "$help"
+    exit 1 ;;
   *) break ;;
   esac
 done
 
-if test $show_version = yes; then
-  version=`sed -n 's/define.AC_ACVERSION.[ 	]*\([0-9.]*\).*/\1/p' \
-    $AC_MACRODIR/acgeneral.m4`
-  echo "Autoconf version $version"
-  exit 0
-fi
+# Variables.
+: ${AWK=@AWK@}
 
-@AWK@ '
+$AWK '
   # Record that sym was found in FILENAME.
-  function file_sym(sym,  i, fs) {
-    if (sym ~ /^[A-Za-z_]/) {
-      if (!found[sym,FILENAME]) {
+  function file_sym(sym,  i, fs)
+  {
+    if (sym ~ /^[A-Za-z_]/)
+    {
+      if (!found[sym,FILENAME])
+      {
 	found[sym,FILENAME] = 1
 
 	# Insert FILENAME into files[sym], keeping the list sorted.
 	i = 1
 	fs = files[sym]
  	while (match(substr(fs, i), /^ [^ ]*/) \
- 	       && substr(fs, i + 1, RLENGTH - 1) < FILENAME) {
+ 	       && substr(fs, i + 1, RLENGTH - 1) < FILENAME)
+        {
  	  i += RLENGTH
 	}
 	files[sym] = substr(fs, 1, i - 1) " " FILENAME substr(fs, i)
@@ -76,17 +93,31 @@ fi
     }
   }
 
+  {
+    while (sub(/\\$/, "", $0) > 0)
+    {
+      if ((getline tmp) > 0)
+	$0 = $0 tmp
+      else
+	break
+    }
+  }
+
   /^[\t ]*#/ {
-    if (sub(/^[\t ]*#[\t ]*ifn?def[\t ]+/, "", $0)) {
+    if (sub(/^[\t ]*#[\t ]*ifn?def[\t ]+/, "", $0))
+    {
       sub(/[^A-Za-z_0-9].*/, "", $0)
       file_sym($0)
     }
-    if (sub(/^[\t ]*#[\t ]*(el)?if[\t ]+/, "", $0)) {
+    if (sub(/^[\t ]*#[\t ]*(el)?if[\t ]+/, "", $0))
+    {
       # Remove comments.  Not perfect, but close enough.
       gsub(/\/\*[^\/]*(\*\/)?/, "", $0)
 
-      for (i = split($0, field, /[^A-Za-z_0-9]+/);  1 <= i;  i--) {
-	if (field[i] != "defined") {
+      for (i = split($0, field, /[^A-Za-z_0-9]+/);  1 <= i;  i--)
+      {
+	if (field[i] != "defined")
+        {
 	  file_sym(field[i])
 	}
       }
@@ -94,7 +125,8 @@ fi
   }
 
   END {
-    for (sym in files) {
+    for (sym in files)
+    {
       print sym files[sym]
     }
   }
