@@ -494,7 +494,11 @@ fi
 # If the system automatically restarts a system call that is
 # interrupted by a signal, define `HAVE_RESTARTABLE_SYSCALLS'.
 AC_DEFUN([AC_SYS_RESTARTABLE_SYSCALLS],
-[AC_REQUIRE([AC_HEADER_SYS_WAIT])dnl
+[AC_DIAGNOSE([obsolete],
+[$0: System call restartability is now typically set at runtime.
+Remove this `AC_SYS_RESTARTABLE_SYSCALLS'
+and adjust your code to use `sigaction' with `SA_RESTART' instead.])dnl
+AC_REQUIRE([AC_HEADER_SYS_WAIT])dnl
 AC_CHECK_HEADERS(unistd.h)
 AC_CACHE_CHECK(for restartable system calls, ac_cv_sys_restartable_syscalls,
 [AC_RUN_IFELSE([AC_LANG_SOURCE(
@@ -810,11 +814,14 @@ dnl FIXME: banish uname from this macro!
     # Martyn Johnson says this is needed for Ultrix, if the X
     # libraries were built with DECnet support.  And Karl Berry says
     # the Alpha needs dnet_stub (dnet does not exist).
-    AC_CHECK_LIB(dnet, dnet_ntoa, [X_EXTRA_LIBS="$X_EXTRA_LIBS -ldnet"])
+    ac_xsave_LIBS="$LIBS"; LIBS="$LIBS $X_LIBS -lX11"
+    AC_TRY_LINK_FUNC(XOpenDisplay, ,
+    [AC_CHECK_LIB(dnet, dnet_ntoa, [X_EXTRA_LIBS="$X_EXTRA_LIBS -ldnet"])
     if test $ac_cv_lib_dnet_dnet_ntoa = no; then
       AC_CHECK_LIB(dnet_stub, dnet_ntoa,
 	[X_EXTRA_LIBS="$X_EXTRA_LIBS -ldnet_stub"])
-    fi
+    fi])
+    LIBS="$ac_xsave_LIBS"
 
     # msh@cis.ufl.edu says -lnsl (and -lsocket) are needed for his 386/AT,
     # to get the SysV transport functions.

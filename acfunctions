@@ -1,12 +1,33 @@
+# acfunctions -- autoscan's mapping from functions to Autoconf macros
+# Copyright 1992, 1993, 1994, 1996, 1999, 2000, 2001
+# Free Software Foundation, Inc.
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+# 02111-1307, USA.
+
 # Ones that have their own macros.
 alloca		AC_FUNC_ALLOCA
 bcmp		AC_HEADER_STDC
 bcopy		AC_HEADER_STDC
 bzero		AC_HEADER_STDC
+bzero		AC_CHECK_FUNCS
 chown		AC_FUNC_CHOWN
 error		AC_FUNC_ERROR_AT_LINE
 error_at_line	AC_FUNC_ERROR_AT_LINE
 fnmatch		AC_FUNC_FNMATCH
+fork		AC_FUNC_FORK
 fseeko		AC_FUNC_FSEEKO
 ftello		AC_FUNC_FSEEKO
 getgroups	AC_FUNC_GETGROUPS
@@ -19,10 +40,13 @@ major		AC_HEADER_MAJOR
 malloc		AC_FUNC_MALLOC
 makedev		AC_HEADER_MAJOR
 memchr		AC_HEADER_STDC
+memchr		AC_CHECK_FUNCS
 memcmp		AC_FUNC_MEMCMP
 memcpy		AC_HEADER_STDC
 memmove		AC_HEADER_STDC
+memmove		AC_CHECK_FUNCS
 memset		AC_HEADER_STDC
+memset		AC_CHECK_FUNCS
 minor		AC_HEADER_MAJOR
 mktime		AC_FUNC_MKTIME
 mmap		AC_FUNC_MMAP
@@ -37,13 +61,14 @@ strerror_r	AC_FUNC_STRERROR_R
 strftime	AC_FUNC_STRFTIME
 strtod		AC_FUNC_STRTOD
 utime		AC_FUNC_UTIME_NULL
-vfork		AC_FUNC_VFORK
+utime		AC_CHECK_FUNCS
+vfork		AC_FUNC_FORK
 vfprintf	AC_FUNC_VPRINTF
 vprintf		AC_FUNC_VPRINTF
 vsprintf	AC_FUNC_VPRINTF
 wait3		AC_FUNC_WAIT3
 
-# Others.
+# Others, checked with AC_CHECK_FUNCS.
 __argz_count
 __argz_next
 __argz_stringify
@@ -52,7 +77,6 @@ acl
 alarm
 atexit
 btowc
-bzero
 clock_gettime
 dcgettext
 doprnt
@@ -65,17 +89,14 @@ fdatasync
 fesetround
 floor
 fs_stat_dev
-fseeko
 ftime
 ftruncate
 getcwd
 getdelim
-getgroups
 gethostbyaddr
 gethostbyname
 gethostname
 gethrtime
-getloadavg
 getmntent
 getmntinfo
 getpagesize
@@ -95,10 +116,7 @@ localtime_r
 mblen
 mbrlen
 mbrtowc
-memchr
-memmove
 mempcpy
-memset
 mkdir
 mkfifo
 modf
@@ -130,7 +148,6 @@ strchr
 strcspn
 strdup
 strerror
-strftime
 strncasecmp
 strndup
 strnlen
@@ -138,7 +155,6 @@ strpbrk
 strrchr
 strspn
 strstr
-strtod
 strtol
 strtoul
 strtoull
@@ -147,8 +163,10 @@ strverscmp
 sysinfo
 tzset
 uname
-utime
 utmpname
 utmpxname
-vprintf
 wcwidth
+
+# Local Variables:
+# mode: shell-script
+# End:

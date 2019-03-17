@@ -1,4 +1,5 @@
 #! @SHELL@
+# -*- shell-script -*-
 # autoconf -- create `configure' using m4 macros
 # Copyright 1992, 1993, 1994, 1996, 1999, 2000, 2001
 # Free Software Foundation, Inc.
@@ -104,11 +105,30 @@ case `$M4 --help </dev/null 2>&1` in
 *) echo "$me: Autoconf requires GNU m4 1.4 or later" >&2; exit 1 ;;
 esac
 
+# Set some high recursion limit as the default limit, 250, has already
+# been hit with AC_OUTPUT.
+case " $M4 " in
+  *" --nesting-limit"* | *" -L"* )
+  # Don't override the user's choice
+  ;;
+  *) M4="$M4 --nesting-limit=1024"
+  ;;
+esac
+
+
+# Find a good AWK.
+: ${AWK=@AWK@}
+if echo xfoo | $AWK '/foo|^bar$/ { print }' | grep xfoo >/dev/null; then :; else
+  echo "$me: the regex engine of $AWK is too broken to be used" >&2
+  echo "$me: you might want to install GNU AWK" >&2
+  exit 1
+fi
+
+
 # Variables.
 : ${autoconf_dir=${AC_MACRODIR=@datadir@}}
 test -z "$AC_ACLOCALDIR" &&
   AC_ACLOCALDIR=`(aclocal --print-ac-dir) 2>/dev/null`
-: ${AWK=@AWK@}
 debug=false
 # Trace Autoconf's initialization?
 initialization=false
@@ -224,7 +244,7 @@ NUMBERS='0123456789'
 WORDCHAR=_$alphabet$ALPHABET$NUMBERS
 
 m4_warnings=
-for warning in `IFS=,; echo syntax,$WARNINGS,$warnings |
+for warning in `IFS=,; echo syntax $WARNINGS $warnings |
                          tr $ALPHABET $alphabet`
 do
   test -n $warning || continue
@@ -236,7 +256,7 @@ done
 $debug ||
 {
   trap 'status=$?; rm -rf $tmp && exit $status' 0
-  trap '(exit $?); exit' 1 2 13 15
+  trap '(exit 1); exit 1' 1 2 13 15
 }
 
 # Create a (secure) tmp directory for tmp files.
@@ -251,16 +271,16 @@ $debug ||
 } ||
 {
    echo "$me: cannot create a temporary directory in $TMPDIR" >&2
-   (exit 1); exit;
+   (exit 1); exit 1;
 }
 
 # Running m4.
 test -f "$autoconf_dir/acsite.m4" && acsite_m4="$autoconf_dir/acsite.m4"
 test -f "$localdir/aclocal.m4"   && aclocal_m4="$localdir/aclocal.m4"
-m4_common="$acsite_m4 $aclocal_m4 -I $autoconf_dir -I $localdir \
-           -Dm4_tmpdir=$tmp"
-run_m4="$M4           $autoconf_dir/autoconf.m4  $m4_common"
-run_m4f="$M4 --reload $autoconf_dir/autoconf.m4f $m4_common"
+m4_common="-I $autoconf_dir -I $localdir -Dm4_tmpdir=$tmp"
+m4_prefiles="                $autoconf_dir/autoconf.m4  $acsite_m4 $aclocal_m4"
+m4f_prefiles="--reload-state=$autoconf_dir/autoconf.m4f $acsite_m4 $aclocal_m4"
+run_m4="$M4 $m4_common"
 
 # Find the input file.
 case $# in
@@ -281,7 +301,7 @@ case $# in
   *) exec >&2
      echo "$me: invalid number of arguments."
      echo "$help"
-     (exit 1); exit ;;
+     (exit 1); exit 1 ;;
 esac
 
 # Unless specified, the output is stdout.
@@ -293,7 +313,7 @@ if test z$infile = z-; then
   cat >$infile
 elif test ! -r "$infile"; then
   echo "$me: $infile: No such file or directory" >&2
-  (exit 1); exit
+  (exit 1); exit 1
 fi
 
 # Output is produced into FD 4.  Prepare it.
@@ -314,8 +334,9 @@ case $task in
   # M4 expansion.
   : >$tmp/forbidden.rx
   : >$tmp/allowed.rx
-  $run_m4f -Dm4_warnings=$m4_warnings $infile >$tmp/configure ||
-    { (exit 1); exit; }
+  $verbose "$me: running $run_m4 -Dm4_warnings=$m4_warnings $m4f_prefiles $infile" >&2
+  $run_m4 -Dm4_warnings=$m4_warnings $m4f_prefiles $infile >$tmp/configure ||
+    { (exit 1); exit 1; }
 
   if test "x$outfile" != x-; then
     chmod +x $outfile
@@ -428,7 +449,7 @@ EOF
          `$verbose "-v verbose=1"` \
          -f "$tmp/finalize.awk" <$tmp/configure >&4 ||
       { test -f "$tmp/finalize.err" && cat "$tmp/finalize.err" >&2
-        (exit 1); exit; }
+        (exit 1); exit 1; }
     test -f "$tmp/finalize.err" && cat "$tmp/finalize.err" >&2
   ;; # End of the task script.
 
@@ -690,16 +711,16 @@ EOF
       trace_opt="$trace_opt -t $base_name -t m4_$base_name"
       echo "$base_name$trace_format" |
         $AWK -f $tmp/translate.awk >>$tmp/trace.m4 ||
-          { (exit 1); exit; }
+          { (exit 1); exit 1; }
       echo "m4_$base_name$trace_format" |
         $AWK -f $tmp/translate.awk >>$tmp/trace.m4 ||
-          { (exit 1); exit; }
+          { (exit 1); exit 1; }
     else
       # MACRO_NAME is not a builtin.
       trace_opt="$trace_opt -t $macro_name"
       echo "$trace" |
         $AWK -f $tmp/translate.awk >>$tmp/trace.m4 ||
-          { (exit 1); exit; }
+          { (exit 1); exit 1; }
     fi
     echo >>$tmp/trace.m4
   done
@@ -713,16 +734,30 @@ EOF
   # Do we trace the initialization?
   # `errprint' must be silent, otherwise there can be warnings mixed
   # with traces in m4's stderr.
+  run_m4_trace="$run_m4 $trace_opt -daflq -Derrprint"
   if $initialization; then
-    run_m4_trace="$run_m4 $trace_opt -daflq -Derrprint"
+    trace_prefiles="$m4_prefiles"
   else
-    run_m4_trace="$run_m4f $trace_opt -daflq -Derrprint"
+    trace_prefiles="$m4f_prefiles"
   fi
 
   # Run m4 on the input file to get traces.
-  $verbose "$me: running $run_m4_trace $infile | $M4 $tmp/trace.m4" >&2
-  $run_m4_trace $infile 2>&1 >/dev/null |
-    sed -f $tmp/trace2m4.sed |
+  #
+  # We used to have a simple pipe, which was very convenient as it
+  # allows to use traces on never ending expansions (i.e., when
+  # debugging :) but it is requires to keep error messages *and*
+  # traces in stderr.  This is too fragile, as it results in
+  # unexpected data in the output.  autoheader has been fragile to
+  # this.
+  $verbose "$me: running $run_m4_trace $trace_prefiles $infile -o $tmp/traces" >&2
+  $run_m4_trace $trace_prefiles $infile -o $tmp/traces >/dev/null ||
+    {
+      echo "$me: tracing failed" >&2
+      (exit 1); exit 1
+    }
+
+  $verbose "$me: running $M4 $tmp/trace.m4" >&2
+  sed -f $tmp/trace2m4.sed $tmp/traces |
     # Now we are ready to run m4 to process the trace file.
     if $debug; then
       cat >>$tmp/trace.m4
@@ -732,14 +767,14 @@ EOF
     fi |
       # It makes no sense to try to transform __oline__.
       sed '
-	s/@<:@/[/g
-	s/@:>@/]/g
-	s/@S|@/$/g
-	s/@%:@/#/g
-	' >&4 ||
+    	s/@<:@/[/g
+    	s/@:>@/]/g
+    	s/@S|@/$/g
+    	s/@%:@/#/g
+    	' >&4 ||
       {
-        echo "$me: tracing failed" >&2
-	(exit 1); exit
+    	echo "$me: traces formatting failed" >&2
+    	(exit 1); exit 1
       }
   ;;
 
@@ -749,7 +784,7 @@ EOF
   ## ------------ ##
 
   *) echo "$me: internal error: unknown task: $task" >&2
-    (exit 1); exit
+    (exit 1); exit 1
 esac
 
-(exit $status); exit
+(exit $status); exit $status

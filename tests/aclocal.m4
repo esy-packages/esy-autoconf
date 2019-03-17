@@ -15,6 +15,8 @@
 #   `/usr/local' and `${prefix}' for make.
 # - CONFIG_STATUS and DEFS
 #   Set by AC_OUTPUT.
+# - F77_DUMMY_MAIN
+#   Set by AC_F77_DUMMY_MAIN.
 # - ALLOCA|NEED_SETGID|KMEM_GROUP
 #   AC_FUNCs from acspecific.
 # - AWK|LEX|LEXLIB|LEX_OUTPUT_ROOT|LN_S|M4|RANLIB|SET_MAKE|YACC
@@ -34,7 +36,7 @@
 m4_defun([AC_STATE_SAVE],
 [(set) 2>&1 |
   egrep -v -e 'm4_join([|],
-      [^ac_],
+      [^a[cs]_],
       [^((exec_)?prefix|DEFS|CONFIG_STATUS)=],
       [^(CC|CFLAGS|CPP|GCC|CXX|CXXFLAGS|CXXCPP|GXX|F77|FFLAGS|FLIBS|G77)=],
       [^(LIBS|LIBOBJS|LDFLAGS)=],
@@ -43,9 +45,8 @@ m4_defun([AC_STATE_SAVE],
       [^(X_(CFLAGS|(EXTRA_|PRE_)?LIBS)|x_(includes|libraries)|(have|no)_x)=],
       [^(host|build|target)(_(alias|cpu|vendor|os))?=],
       [^(cross_compiling)=],
-      [^(interpval)=],
-      [^(PATH_SEPARATOR)=],
-      [^(f77_(case|underscore))=],
+      [^(interpval|PATH_SEPARATOR)=],
+      [^(F77_DUMMY_MAIN|f77_(case|underscore))=],
       [^(ALLOCA|GETLOADAVG_LIBS|KMEM_GROUP|NEED_SETGID|POW_LIB)=],
       [^(AWK|LEX|LEXLIB|LEX_OUTPUT_ROOT|LN_S|M4|RANLIB|SET_MAKE|YACC)=],
       [^(_|@|.[*#?].|LINENO|OLDPWD|PIPESTATUS|RANDOM|SECONDS)=])' 2>/dev/null |

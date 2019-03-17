@@ -12,12 +12,14 @@ Andreas Jaeger              aj@suse.de
 Andreas Schott              schott@rzg.mpg.de
 Andreas Schwab              schwab@issan.informatik.uni-dortmund.de
 Andrej Borsenkow            borsenkow.msk@sni.de
+Artur Frysiak               wiget@pld.org.pl
 Assar Westerlund            assar@sics.se
 Axel Thimm                  Axel.Thimm@physik.fu-berlin.de
 Ben Elliston                bje@redhat.com
 Bill Sommerfeld             sommerfeld@apollo.hp.com
 Bob Friesenhahn             bfriesen@simple.dallas.tx.us
 Bob Wilson                  bwilson@tensilica.com
+Bram Moolenaar              bram@vim.org
 Bruno Haible                haible@ilog.fr
 Carl Edman                  cedman@princeton.edu
 Chad R. Larson              chad@anasazi.com
@@ -32,6 +34,7 @@ Daniel Carroll              dan@mesastate.edu
 Daniele Arena               daniele@ripe.net
 Dave Adams                  adams@hpesdwa.fc.hp.com
 Dave Love                   fx@gnu.org
+David Carter                david@carter.net
 David Morgan                dmorgan@symark.com
 Derek R. Price              derek.price@openavenue.com
 Didier Desseaux             didess@infonie.fr
@@ -63,6 +66,7 @@ James A. Lupo               lupoja@feynman.ml.wpafb.af.mil
 Jason Molenda               jsm@cygnus.com
 Jeff Garzik                 jgarzik@pobox.com
 Jeffrey A Law               law@cygnus.com
+Jens Petersen               petersen@redhat.com
 Jim Blandy                  jimb@wookumz.gnu.ai.mit.edu
 Jim Meyering                meyering@ascend.com
 Jiro Takabatake             jiro@din.or.jp
@@ -87,15 +91,18 @@ Kurt D. Zeilenga            kurt@openldap.org
 Larry Schwimmer             rosebud@cyclone.stanford.edu
 Lars Hecking                lhecking@nmrc.ucc.ie
 Lars J. Aas                 larsa@sim.no
+Marc Espie                  Marc.Espie@liafa.jussieu.fr
 Marcus Daniels              marcus@sysc.pdx.edu
 Marcus Thiessel             marcus@xemacs.org
 Mark Elbrecht               snowball3@usa.net
+Mark Kettenis               kettenis@gnu.org
 Markku Savela               msa@msa.tte.vtt.fi
 Markus Oberhumer            markus.oberhumer@jk.uni-linz.ac.at
 Martin Buchholz             martin@xemacs.org
 Martin Wilck                martin@tropos.de
 Martyn Johnson              Martyn.Johnson@cl.cam.ac.uk
 Matthew D. Langston         langston@SLAC.Stanford.EDU
+Michael Elizabeth Chastain  chastain@cygnus.com
 Michael Schoene             mrs@mlc.de
 Mike Hopkirk                hops@sco.com
 Mike Stump                  mrs@wrs.com
@@ -125,6 +132,7 @@ Richard Stallman            rms@gnu.org
 Robert Lipe                 robertlipe@usa.net
 Robert S. Maier             rsm@math.arizona.edu
 Roland McGrath              roland@gnu.org
+Rüdiger Kuhlmann            info@ruediger-kuhlmann.de
 Ruediger Kuhlmann           uck4@rz.uni-karlsruhe.de
 Russ Allbery                rra@stanford.edu
 Ryuji Abe                   raeva@t3.rim.or.jp

@@ -30,7 +30,7 @@ m4_define([AT_CONFIGURE_AC],
 [AT_CLEANUP_FILES(env-after state*)dnl
 AT_DATA([configure.ac],
 [[AC_INIT
-AC_CONFIG_AUX_DIR($top_srcdir)
+AC_CONFIG_AUX_DIR($top_srcdir/config)
 AC_CONFIG_HEADER(config.h:config.hin)
 AC_STATE_SAVE(before)]
 $1
@@ -98,7 +98,8 @@ fi
 # AT_CHECK_HEADER is a better name, but too close from AC_CHECK_HEADER.
 m4_define([AT_CHECK_DEFINES],
 [AT_CHECK([[fgrep '#' config.h |
-   egrep -v 'STDC_HEADERS|STDLIB|INTTYPES|MEMORY|STRING|UNISTD']],, [$1])])
+ egrep -v 'STDC_HEADERS|STD(INT|LIB)|INTTYPES|MEMORY|STRING|UNISTD|SYS_(TYPES|STAT)']],,
+          [$1])])
 
 
 # AT_CHECK_AUTOUPDATE
@@ -127,8 +128,8 @@ AT_CHECK_ENV
 ])# _AT_CHECK_AC_MACRO
 
 
-# AT_CHECK_MACRO(MACRO, [MACRO-USE], [ADDITIONAL-CMDS])
-# -----------------------------------------------------
+# AT_CHECK_MACRO(MACRO, [MACRO-USE], [ADDITIONAL-CMDS], [AUTOCONF-FLAGS])
+# -----------------------------------------------------------------------
 # Create a minimalist configure.ac running the macro named
 # NAME-OF-THE-MACRO, check that autoconf runs on that script,
 # and that the shell runs correctly the configure.
@@ -140,7 +141,7 @@ m4_define([AT_CHECK_MACRO],
 [AT_SETUP([$1])
 AT_CONFIGURE_AC([m4_default([$2], [$1])])
 
-AT_CHECK_AUTOCONF([-W obsolete])
+AT_CHECK_AUTOCONF([m4_default([$4], [-W obsolete])])
 AT_CHECK_AUTOHEADER
 AT_CHECK_CONFIGURE
 AT_CHECK_ENV
