@@ -1,4 +1,103 @@
-* Major changes in Autoconf 2.53                       -*- outline -*-
+* Major changes in Autoconf 2.54                       -*- outline -*-
+
+  Released September 13th, 2002.
+
+** Executables
+
+- autoreconf no longer changes the version of the gettext/po/intl
+  support files. It now adds the files the correspond to the
+  AM_GNU_GETTEXT_VERSION declared in configure.ac.
+
+  Warning: It now relies on the 'autopoint' program, which is part
+  of GNU gettext 0.11.4 and newer.
+
+  Please note that you need to have a GNU gettext version that
+  corresponds at least to the AM_GNU_GETTEXT_VERSION declared
+  in configure.ac. You can upgrade to newer GNU gettext versions,
+  though, without needing to change configure.ac.
+
+- The -I DIR or --include=DIR option now appends DIR to the include path
+  instead of prepending; this is for consistency with other GNU tools.
+  The new -B DIR or --prepend-include=DIR option has the old behavior.
+
+** Macros
+
+- AC_OUTPUT
+  Now handles all the gory details about LIBOBJS and LTLIBOBJS.
+  Please, remove lines such as
+
+	# This is necessary so that .o files in LIBOBJS are also
+	# built via the ANSI2KNR-filtering rules.
+	LIBOBJS=`echo $LIBOBJS|sed 's/\.o /\$U.o /g;s/\.o$/\$U.o/'`
+
+  and read the `AC_LIBOBJ vs LIBOBJS' section.  Do not define U in
+  your Makefiles either.
+
+- AC_CONFIG_LINKS now makes copies if it can't make links.
+
+- AC_FUNC_FNMATCH now tests only for POSIX compatibility, reverting to
+  Autoconf 2.13 behavior.  The new macro AC_FUNC_FNMATCH_GNU also
+  tests for GNU extensions to fnmatch, and replaces fnmatch if needed.
+
+- AC_FUNC_SETVBUF_REVERSED no longer fails when cross-compiling.
+
+- AC_PROG_CC_STDC is integrated into AC_PROG_CC.
+
+- AC_PROG_F77 default search no longer includes cf77 and cfg77.
+
+- New macros
+
+  AC_C_BACKSLASH_A, AC_CONFIG_LIBOBJ_DIR, AC_GNU_SOURCE,
+  AC_PROG_EGREP, AC_PROG_FGREP, AC_REPLACE_FNMATCH,
+  AC_FUNC_FNMATCH_GNU, AC_FUNC_REALLOC, AC_TYPE_MBSTATE_T.
+
+- AC_FUNC_GETLOADAVG
+  looks for getloadavg.c in the CONFIG_LIBOBJ_DIR.
+
+- AC_FUNC_MALLOC
+  Now defines HAVE_MALLOC to 0 if `malloc' does not work, and asks
+  for an AC_LIBOBJ replacement.
+
+** Bug fixes
+
+- Spurious complaints from `m4_bmatch' about invalid regular
+  expressions are suppressed.
+
+- Empty top_builddirs are properly handled.
+
+- AC_CHECK_MEMBER works correctly when the member is an aggregate.
+
+- AC_PATH_PROG
+  Now colon in the optional path arguments are properly handled.
+
+** Improved portability
+
+- Both Autoconf the package, and the scripts it produces, should run
+  more reliably with Zsh.  Bear in mind it is the default Bourne shell
+  on Darwin.
+
+- Autoconf and the scripts it produces no longer assume the existence of
+  the obsolescent commands egrep and fgrep.
+
+** Documentation
+
+- Limitations of Make
+  More of them.
+
+- GNATS
+  The GNATS base has moved to
+  http://bugs.gnu.org/cgi-bin/gnatsweb.pl?database=autoconf
+
+** Misc.
+
+- config.log
+  Now contains the list of ouput variables and files (AC_SUBST,
+  AC_SUBST_FILES).
+
+
+* Major changes in Autoconf 2.53
+
+  Released Mars 8th, 2002.
 
 ** Requirements
 
@@ -121,6 +220,9 @@
 
 
 * Major changes in Autoconf 2.52
+
+  Released July 18th, 2001.
+
 ** Documentation
 - AC_ARG_VAR
 - Quadrigraphs
@@ -179,6 +281,8 @@
 - AC_FUNC_GETPGRG behaves better when cross-compiling.
 
 * Major changes in Autoconf 2.50
+
+  Released May 21st, 2001.
 
 ** Lots of bug fixes
 There have been far too many to enumerate them here.  Check out
@@ -434,7 +538,7 @@ Major changes in Autoconf 2.13:
 * Fixed an important bug in AC_CHECK_TYPE that would cause a configure
   script to report that `sometype_t' was present when only `type_t'
   was defined.
-* Merge of the FSF version of config.guess and config.sub to modernise
+* Merge of the FSF version of config.guess and config.sub to modernize
   these scripts. Add support for a few new hosts in config.guess.
   Incorporate latest versions of install-sh, mkinstalldirs and
   texinfo.tex from the FSF.
@@ -783,8 +887,8 @@ Various bug fixes.
 
 -----
 
-Copyright 1993, 1994, 1995, 1996, 1998, 1999, 2000, 2001 Free
-Software Foundation, Inc.
+Copyright (C) 1993, 1994, 1995, 1996, 1998, 1999, 2000, 2001, 2002
+Free Software Foundation, Inc.
 
 This file is part of GNU Autoconf.
 

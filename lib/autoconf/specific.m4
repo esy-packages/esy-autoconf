@@ -1,7 +1,8 @@
 # This file is part of Autoconf.                       -*- Autoconf -*-
 # Macros that test for specific, unclassified, features.
-# Copyright 1992, 1993, 1994, 1995, 1996, 1998, 1999, 2000, 2001
-# Free Software Foundation, Inc.
+#
+# Copyright (C) 1992, 1993, 1994, 1995, 1996, 1998, 1999, 2000, 2001,
+# 2002 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -340,12 +341,26 @@ AC_DEFUN([AC_SYS_POSIX_TERMIOS],
 ## ------------------------------------ ##
 
 
+# AC_GNU_SOURCE
+# --------------
+AC_DEFUN([AC_GNU_SOURCE],
+[AH_VERBATIM([_GNU_SOURCE],
+[/* Enable GNU extensions on systems that have them.  */
+#ifndef _GNU_SOURCE
+# undef _GNU_SOURCE
+#endif])dnl
+AC_BEFORE([$0], [AC_COMPILE_IFELSE])dnl
+AC_BEFORE([$0], [AC_RUN_IFELSE])dnl
+AC_DEFINE([_GNU_SOURCE])
+])
+
+
 # AC_CYGWIN
 # ---------
 # Check for Cygwin.  This is a way to set the right value for
 # EXEEXT.
 AU_DEFUN([AC_CYGWIN],
-[AC_REQUIRE([AC_CANONICAL_HOST])[]dnl
+[AC_CANONICAL_HOST
 AC_DIAGNOSE([obsolete],
             [$0 is obsolete: use AC_CANONICAL_HOST and $host_os])dnl
 case $host_os in
@@ -360,7 +375,7 @@ esac
 # Check for EMX on OS/2.  This is another way to set the right value
 # for EXEEXT.
 AU_DEFUN([AC_EMXOS2],
-[AC_REQUIRE([AC_CANONICAL_HOST])[]dnl
+[AC_CANONICAL_HOST
 AC_DIAGNOSE([obsolete],
             [$0 is obsolete: use AC_CANONICAL_HOST and $host_os])dnl
 case $host_os in
@@ -375,7 +390,7 @@ esac
 # Check for mingw32.  This is another way to set the right value for
 # EXEEXT.
 AU_DEFUN([AC_MINGW32],
-[AC_REQUIRE([AC_CANONICAL_HOST])[]dnl
+[AC_CANONICAL_HOST
 AC_DIAGNOSE([obsolete],
             [$0 is obsolete: use AC_CANONICAL_HOST and $host_os])dnl
 case $host_os in

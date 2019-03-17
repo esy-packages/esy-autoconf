@@ -18,7 +18,7 @@
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 ## 02111-1307, USA.
 
-AUTOMAKE_OPTIONS = check-news 1.6 dist-bzip2 readme-alpha
+AUTOMAKE_OPTIONS = check-news 1.6c dist-bzip2 readme-alpha
 
 # bin/ and tests/ must be run first, as they build the tests executables
 # (tests/autom4te etc.), that we happen to use here.
@@ -30,16 +30,16 @@ EXTRA_DIST = ChangeLog.0 ChangeLog.1 ChangeLog.2 \
              BUGS \
              GNUmakefile Makefile.maint
 
-MAINTAINERCLEANFILES = COPYING INSTALL
+MAINTAINERCLEANFILES = INSTALL
 
 ## -------------------- ##
 ## Forwarding targets.  ##
 ## -------------------- ##
 
-html pdf:
+html:
 	cd doc && $(MAKE) $(AM_MAKEFLAGS) $@
 
-.PHONY: html pdf
+.PHONY: html
 
 
 ## --------- ##
@@ -47,12 +47,10 @@ html pdf:
 ## --------- ##
 
 pkgdata_DATA = INSTALL
-MAKEINFO = @MAKEINFO@ --no-headers --no-validate --no-split
+AM_MAKEINFOFLAGS = --no-headers --no-validate --no-split
 INSTALL: $(top_srcdir)/doc/install.texi
-	$(MAKEINFO) $(top_srcdir)/doc/install.texi --output=$(srcdir)/INSTALL
-
-maintainer-clean-local:
-	-rm -rf autom4te.cache
+	$(MAKEINFO) $(AM_MAKEINFOFLAGS) $(MAKEINFOFLAGS) -o $(srcdir)/INSTALL \
+	  $(top_srcdir)/doc/install.texi
 
 ## maintainer-check ##
 maintainer-check: maintainer-check-tests
@@ -69,10 +67,8 @@ prev_version_file = $(srcdir)/config/prev-version.txt
 move_if_change = $(srcdir)/config/move-if-change
 release_archive_dir = releases
 
-# Uploading betas.
-hosts = alpha
-alpha_host = alpha.gnu.org
-alpha_url_dir = gnu/autoconf
+url_dir_list = \
+  ftp://alpha.gnu.org/gnu/autoconf
 
 # Files to update automatically.
 wget_files = $(srcdir)/config/config.guess $(srcdir)/config/config.sub \

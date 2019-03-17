@@ -2,11 +2,11 @@
 # -*- perl -*-
 # @configure_input@
 
-eval 'exec @PERL@ -S $0 ${1+"$@"}'
+eval 'case $# in 0) exec @PERL@ -S "$0";; *) exec @PERL@ -S "$0" "$@";; esac'
     if 0;
 
 # autoreconf - install the GNU Build System in a directory tree
-# Copyright 1994, 1999, 2000, 2001 Free Software Foundation, Inc.
+# Copyright (C) 1994, 1999, 2000, 2001, 2002 Free Software Foundation, Inc.
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -34,7 +34,8 @@ BEGIN
 
 use Autom4te::General;
 use Autom4te::XFile;
-use Cwd 'chdir', 'cwd';
+# Do not use Cwd::chdir, since it might hang.
+use Cwd 'cwd';
 use strict;
 
 ## ----------- ##
@@ -45,10 +46,10 @@ use strict;
 # -----
 $help = "Usage: $0 [OPTION] ... [CONFIGURE-AC or DIRECTORY] ...
 
-Run `autoconf' (and `autoheader', `aclocal', `automake', `gettextize',
-and `libtoolize' where appropriate) repeatedly to remake the GNU Build
-System files in the DIRECTORIES or the directory trees driven by
-CONFIGURE-AC (defaulting to `.').
+Run `autoconf' (and `autoheader', `aclocal', `automake', `autopoint'
+(formerly `gettextize'), and `libtoolize' where appropriate)
+repeatedly to remake the GNU Build System files in the DIRECTORIES or
+the directory trees driven by CONFIGURE-AC (defaulting to `.').
 
 By default, it only remakes those files that are older than their
 predecessors.  If you install new versions of the GNU Build System,
@@ -65,10 +66,11 @@ Operation modes:
   -s, --symlink   instead of copying, install symbolic links
 
 Library directories:
-  -I, --include=DIR  look for FILES in DIR (cumulative)
+  -B, --prepend-include=DIR  prepend directory DIR to search path
+  -I, --include=DIR          append directory DIR to search path
 
 The environment variables AUTOCONF, AUTOHEADER, AUTOMAKE, ACLOCAL,
-GETTEXTIZE, LIBTOOLIZE are honored.
+AUTOPOINT, LIBTOOLIZE are honored.
 
 Report bugs to <bug-autoconf\@gnu.org>.
 ";
@@ -84,16 +86,16 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ";
 
 # Lib files.
-my $autoconf   = $ENV{'AUTOCONF'}   || '@autoconf-name@';
-my $autoheader = $ENV{'AUTOHEADER'} || '@autoheader-name@';
+my $autoconf   = $ENV{'AUTOCONF'}   || '@bindir@/@autoconf-name@';
+my $autoheader = $ENV{'AUTOHEADER'} || '@bindir@/@autoheader-name@';
 my $automake   = $ENV{'AUTOMAKE'}   || 'automake';
 my $aclocal    = $ENV{'ACLOCAL'}    || 'aclocal';
 my $libtoolize = $ENV{'LIBTOOLIZE'} || 'libtoolize';
-my $gettextize = $ENV{'GETTEXTIZE'} || 'gettextize';
-
+my $autopoint  = $ENV{'AUTOPOINT'}  || 'autopoint';
 
 # --install -- as --add-missing in other tools.
 my $install = 0;
+my @prepend_include;
 my @include;
 my $status = 0;
 # symlink -- when --install, use symlinks instead.
@@ -101,6 +103,8 @@ my $symlink = 0;
 
 # The directory where autoreconf was run.
 my $cwd = cwd;
+
+
 
 ## ---------- ##
 ## Routines.  ##
@@ -115,6 +119,7 @@ sub parse_args ()
   my $srcdir;
 
   getopt ('I|include|A|autoconf-dir|m|macrodir|l|localdir=s' => \@include,
+	  'B|prepend-include=s'			     => \@prepend_include,
 	  'i|install'                                        => \$install,
 	  's|symlink'                                        => \$symlink);
 
@@ -135,7 +140,7 @@ sub parse_args ()
       print STDERR "\n";
       xsystem ("$aclocal --version | sed 1q >&2");
       print STDERR "\n";
-      xsystem ("$gettextize --version | sed 1q >&2");
+      xsystem ("$autopoint --version | sed 1q >&2");
       print STDERR "\n";
       xsystem ("$libtoolize --version | sed 1q >&2");
       print STDERR "\n";
@@ -144,14 +149,15 @@ sub parse_args ()
   # Dispatch autoreconf's option to the tools.
   # --include;
   $autoconf   .= join (' --include=', '', @include);
+  $autoconf   .= join (' --prepend-include=', '', @prepend_include);
   $autoheader .= join (' --include=', '', @include);
+  $autoheader .= join (' --prepend-include=', '', @prepend_include);
 
   # --install and --symlink;
   if ($install)
     {
       $automake   .= ' --add-missing';
       $automake   .= ' --copy' unless $symlink;
-      $gettextize .= ' --copy' unless $symlink;
       $libtoolize .= ' --copy' unless $symlink;
     }
   # --force;
@@ -160,7 +166,7 @@ sub parse_args ()
       $autoconf   .= ' --force';
       $autoheader .= ' --force';
       $automake   .= ' --force-missing';
-      $gettextize .= ' --force';
+      $autopoint  .= ' --force';
       $libtoolize .= ' --force';
     }
   else
@@ -188,10 +194,10 @@ sub autoreconf ($)
 
   verbose "working in `$directory'";
   chdir $directory
-    or die "$me: cannot chdir to $directory: $!\n";
+    or error "cannot chdir to $directory: $!";
 
   my $configure_ac = find_configure_ac;
-  die "$me: cannot find `configure.ac' in `$directory'\n"
+  error "cannot find `configure.ac' in `$directory'"
     unless $configure_ac;
 
   # ---------------------- #
@@ -260,12 +266,25 @@ sub autoreconf ($)
     }
   else
     {
+      # Some filesystems have sub-second time stamps, and if so we may
+      # run into trouble later, after we rerun autoconf and set the
+      # time stamps of input files to be no greater than aclocal.m4,
+      # because the time-stamp-setting operation (utime) has a
+      # resolution of only 1 second.  Work around the problem by
+      # ensuring that there is at least a one-second window before the
+      # time stamp of aclocal.m4t in which no file time stamps can
+      # fall.
+      sleep 1;
+
       xsystem ("$aclocal $aclocal_flags --output=aclocal.m4t");
       # aclocal may produce no output.
       update_file ('aclocal.m4t', 'aclocal.m4')
 	if -f 'aclocal.m4t';
     }
 
+  # We might have to rerun aclocal if Libtool or Gettext import new
+  # macros.
+  my $rerun_aclocal = 0;
 
 
   # ------------------------------- #
@@ -301,7 +320,7 @@ sub autoreconf ($)
       if (-d)
 	{
 	  verbose "$configure_ac: subdirectory $_ to autoreconf";
-	  push @ARGV, $_;
+	  push @ARGV, catfile ($directory, $_);
 	}
       else
 	{
@@ -311,25 +330,22 @@ sub autoreconf ($)
 
 
 
-  # -------------------- #
-  # Running gettexitze.  #
-  # -------------------- #
+  # ------------------- #
+  # Running autopoint.  #
+  # ------------------- #
 
   if (!$uses_gettext)
     {
       verbose "$configure_ac: not using Gettext";
     }
-  elsif (-d 'intl' && !$force)
+  elsif (!$install)
     {
-      verbose "$configure_ac: not running gettextize: `intl' is already present";
-    }
-  elsif ($install)
-    {
-      xsystem ($gettextize);
+      verbose "$configure_ac: not running autopoint: --install not given";
     }
   else
     {
-      verbose "$configure_ac: not running gettextize: --install not given";
+      xsystem "$autopoint";
+      $rerun_aclocal = 1;
     }
 
 
@@ -344,10 +360,106 @@ sub autoreconf ($)
   elsif ($install)
     {
       xsystem ($libtoolize);
+      $rerun_aclocal = 1;
     }
   else
     {
       verbose "$configure_ac: not running libtoolize: --install not given";
+    }
+
+
+  # ------------------- #
+  # Rerunning aclocal.  #
+  # ------------------- #
+
+  # If we re-installed Libtool or Gettext, the macros might have changed.
+  # Automake also needs an up-to-date aclocal.m4.
+  if ($rerun_aclocal)
+    {
+      if (!$uses_aclocal)
+	{
+	  verbose "$configure_ac: not using aclocal";
+	}
+      else
+	{
+	  xsystem ("$aclocal $aclocal_flags --output=aclocal.m4t");
+	  # aclocal may produce no output.
+	  if (-f 'aclocal.m4t')
+	    {
+	      update_file ('aclocal.m4t', 'aclocal.m4');
+	      # Make sure that the local m4 files are older than
+	      # aclocal.m4.
+	      #
+	      # Why is not always the case?  Because we already run
+	      # aclocal at first (before tracing), which, for instance,
+	      # can find Gettext's macros in .../share/aclocal, so we
+	      # may have had the right aclocal.m4 already.  Then
+	      # autopoint is run, and installs locally these M4
+	      # files.  Then autoreconf, via update_file, sees it is
+	      # the _same_ aclocal.m4, and doesn't change its
+	      # timestamp.  But later, Automake's Makefile expresses
+	      # that aclocal.m4 depends on these local files, which
+	      # are newer, so it triggers aclocal again.
+	      #
+	      # To make sure aclocal.m4 is no older, we change the
+	      # modification times of the local M4 files to be
+	      # not newer than it.
+	      #
+	      # First, where are the local files?
+	      my $aclocal_local_dir = '.';
+	      if ($aclocal_flags =~ /-I\s+(\S+)/)
+		{
+		  $aclocal_local_dir = $1;
+		}
+	      # All the local files newer than aclocal.m4 are to be
+	      # made not newer than it.
+	      my $aclocal_m4_mtime = mtime ('aclocal.m4');
+	      for my $file (glob ("$aclocal_local_dir/*.m4"), 'acinclude.m4')
+		{
+		  if ($aclocal_m4_mtime < mtime ($file))
+		    {
+		      debug "aging $file to be not newer than aclocal.m4";
+		      utime $aclocal_m4_mtime, $aclocal_m4_mtime, $file;
+		    }
+		}
+	    }
+	}
+    }
+
+
+  # ------------------ #
+  # Running autoconf.  #
+  # ------------------ #
+
+  # Don't try to be smarter than `autoconf', which does its own up to
+  # date checks.
+  #
+  # We prefer running autoconf before autoheader, because (i) the
+  # latter runs the former, and (ii) autoconf is stricter than
+  # autoheader.  So all in all, autoconf should give better error
+  # messages.
+  xsystem ($autoconf);
+
+
+  # -------------------- #
+  # Running autoheader.  #
+  # -------------------- #
+
+  # We now consider that if AC_CONFIG_HEADERS is used, then autoheader
+  # is used too.
+  #
+  # Just as for autoconf, up to date ness is performed by the tool
+  # itself.
+  #
+  # Run it before automake, since the latter checks the presence of
+  # config.h.in when it sees an AC_CONFIG_HEADERS.
+  if (!$uses_autoheader)
+    {
+      verbose "$configure_ac: not using Autoheader";
+    }
+  else
+    {
+      xsystem ($autoheader);
     }
 
 
@@ -368,34 +480,8 @@ sub autoreconf ($)
       xsystem ($automake);
     }
 
-
-  # ------------------ #
-  # Running autoconf.  #
-  # ------------------ #
-
-  # Don't try to be smarter than `autoconf', which does its own
-  # up to date checkings.
-  xsystem ($autoconf);
-
-
-  # -------------------- #
-  # Running autoheader.  #
-  # -------------------- #
-
-  # We now consider that if AC_CONFIG_HEADERS is used, then autoheader
-  # is used too.
-  # Just as for autoconf, up to date ness is performed by the tool itself.
-  if (!$uses_autoheader)
-    {
-      verbose "$configure_ac: not using Autoheader";
-    }
-  else
-    {
-      xsystem ($autoheader);
-    }
-
   chdir $cwd
-    or die "$me: cannot chdir to $cwd: $!\n";
+    or error "cannot chdir to $cwd: $!";
 }
 
 
@@ -413,3 +499,20 @@ parse_args;
 # since the list can change at runtime because of AC_CONFIG_SUBDIRS.
 autoreconf (shift @ARGV)
   while (@ARGV);
+
+### Setup "GNU" style for perl-mode and cperl-mode.
+## Local Variables:
+## perl-indent-level: 2
+## perl-continued-statement-offset: 2
+## perl-continued-brace-offset: 0
+## perl-brace-offset: 0
+## perl-brace-imaginary-offset: 0
+## perl-label-offset: -2
+## cperl-indent-level: 2
+## cperl-brace-offset: 0
+## cperl-continued-brace-offset: 0
+## cperl-label-offset: -2
+## cperl-extra-newline-before-brace: t
+## cperl-merge-trailing-else: nil
+## cperl-continued-statement-offset: 2
+## End:

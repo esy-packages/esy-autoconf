@@ -1,6 +1,6 @@
 # This file is part of Autoconf.                          -*- Autoconf -*-
 # M4 macros used in building test suites.
-# Copyright 2000, 2001 Free Software Foundation, Inc.
+# Copyright (C) 2000, 2001, 2002 Free Software Foundation, Inc.
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -76,7 +76,7 @@ m4_define([_m4_divert(TAIL)],         60)
 #  m4_bpatsubst(__file__, [^.*/\(.*\)], [[\1]])
 #
 # since then, since `dnl' doesn't match the pattern, it is returned
-# with once quotation level less, so you lose, dammit!  And since GNU M4
+# with once quotation level less, so you lose!  And since GNU M4
 # is one of the biggest junk in the whole universe wrt regexp, don't
 # even think about using `?' or `\?'.  Bah, `*' will do.
 # Pleeeeeeeease, Gary, provide us with dirname and ERE!
@@ -94,13 +94,14 @@ m4_define([AT_TESTSUITE_NAME],
 m4_define([AT_ordinal], 0)
 m4_define([AT_banner_ordinal], 0)
 AS_INIT
+AS_PREPARE
 m4_divert_push([DEFAULT])dnl
 
-AS_SHELL_SANITIZE
+AS_PREPARE
 SHELL=${CONFIG_SHELL-/bin/sh}
 
 # How were we run?
-at_cli_args=${1+"$[@]"}
+at_cli_args="$[@]"
 
 # Load the config file.
 for at_file in atconfig atlocal
@@ -122,8 +123,8 @@ fi
 
 # Not all shells have the 'times' builtin; the subshell is needed to make
 # sure we discard the 'times: not found' message from the shell.
-at_times=:
-(times) >/dev/null 2>&1 && at_times=times
+at_times_skip=:
+(times) >/dev/null 2>&1 && at_times_skip=false
 
 # CLI Arguments to pass to the debugging scripts.
 at_debug_args=
@@ -167,7 +168,8 @@ at_groups_all='AT_groups_all'
 # numerical order.
 at_format='m4_bpatsubst(m4_defn([AT_ordinal]), [.], [.])'
 # Description of all the test groups.
-at_help_all='AT_help'])])dnl
+at_help_all=
+AT_help])])dnl
 m4_divert([OPTIONS])
 
 while test $[@%:@] -gt 0; do
@@ -249,7 +251,7 @@ while test $[@%:@] -gt 0; do
         do
           # It is on purpose that we match the test group titles too.
           at_groups_selected=`echo "$at_groups_selected" |
-                             egrep -i "^[[^;]]*;[[^;]]*;.*$at_keyword"`
+			      grep -i "^[[^;]]*;[[^;]]*;.*$at_keyword"`
         done
         at_groups_selected=`echo "$at_groups_selected" | sed 's/;.*//'`
 	# Smash the end of lines.
@@ -333,10 +335,9 @@ AT_TESTSUITE_NAME test groups:
 _ATEOF
   # "  1 42  45 " => "^(1|42|45);".
   at_groups_pattern=`echo "$at_groups" | sed 's/^  *//;s/  *$//;s/  */|/g'`
-  at_groups_pattern="^(${at_groups_pattern});"
   echo "$at_help_all" |
-    egrep -e "$at_groups_pattern" |
     awk 'BEGIN { FS = ";" }
+         { if ($[1] !~ /^('"$at_groups_pattern"')$/) next }
          { if ($[1]) printf " %3d: %-18s %s\n", $[1], $[2], $[3]
            if ($[4]) printf "      %s\n", $[4] } '
   exit 0
@@ -567,6 +568,7 @@ _ATEOF
             # Create the debugging script.
             {
               echo "#! /bin/sh"
+              echo 'test "${ZSH_VERSION+set}" = set && alias -g '\''${1+"$[@]"}'\''='\''"$[@]"'\'''
               echo "cd $at_dir"
               echo 'exec ${CONFIG_SHELL-'"$SHELL"'}' "$[0]" \
                    '-v -d' "$at_debug_args" "$at_group" '${1+"$[@]"}'
@@ -732,9 +734,10 @@ m4_define([AT_KEYWORDS],
 # Complete a group of related tests.
 m4_define([AT_CLEANUP],
 [m4_append([AT_help],
-m4_defn([AT_ordinal]);m4_defn([AT_line]);m4_defn([AT_description]);m4_ifdef([AT_keywords], [m4_defn([AT_keywords])])
+at_help_all=$at_help_all'm4_defn([AT_ordinal]);m4_defn([AT_line]);m4_defn([AT_description]);m4_ifdef([AT_keywords], [m4_defn([AT_keywords])])
+'
 )dnl
-    $at_times >$at_times_file
+    $at_times_skip || times >$at_times_file
     )
     at_status=$?
     ;;
@@ -845,8 +848,8 @@ $at_verbose "AT_LINE: AS_ESCAPE([$1])"
 echo AT_LINE >$at_check_line_file
 ( $at_traceon; $1 ) >$at_stdout 2>$at_stder1
 at_status=$?
-egrep '^ *\+' $at_stder1 >&2
-egrep -v '^ *\+' $at_stder1 >$at_stderr
+grep '^ *+' $at_stder1 >&2
+grep -v '^ *+' $at_stder1 >$at_stderr
 at_failed=false
 dnl Check stderr.
 m4_case([$4],

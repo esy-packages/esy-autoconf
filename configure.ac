@@ -1,7 +1,7 @@
 #                                                       -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-# Copyright 1992, 1993, 1994, 1995, 1999, 2000, 2001, 2002
+# Copyright (C) 1992, 1993, 1994, 1995, 1999, 2000, 2001, 2002
 # Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -22,7 +22,7 @@
 # We need AC_CONFIG_TESTDIR.
 AC_PREREQ([2.53])
 
-AC_INIT([GNU Autoconf], [2.53], [bug-autoconf@gnu.org])
+AC_INIT([GNU Autoconf], [2.54], [bug-autoconf@gnu.org])
 AC_SUBST([PACKAGE_NAME])dnl
 AC_CONFIG_SRCDIR([ChangeLog])
 
@@ -34,19 +34,19 @@ AM_INIT_AUTOMAKE
 # Initialize the test suite and build position independent wrappers.
 AC_CONFIG_TESTDIR([tests])
 AC_CONFIG_FILES([tests/Makefile tests/atlocal])
-AC_CONFIG_FILES([tests/autoconf:tests/wrapsh.in],
+AC_CONFIG_FILES([tests/autoconf:tests/wrapper.in],
                 [chmod +x tests/autoconf])
-AC_CONFIG_FILES([tests/autoheader:tests/wrappl.in],
+AC_CONFIG_FILES([tests/autoheader:tests/wrapper.in],
                 [chmod +x tests/autoheader])
-AC_CONFIG_FILES([tests/autom4te:tests/wrappl.in],
+AC_CONFIG_FILES([tests/autom4te:tests/wrapper.in],
                 [chmod +x tests/autom4te])
-AC_CONFIG_FILES([tests/autoreconf:tests/wrappl.in],
+AC_CONFIG_FILES([tests/autoreconf:tests/wrapper.in],
                 [chmod +x tests/autoreconf])
-AC_CONFIG_FILES([tests/autoscan:tests/wrappl.in],
+AC_CONFIG_FILES([tests/autoscan:tests/wrapper.in],
                 [chmod +x tests/autoscan])
-AC_CONFIG_FILES([tests/autoupdate:tests/wrappl.in],
+AC_CONFIG_FILES([tests/autoupdate:tests/wrapper.in],
                 [chmod +x tests/autoupdate])
-AC_CONFIG_FILES([tests/ifnames:tests/wrappl.in],
+AC_CONFIG_FILES([tests/ifnames:tests/wrapper.in],
                 [chmod +x tests/ifnames])
 AC_PATH_PROG(EXPR, expr)
 
@@ -76,6 +76,8 @@ $PERL -e 'require 5.005_03;' || {
 
 # Emacs modes.
 AC_CONFIG_FILES([lib/emacs/Makefile])
+test x"$EMACS" = xt && EMACS=
+AC_CHECK_PROGS(EMACS, emacs xemacs, no)
 AM_PATH_LISPDIR
 
 AC_CONFIG_FILES([Makefile doc/Makefile

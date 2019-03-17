@@ -296,7 +296,7 @@ m4_ifndef([AC_PACKAGE_TARNAME],
                      m4_default([$4],
                                 [m4_bpatsubst(m4_tolower(m4_bpatsubst([[[$1]]],
                                                                      [GNU ])),
-                                 [[^abcdefghijklmnopqrstuvwxyz0123456789]],
+                                 [[^_abcdefghijklmnopqrstuvwxyz0123456789]],
                                  [-])]))])
 m4_ifndef([AC_PACKAGE_VERSION],
           [m4_define([AC_PACKAGE_VERSION],   [$2])])
@@ -432,8 +432,6 @@ AU_ALIAS([AC_FD_MSG], [AS_MESSAGE_FD])
 m4_define([_AC_INIT_DEFAULTS],
 [m4_divert_push([DEFAULTS])dnl
 
-AS_SHELL_SANITIZE
-
 # Name of the host.
 # hostname on some systems (SVR3.2, Linux) returns a bogus exit status,
 # so uname gets run too.
@@ -445,6 +443,7 @@ exec AS_MESSAGE_FD>&1
 # Initializations.
 #
 ac_default_prefix=/usr/local
+ac_config_libobj_dir=.
 cross_compiling=no
 subdirs=
 MFLAGS=
@@ -470,6 +469,9 @@ AC_SUBST([PACKAGE_BUGREPORT],
          [m4_ifdef([AC_PACKAGE_BUGREPORT], ['AC_PACKAGE_BUGREPORT'])])dnl
 
 m4_divert_pop([DEFAULTS])dnl
+m4_wrap([m4_divert_text([DEFAULTS],
+[ac_subst_vars='m4_ifdef([_AC_SUBST_VARS],  [m4_defn([_AC_SUBST_VARS])])'
+ac_subst_files='m4_ifdef([_AC_SUBST_FILES], [m4_defn([_AC_SUBST_FILES])])'])])dnl
 ])# _AC_INIT_DEFAULTS
 
 
@@ -535,6 +537,8 @@ if test ! -r $srcdir/$ac_unique_file; then
     AC_MSG_ERROR([cannot find sources ($ac_unique_file) in $srcdir])
   fi
 fi
+(cd $srcdir && test -r ./$ac_unique_file) 2>/dev/null ||
+  AC_MSG_ERROR([sources are in $srcdir, but `cd $srcdir' does not work])
 dnl Double slashes in pathnames in object file debugging info
 dnl mess up M-x gdb in Emacs.
 srcdir=`echo "$srcdir" | sed 's%\([[^\\/]]\)[[\\/]]*$%\1%'`
@@ -1001,7 +1005,7 @@ _ACEOF
 m4_divert_pop([HELP_BEGIN])dnl
 dnl The order of the diversions here is
 dnl - HELP_BEGIN
-dnl   which may be prolongated by extra generic options such as with X or
+dnl   which may be extended by extra generic options such as with X or
 dnl   AC_ARG_PROGRAM.  Displayed only in long --help.
 dnl
 dnl - HELP_CANON
@@ -1146,12 +1150,18 @@ dnl it's sensitive.  Putting any kind of quote in it causes syntax errors.
 [  *" "*|*"	"*|*[\[\]\~\#\$\^\&\*\(\)\{\}\\\|\;\<\>\?\"\']*)]
     ac_arg=`echo "$ac_arg" | sed "s/'/'\\\\\\\\''/g"` ;;
   esac
-  case " $ac_configure_args " in
-    *" '$ac_arg' "*) ;; # Avoid dups.  Use of quotes ensures accuracy.
-    *) ac_configure_args="$ac_configure_args$ac_sep'$ac_arg'"
-       ac_sep=" " ;;
-  esac
+dnl If trying to remove duplicates, be sure to (i) keep the *last*
+dnl value (e.g. --prefix=1 --prefix=2 --prefix=1 might keep 2 only),
+dnl and (ii) not to strip long options (--prefix foo --prefix bar might
+dnl give --prefix foo bar).
+dnl   case " $ac_configure_args " in
+dnl     *" '$ac_arg' "*) ;; # Avoid dups.  Use of quotes ensures accuracy.
+dnl     *) ac_configure_args="$ac_configure_args$ac_sep'$ac_arg'"
+dnl        ac_sep=" " ;;
+dnl   esac
+  ac_configure_args="$ac_configure_args$ac_sep'$ac_arg'"
   # Get rid of the leading space.
+  ac_sep=" "
 done
 
 # When interrupted or exit'd, cleanup temporary files, and complete
@@ -1163,6 +1173,7 @@ trap 'exit_status=$?
   # Save into config.log some information that might help in debugging.
   {
     echo
+
     AS_BOX([Cache variables.])
     echo
     m4_bpatsubsts(m4_defn([_AC_CACHE_DUMP]),
@@ -1170,10 +1181,31 @@ trap 'exit_status=$?
 ],                [],
                   ['], ['"'"'])
     echo
+
+    AS_BOX([Output variables.])
+    echo
+    for ac_var in $ac_subst_vars
+    do
+      eval ac_val=$`echo $ac_var`
+      echo "$ac_var='"'"'$ac_val'"'"'"
+    done | sort
+    echo
+
+    if test -n "$ac_subst_files"; then
+      AS_BOX([Output files.])
+      echo
+      for ac_var in $ac_subst_files
+      do
+	eval ac_val=$`echo $ac_var`
+        echo "$ac_var='"'"'$ac_val'"'"'"
+      done | sort
+      echo
+    fi
+
     if test -s confdefs.h; then
       AS_BOX([confdefs.h.])
       echo
-      sed "/^$/d" confdefs.h
+      sed "/^$/d" confdefs.h | sort
       echo
     fi
     test "$ac_signal" != 0 &&
@@ -1248,10 +1280,11 @@ m4_define([AC_INIT],
 m4_pattern_forbid([^_?A[CHUM]_])
 m4_pattern_forbid([_AC_])
 m4_pattern_forbid([^LIBOBJS$],
-                  [do not use LIBOBJS directly, use AC_LIBOBJ (see section `AC_LIBOBJ vs. LIBOBJS'])
+                  [do not use LIBOBJS directly, use AC_LIBOBJ (see section `AC_LIBOBJ vs LIBOBJS'])
 # Actually reserved by M4sh.
 m4_pattern_allow([^AS_FLAGS$])
 AS_INIT
+AS_PREPARE
 m4_ifval([$2], [_AC_INIT_PACKAGE($@)])
 _AC_INIT_DEFAULTS
 _AC_INIT_PARSE_ARGS
@@ -1355,15 +1388,15 @@ ac_cv_env_$1_value=$$1])dnl
 # _AC_ARG_VAR_VALIDATE
 # --------------------
 # The precious variables are saved twice at the beginning of
-# configure.  E.g., PRECIOUS, is saved as `ac_env_PRECIOUS_SET' and
+# configure.  E.g., PRECIOUS is saved as `ac_env_PRECIOUS_SET' and
 # `ac_env_PRECIOUS_VALUE' on the one hand and `ac_cv_env_PRECIOUS_SET'
 # and `ac_cv_env_PRECIOUS_VALUE' on the other hand.
 #
-# Now the cache has just been load, so `ac_cv_env_' represents the
+# Now the cache has just been loaded, so `ac_cv_env_' represents the
 # content of the cached values, while `ac_env_' represents that of the
 # current values.
 #
-# So we check that `ac_env_' and `ac_cv_env_' are consistant.  If
+# So we check that `ac_env_' and `ac_cv_env_' are consistent.  If
 # they aren't, die.
 m4_define([_AC_ARG_VAR_VALIDATE],
 [# Check that the precious variables saved in the cache have kept the same
@@ -1724,7 +1757,7 @@ m4_define([AC_CACHE_SAVE],
 # config.status only pays attention to the cache file if you give it
 # the --recheck option to rerun configure.
 #
-# `ac_cv_env_foo' variables (set or unset) will be overriden when
+# `ac_cv_env_foo' variables (set or unset) will be overridden when
 # loading this file, other *unset* `ac_cv_foo' will be assigned the
 # following values.
 
@@ -1754,9 +1787,9 @@ rm -f confcache[]dnl
 # ------------------------------------------
 # The name of shell var CACHE-ID must contain `_cv_' in order to get saved.
 # Should be dnl'ed.  Try to catch common mistakes.
-m4_define([AC_CACHE_VAL],
+m4_defun([AC_CACHE_VAL],
 [m4_bmatch([$2], [AC_DEFINE],
-          [AC_DIAGNOSE(syntax,
+           [AC_DIAGNOSE(syntax,
 [$0($1, ...): suspicious presence of an AC_DEFINE in the second argument, ]dnl
 [where no actions should be taken])])dnl
 AS_VAR_SET_IF([$1],
@@ -1767,7 +1800,7 @@ AS_VAR_SET_IF([$1],
 # AC_CACHE_CHECK(MESSAGE, CACHE-ID, COMMANDS)
 # -------------------------------------------
 # Do not call this macro with a dnl right behind.
-m4_define([AC_CACHE_CHECK],
+m4_defun([AC_CACHE_CHECK],
 [AC_MSG_CHECKING([$1])
 AC_CACHE_VAL([$2], [$3])dnl
 AC_MSG_RESULT_UNQUOTED([AS_VAR_GET([$2])])])
@@ -1826,20 +1859,6 @@ _ACEOF
 ## -------------------------- ##
 
 
-# _AC_SUBST(VARIABLE, PROGRAM)
-# ----------------------------
-# If VARIABLE has not already been AC_SUBST'ed, append the sed PROGRAM
-# to `_AC_SUBST_SED_PROGRAM'.
-m4_define([_AC_SUBST],
-[m4_expand_once([m4_append([_AC_SUBST_SED_PROGRAM],
-[$2
-])])dnl
-])
-
-# Initialize.
-m4_define([_AC_SUBST_SED_PROGRAM])
-
-
 # AC_SUBST(VARIABLE, [VALUE])
 # ---------------------------
 # Create an output variable from a shell VARIABLE.  If VALUE is given
@@ -1850,7 +1869,7 @@ m4_define([_AC_SUBST_SED_PROGRAM])
 # sed script at the top of _AC_OUTPUT_FILES.
 m4_define([AC_SUBST],
 [m4_ifvaln([$2], [$1=$2])[]dnl
-_AC_SUBST([$1], [s,@$1@,[$]$1,;t t])dnl
+m4_append_uniq([_AC_SUBST_VARS], [$1], [ ])dnl
 ])# AC_SUBST
 
 
@@ -1858,8 +1877,7 @@ _AC_SUBST([$1], [s,@$1@,[$]$1,;t t])dnl
 # -----------------------
 # Read the comments of the preceding macro.
 m4_define([AC_SUBST_FILE],
-[_AC_SUBST([$1], [/@$1@/r [$]$1
-s,@$1@,,;t t])])
+[m4_append_uniq([_AC_SUBST_FILES], [$1], [ ])])
 
 
 
@@ -1968,7 +1986,7 @@ AC_DEFUN([_AC_RUN_LOG_STDERR],
 [{ ($2) >&AS_MESSAGE_LOG_FD
   ($1) 2>conftest.er1
   ac_status=$?
-  egrep -v '^ *\+' conftest.er1 >conftest.err
+  grep -v '^ *+' conftest.er1 >conftest.err
   rm -f conftest.er1
   cat conftest.err >&AS_MESSAGE_LOG_FD
   echo "$as_me:$LINENO: \$? = $ac_status" >&AS_MESSAGE_LOG_FD
@@ -2081,12 +2099,13 @@ AC_DEFUN([AC_TRY_CPP],
 # come early, it is not included in AC_BEFORE checks.
 AC_DEFUN([AC_EGREP_CPP],
 [AC_LANG_PREPROC_REQUIRE()dnl
+AC_REQUIRE([AC_PROG_EGREP])dnl
 AC_LANG_CONFTEST([AC_LANG_SOURCE([[$2]])])
 dnl eval is necessary to expand ac_cpp.
 dnl Ultrix and Pyramid sh refuse to redirect output of eval, so use subshell.
 if (eval "$ac_cpp conftest.$ac_ext") 2>&AS_MESSAGE_LOG_FD |
 dnl Quote $1 to prevent m4 from eating character classes
-  egrep "[$1]" >/dev/null 2>&1; then
+  $EGREP "[$1]" >/dev/null 2>&1; then
   m4_default([$3], :)
 m4_ifvaln([$4], [else
   $4])dnl
@@ -2213,7 +2232,8 @@ AC_LINK_IFELSE([AC_LANG_PROGRAM([[$2]], [[$3]])], [$4], [$5])
 # Compile, link, and run.
 # This macro can be used during the selection of a compiler.
 # We also remove conftest.o as if the compilation fails, some compilers
-# don't remove it.
+# don't remove it.  We remove gmon.out and bb.out, which may be
+# created during the run if the program is built with profiling support.
 m4_define([_AC_RUN_IFELSE],
 [m4_ifvaln([$1], [AC_LANG_CONFTEST([$1])])dnl
 rm -f conftest$ac_exeext
@@ -2225,7 +2245,7 @@ cat conftest.$ac_ext >&AS_MESSAGE_LOG_FD
 m4_ifvaln([$3],
           [( exit $ac_status )
 $3])dnl])[]dnl
-rm -f core core.* *.core conftest$ac_exeext conftest.$ac_objext m4_ifval([$1],
+rm -f core core.* *.core gmon.out bb.out conftest$ac_exeext conftest.$ac_objext m4_ifval([$1],
                                                      [conftest.$ac_ext])[]dnl
 ])# _AC_RUN_IFELSE
 
@@ -2341,9 +2361,20 @@ $3],
 ])# AC_CHECK_DECLS
 
 
-## -------------------------------- ##
-## Checking for library functions.  ##
-## -------------------------------- ##
+
+## ---------------------------------- ##
+## Replacement of library functions.  ##
+## ---------------------------------- ##
+
+
+# AC_CONFIG_LIBOBJ_DIR(DIRNAME)
+# -----------------------------
+# Announce LIBOBJ replacement files are in $top_srcdir/DIRNAME.
+AC_DEFUN_ONCE([AC_CONFIG_LIBOBJ_DIR],
+[m4_bmatch([$1], [^]m4_defn([m4_cr_symbols2]),
+           [AC_WARNING([invalid replacement directory: $1])])dnl
+m4_divert_text([DEFAULTS], [ac_config_libobj_dir=$1])[]dnl
+])
 
 
 # AC_LIBSOURCE(FILENAME)
@@ -2363,7 +2394,7 @@ m4_define([AC_LIBSOURCES],
 # _AC_LIBOBJ(FILENAME-NOEXT, ACTION-IF-INDIR)
 # -------------------------------------------
 # We need `FILENAME-NOEXT.o', save this into `LIBOBJS'.
-# We don't use AC_SUBST/2 because it forces an unneeded eol.
+# We don't use AC_SUBST/2 because it forces an unnecessary eol.
 m4_define([_AC_LIBOBJ],
 [AS_LITERAL_IF([$1],
                [AC_LIBSOURCE([$1.c])],
@@ -2372,16 +2403,37 @@ AC_SUBST([LIB@&t@OBJS])dnl
 LIB@&t@OBJS="$LIB@&t@OBJS $1.$ac_objext"])
 
 
+
 # AC_LIBOBJ(FILENAME-NOEXT)
 # -------------------------
 # We need `FILENAME-NOEXT.o', save this into `LIBOBJS'.
-# We don't use AC_SUBST/2 because it forces an unneeded eol.
+# We don't use AC_SUBST/2 because it forces an unnecessary eol.
 m4_define([AC_LIBOBJ],
 [_AC_LIBOBJ([$1],
             [AC_DIAGNOSE(syntax,
                          [$0($1): you should use literals])])dnl
 ])
 
+
+# _AC_LIBOBJS_NORMALIZE
+# ---------------------
+# Clean up LIBOBJS abd LTLIBOBJS so that they work with 1. ac_objext,
+# 2. Automake's ANSI2KNR, 3. Libtool, 4. combination of the three.
+# Used with AC_CONFIG_COMMANDS_PRE.
+AC_DEFUN([_AC_LIBOBJS_NORMALIZE],
+[ac_libobjs=
+ac_ltlibobjs=
+for ac_i in : $LIB@&t@OBJS; do test "x$ac_i" = x: && continue
+  # 1. Remove the extension, and $U if already installed.
+  ac_i=`echo "$ac_i" |
+         sed 's/\$U\././;s/\.o$//;s/\.obj$//'`
+  # 2. Add them.
+  ac_libobjs="$ac_libobjs $ac_i\$U.$ac_objext"
+  ac_ltlibobjs="$ac_ltlibobjs $ac_i"'$U.lo'
+done
+AC_SUBST([LIB@&t@OBJS], [$ac_libobjs])
+AC_SUBST([LTLIBOBJS], [$ac_ltlibobjs])
+])
 
 
 ## ----------------------------------- ##

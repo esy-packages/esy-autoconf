@@ -2,11 +2,11 @@
 # -*- perl -*-
 # @configure_input@
 
-eval 'exec @PERL@ -S $0 ${1+"$@"}'
+eval 'case $# in 0) exec @PERL@ -S "$0";; *) exec @PERL@ -S "$0" "$@";; esac'
     if 0;
 
 # autom4te - Wrapper around M4 libraries.
-# Copyright 2001, 2002 Free Software Foundation, Inc.
+# Copyright (C) 2001, 2002 Free Software Foundation, Inc.
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -135,7 +135,7 @@ sub request ($%)
     }
 
   # It would be great to have $REQ check that it up to date wrt its
-  # dependencies, but that requires gettting traces (to fetch the
+  # dependencies, but that requires getting traces (to fetch the
   # included files), which is out of the scope of Request
   # (currently?).
 
@@ -214,7 +214,7 @@ sub load
   (my $return) = do "$file";
 
   croak "$me: cannot parse $file: $@\n" if $@;
-  croak "$me: cannot do $file: $!\n"    if $!;
+  croak "$me: cannot do $file: $!\n"    unless defined $return;
   croak "$me: cannot run $file\n"       unless $return;
 }
 
@@ -247,7 +247,7 @@ my $melt = 0;
 
 # Names of the cache directory, cache directory index, trace cache
 # prefix, and output cache prefix.
-my $cache = "$me.cache";
+my $cache = "autom4te.cache";
 my $icache = "$cache/requests";
 my $tcache = "$cache/traces.";
 my $ocache = "$cache/output.";
@@ -278,8 +278,8 @@ my $freeze = 0;
 # $M4.
 my $m4 = $ENV{"M4"} || '@M4@';
 # Some non-GNU m4's don't reject the --help option, so give them /dev/null.
-die "$me: need GNU m4 1.4 or later: $m4\n"
-  if system "$m4 --help </dev/null 2>&1 | fgrep reload-state >/dev/null";
+error "need GNU m4 1.4 or later: $m4"
+  if system "$m4 --help </dev/null 2>&1 | grep reload-state >/dev/null";
 
 # Set some high recursion limit as the default limit, 250, has already
 # been hit with AC_OUTPUT.  Don't override the user's choice.
@@ -389,7 +389,8 @@ Warning categories include:
 The environment variable \`WARNINGS\' is honored.
 
 Library directories:
-  -I, --include=DIR  look for FILES in DIR (cumulative)
+  -B, --prepend-include=DIR  prepend directory DIR to search path
+  -I, --include=DIR          append directory DIR to search path
 
 Tracing:
   -t, --trace=MACRO      report the MACRO invocations
@@ -442,7 +443,7 @@ sub load_configuration ()
 	}
       elsif ($type eq 'end-language:')
 	{
-	  die "$me: $autom4te_cfg:$.: end-language mismatch: $lang\n"
+	  error "$autom4te_cfg:$.: end-language mismatch: $lang"
 	    if $lang ne lc $words[0];
 	}
       elsif ($type eq 'args:')
@@ -451,7 +452,7 @@ sub load_configuration ()
 	}
       else
 	{
-	  die "$me: $autom4te_cfg:$.: unknown directive: $type\n";
+	  error "$autom4te_cfg:$.: unknown directive: $type";
 	}
     }
 }
@@ -476,7 +477,7 @@ sub parse_args ()
 
     foreach (@language)
       {
-	die "$me: unknown language: $_\n"
+	error "unknown language: $_"
 	  unless exists $language{lc $_};
 	unshift @ARGV, @{$language{lc $_}};
       }
@@ -484,6 +485,7 @@ sub parse_args ()
 
   # Process the arguments for real this time.
   my @trace;
+  my @prepend_include;
   getopt
     (
      # Operation modes:
@@ -493,6 +495,7 @@ sub parse_args ()
      "M|melt"       => \$melt,
 
      # Library directories:
+     "B|prepend-include=s" => \@prepend_include,
      "I|include=s" => \@include,
 
      # Tracing:
@@ -507,8 +510,8 @@ sub parse_args ()
      "F|freeze"  => \$freeze,
     );
 
-  die "$me: too few arguments
-Try `$me --help' for more information.\n"
+  error "too few arguments
+Try `$me --help' for more information."
     unless @ARGV;
 
   # Freezing:
@@ -516,7 +519,7 @@ Try `$me --help' for more information.\n"
   # And it implies melting: there is risk not to update properly using
   # old frozen files, and worse yet: we could load a frozen file and
   # refreeze it!  A sort of caching :)
-  die "$me: cannot freeze and trace\n"
+  error "cannot freeze and trace"
     if $freeze && @trace;
   $melt = 1
     if $freeze;
@@ -525,7 +528,7 @@ Try `$me --help' for more information.\n"
   # a pain since it introduces a useless difference in the path which
   # invalidates the cache.  And strip `.' which is implicit and always
   # first.
-  @include = grep { !/^\.$/ } uniq (@include);
+  @include = grep { !/^\.$/ } uniq (reverse(@prepend_include), @include);
 
   # Convert @trace to %trace, and work around the M4 builtins tracing
   # problem.
@@ -599,34 +602,24 @@ sub handle_m4 ($@)
   #
   # Neutralize its stdin, so that GNU M4 1.5 doesn't neutralize SIGINT.
   #
-  # Be extremely cautious to reverse the includes when talking to M4:
-  # it doesn't speak the same --include as we do.
-  #
   # We don't output directly to the cache files, to avoid problems
   # when we are interrupted (that leaves corrupted files).
-  my $command = ("$m4"
-		 . join (' --include=', '', reverse @include)
-		 . " --define=m4_warnings=$m4_warnings"
-		 . ' --debug=aflq'
-		 . " --error-output=$tcache" . $req->id . "t"
-		 . join (' --trace=',   '', sort @macro)
-		 . " @ARGV"
-		 . ' </dev/null'
-		 . " >$ocache" . $req->id . "t");
-  verbose "running: $command";
-  system $command;
-  if ($?)
-    {
-      verbose "$m4: failed with exit status: " . ($? >> 8) . "\n";
-      exit $? >> 8;
-    }
+  xsystem ("$m4"
+	   . join (' --include=', '', @include)
+	   . " --define=m4_warnings=$m4_warnings"
+	   . ' --debug=aflq'
+	   . " --error-output=$tcache" . $req->id . "t"
+	   . join (' --trace=',   '', sort @macro)
+	   . " @ARGV"
+	   . ' </dev/null'
+	   . " >$ocache" . $req->id . "t");
 
   # Everything went ok: preserve the outputs.
   foreach my $file (map { $_ . $req->id } ($tcache, $ocache))
     {
       use File::Copy;
       move ("${file}t", "$file")
-	or die "$me: cannot not rename ${file}t as $file: $!\n";
+	or error "cannot not rename ${file}t as $file: $!";
     }
 }
 
@@ -636,6 +629,7 @@ sub handle_m4 ($@)
 # $WORD is forbidden.  Warn with a dedicated error message if in
 # %FORBIDDEN, otherwise, a simple `error: possibly undefined macro'
 # will do.
+my $first_warn_forbidden = 1;
 sub warn_forbidden ($$%)
 {
   my ($where, $word, %forbidden) = @_;
@@ -651,6 +645,14 @@ sub warn_forbidden ($$%)
     }
   $message ||= "possibly undefined macro: $word";
   warn "$where: error: $message\n";
+  if ($first_warn_forbidden)
+    {
+      warn <<EOF;
+      If this token and others are legitimate, please use m4_pattern_allow.
+      See the Autoconf documentation.
+EOF
+      $first_warn_forbidden = 0;
+    }
 }
 
 
@@ -693,7 +695,7 @@ sub handle_output ($$)
     {
       $out->open($output, O_CREAT | O_WRONLY | O_TRUNC, oct ($mode));
     }
-  die "$me: cannot create $output: $!\n"
+  error "cannot create $output: $!"
     unless $out;
   my $in = new Autom4te::XFile ($ocache . $req->id);
 
@@ -820,7 +822,7 @@ sub trace_format_to_m4 ($)
 	}
       elsif (/^(\$.)/)
         {
-	  die "$me: invalid escape: $1\n";
+	  error "invalid escape: $1";
         }
       else
         {
@@ -1045,21 +1047,14 @@ sub freeze ($)
 
   # When processing the file with diversion disabled, there must be no
   # output but comments and empty lines.
-  my $command = ("$m4"
-		 . ' --fatal-warning'
-		 . join (' --include=', '', reverse @include)
-		 . ' --define=divert'
-		 . " @ARGV"
-		 . ' </dev/null');
-  verbose "running: $command";
-  my $result = `$command`;
+  my $result = xqx ("$m4"
+		    . ' --fatal-warning'
+		    . join (' --include=', '', @include)
+		    . ' --define=divert'
+		    . " @ARGV"
+		    . ' </dev/null');
   $result =~ s/#.*\n//g;
   $result =~ s/^\n//mg;
-  if ($?)
-    {
-      verbose "$m4: failed with exit status: " . ($? >> 8) . "\n";
-      exit $? >> 8;
-    }
   if ($result)
     {
       print STDERR "$me: freezing produced output:\n$result";
@@ -1068,19 +1063,12 @@ sub freeze ($)
 
   # If freezing produces output, something went wrong: a bad `divert',
   # or an improper paren etc.
-  $command = ("$m4"
-	      . ' --fatal-warning'
-	      . join (' --include=', '', reverse @include)
-	      . " --freeze-state=$output"
-	      . " @ARGV"
-	      . ' </dev/null');
-  verbose "running: $command";
-  system $command;
-  if ($?)
-    {
-      verbose "$m4: failed with exit status: " . ($? >> 8) . "\n";
-      exit $? >> 8;
-    }
+  xsystem ("$m4"
+	   . ' --fatal-warning'
+	   . join (' --include=', '', @include)
+	   . " --freeze-state=$output"
+	   . " @ARGV"
+	   . ' </dev/null');
 }
 
 ## -------------- ##
@@ -1102,7 +1090,7 @@ if ($freeze)
 if (! -d "$cache")
   {
     mkdir "$cache", 0755
-      or die "$me: cannot create $cache: $!\n";
+      or error "cannot create $cache: $!";
   }
 
 # Read the cache index if available and older than autom4te itself.
@@ -1138,7 +1126,7 @@ if (%trace)
     # Always produce traces, since even if the output is young enough,
     # there is no guarantee that the traces use the same *format*
     # (e.g., `-t FOO:foo' and `-t FOO:bar' are both using the same M4
-    # traces, hence the M4 traces cache is usable, but its formating
+    # traces, hence the M4 traces cache is usable, but its formatting
     # will yield different results).
     handle_traces ($req, $output, %trace);
   }
@@ -1157,3 +1145,20 @@ $req->valid (1)
 Request->save ($icache);
 
 exit $exit_status;
+
+### Setup "GNU" style for perl-mode and cperl-mode.
+## Local Variables:
+## perl-indent-level: 2
+## perl-continued-statement-offset: 2
+## perl-continued-brace-offset: 0
+## perl-brace-offset: 0
+## perl-brace-imaginary-offset: 0
+## perl-label-offset: -2
+## cperl-indent-level: 2
+## cperl-brace-offset: 0
+## cperl-continued-brace-offset: 0
+## cperl-label-offset: -2
+## cperl-extra-newline-before-brace: t
+## cperl-merge-trailing-else: nil
+## cperl-continued-statement-offset: 2
+## End:

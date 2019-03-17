@@ -99,7 +99,8 @@ m4_copy([_m4_divert(M4SH-INIT)], [_m4_divert(NOTICE)])
 # AS_REQUIRE(NAME-TO-CHECK, [BODY-TO-EXPAND = NAME-TO-CHECK])
 # -----------------------------------------------------------
 # BODY-TO-EXPAND is some initialization which must be expanded in the
-# M4SH-INIT section when expanded (required or not).  For instance:
+# M4SH-INIT section when expanded (required or not).  This is very
+# different from m4_require.  For instance:
 #
 #      m4_defun([_FOO_PREPARE], [foo=foo])
 #      m4_defun([FOO],
@@ -137,8 +138,7 @@ m4_define([AS_REQUIRE],
 # -----------------
 # Try to be as Bourne and/or POSIX as possible.
 m4_defun([AS_SHELL_SANITIZE],
-[
-## --------------------- ##
+[## --------------------- ##
 ## M4sh Initialization.  ##
 ## --------------------- ##
 
@@ -146,24 +146,55 @@ m4_defun([AS_SHELL_SANITIZE],
 if test -n "${ZSH_VERSION+set}" && (emulate sh) >/dev/null 2>&1; then
   emulate sh
   NULLCMD=:
+  [#] Zsh 3.x and 4.x performs word splitting on ${1+"$[@]"}, which
+  # is contrary to our usage.  Disable this feature.
+  alias -g '${1+"$[@]"}'='"$[@]"'
 elif test -n "${BASH_VERSION+set}" && (set -o posix) >/dev/null 2>&1; then
   set -o posix
 fi
 
-# NLS nuisances.
 _AS_UNSET_PREPARE
-m4_foreach([_AS_var],
-  [LANG, LC_ALL, LC_TIME, LC_CTYPE, LANGUAGE,
-   LC_COLLATE, LC_NUMERIC, LC_MESSAGES],
-  [(set +x; test -n "`(_AS_var=C; export _AS_var) 2>&1`") &&
-    { $as_unset _AS_var || test "${_AS_var+set}" != set; } ||
-      { _AS_var=C; export _AS_var; }
-])
+
+# Work around bugs in pre-3.0 UWIN ksh.
+$as_unset ENV MAIL MAILPATH
+PS1='$ '
+PS2='> '
+PS4='+ '
+
+# NLS nuisances.
+for as_var in LANG LANGUAGE LC_ALL LC_COLLATE LC_CTYPE LC_NUMERIC LC_MESSAGES LC_TIME
+do
+  if (set +x; test -n "`(eval $as_var=C; export $as_var) 2>&1`"); then
+    eval $as_var=C; export $as_var
+  else
+    $as_unset $as_var
+  fi
+done
+
+# Required to use basename.
+_AS_EXPR_PREPARE
+_AS_BASENAME_PREPARE
 
 # Name of the executable.
 as_me=`AS_BASENAME("$[0]")`
 
-# PATH needs CR, and LINENO needs CR and PATH.
+])
+
+
+# _AS_PREPARE
+# -----------
+# This macro has a very special status.  Normal use of M4sh relies
+# heavily on AS_REQUIRE, so that needed initializations (such as
+# _AS_TEST_PREPARE) are performed on need, not on demand.  But
+# Autoconf is the first client of M4sh, and for two reasons: configure
+# and config.status.  Relying on AS_REQUIRE is of course fine for
+# configure, but fails for config.status (which is created by
+# configure).  So we need a means to force the inclusion of the
+# various _AS_PREPARE_* on top of config.status.  That's basically why
+# there are so many _AS_PREPARE_* below, and that's also why it is
+# important not to forget some: config.status needs them.
+m4_defun([_AS_PREPARE],
+[# PATH needs CR, and LINENO needs CR and PATH.
 _AS_CR_PREPARE
 _AS_PATH_SEPARATOR_PREPARE
 _AS_LINENO_PREPARE
@@ -171,6 +202,7 @@ _AS_LINENO_PREPARE
 _AS_ECHO_N_PREPARE
 _AS_EXPR_PREPARE
 _AS_LN_S_PREPARE
+_AS_MKDIR_P_PREPARE
 _AS_TEST_PREPARE
 _AS_TR_CPP_PREPARE
 _AS_TR_SH_PREPARE
@@ -182,8 +214,16 @@ as_nl='
 IFS=" 	$as_nl"
 
 # CDPATH.
-AS_UNSET([CDPATH], [$PATH_SEPARATOR])
+$as_unset CDPATH
 ])
+
+
+# AS_PREPARE
+# ----------
+# Output all the M4sh possible initialization into the initialization
+# diversion.
+m4_defun([AS_PREPARE],
+[m4_divert_text([M4SH-INIT], [_AS_PREPARE])])
 
 
 ## ----------------------------- ##
@@ -416,7 +456,7 @@ AS_DIRNAME_SED([$1])])
 # Also see the comments for AS_DIRNAME.
 
 m4_defun([AS_BASENAME_EXPR],
-[m4_require([_AS_EXPR_PREPARE])dnl
+[AS_REQUIRE([_AS_EXPR_PREPARE])dnl
 $as_expr X/[]$1 : '.*/\([[^/][^/]*]\)/*$' \| \
 	 X[]$1 : 'X\(//\)$' \| \
 	 X[]$1 : 'X\(/\)$' \| \
@@ -430,7 +470,8 @@ m4_defun([AS_BASENAME_SED],
   	  s/.*/./; q']])
 
 m4_defun([AS_BASENAME],
-[(basename $1) 2>/dev/null ||
+[AS_REQUIRE([_$0_PREPARE])dnl
+$as_basename $1 ||
 AS_BASENAME_EXPR([$1]) 2>/dev/null ||
 AS_BASENAME_SED([$1])])
 
@@ -443,6 +484,17 @@ m4_defun([AS_EXECUTABLE_P],
 $as_executable_p $1[]dnl
 ])# AS_EXECUTABLE_P
 
+
+# _AS_BASENAME_PREPARE
+# --------------------
+# Avoid Solaris 9 /usr/ucb/basename, as `basename /' outputs an empty line.
+m4_defun([_AS_BASENAME_PREPARE],
+[if (basename /) >/dev/null 2>&1 && test "X`basename / 2>&1`" = "X/"; then
+  as_basename=basename
+else
+  as_basename=false
+fi
+])# _AS_BASENAME_PREPARE
 
 # _AS_EXPR_PREPARE
 # ----------------
@@ -482,7 +534,8 @@ m4_define([_AS_LINENO_WORKS],
 # configure) you'd compare LINENO wrt config.status vs. _oline_ vs
 # configure.
 m4_define([_AS_LINENO_PREPARE],
-[_AS_LINENO_WORKS || {
+[AS_REQUIRE([_AS_CR_PREPARE])dnl
+_AS_LINENO_WORKS || {
   # Find who we are.  Look in the path if we contain no path at all
   # relative or not.
   case $[0] in
@@ -506,6 +559,8 @@ m4_define([_AS_LINENO_PREPARE],
 	 case $as_dir in
 	 /*)
 	   if ("$as_dir/$as_base" -c '_AS_LINENO_WORKS') 2>/dev/null; then
+	     AS_UNSET(BASH_ENV)
+	     AS_UNSET(ENV)
 	     CONFIG_SHELL=$as_dir/$as_base
 	     export CONFIG_SHELL
 	     exec "$CONFIG_SHELL" "$[0]" ${1+"$[@]"}
@@ -581,7 +636,7 @@ if test "${PATH_SEPARATOR+set}" != set; then
   echo "#! /bin/sh" >conftest.sh
   echo  "exit 0"   >>conftest.sh
   chmod +x conftest.sh
-  if (PATH=".;."; conftest.sh) >/dev/null 2>&1; then
+  if (PATH="/nonexistent;."; conftest.sh) >/dev/null 2>&1; then
     PATH_SEPARATOR=';'
   else
     PATH_SEPARATOR=:
@@ -598,13 +653,14 @@ fi
 # Still very private as its interface looks quite bad.
 #
 # `$as_dummy' forces splitting on constant user-supplied paths.
-# POSIX.2 word splitting is done only on the output of word
-# expansions, not every word.  This closes a longstanding sh security
-# hole.  Optimize it away when not needed.
+# POSIX.2 field splitting is done only on the result of word
+# expansions, not on literal text.  This closes a longstanding sh security
+# hole.  Optimize it away when not needed, i.e., if there are no literal
+# path separators.
 m4_define([_AS_PATH_WALK],
 [AS_REQUIRE([_AS_PATH_SEPARATOR_PREPARE])dnl
 as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-AS_LITERAL_IF(m4_default([$1], [$PATH]),
+m4_bmatch([$1], [[:;]],
 [as_dummy="$1"
 for as_dir in $as_dummy],
 [for as_dir in m4_default([$1], [$PATH])])
@@ -626,31 +682,32 @@ $as_ln_s $1 $2
 ])
 
 
+# _AS_MKDIR_P_PREPARE
+# -------------------
+m4_defun([_AS_MKDIR_P_PREPARE],
+[if mkdir -p . 2>/dev/null; then
+  as_mkdir_p=:
+else
+  as_mkdir_p=false
+fi
+])# _AS_MKDIR_P_PREPARE
+
 # AS_MKDIR_P(PATH)
 # ----------------
 # Emulate `mkdir -p' with plain `mkdir'.
-#
-# Don't set IFS to '\\/' (see the doc): you would end up with
-# directories called foo\bar and foo?az and others depending upon the
-# shell.
 m4_define([AS_MKDIR_P],
-[{ case $1 in
-  [[\\/]]* | ?:[[\\/]]* ) as_incr_dir=;;
-  *)                      as_incr_dir=.;;
-esac
-as_dummy=$1
-for as_mkdir_dir in `IFS='/\\'; set X $as_dummy; shift; echo "$[@]"`; do
-  case $as_mkdir_dir in
-    # Skip DOS drivespec
-    ?:) as_incr_dir=$as_mkdir_dir ;;
-    *)
-      as_incr_dir=$as_incr_dir/$as_mkdir_dir
-      test -d "$as_incr_dir" ||
-        mkdir "$as_incr_dir" ||
-	AS_ERROR([cannot create $1])
-    ;;
-  esac
-done; }
+[AS_REQUIRE([_$0_PREPARE])dnl
+{ if $as_mkdir_p; then
+    mkdir -p $1
+  else
+    as_dir=$1
+    as_dirs=
+    while test ! -d "$as_dir"; do
+      as_dirs="$as_dir $as_dirs"
+      as_dir=`AS_DIRNAME("$as_dir")`
+    done
+    test ! -n "$as_dirs" || mkdir $as_dirs
+  fi || AS_ERROR([cannot create directory $1]); }
 ])# AS_MKDIR_P
 
 
@@ -729,7 +786,7 @@ _ASBOX])
 # definitely a literal, but will not be recognized as such.
 m4_define([AS_LITERAL_IF],
 [m4_bmatch([$1], [[`$]],
-          [$3], [$2])])
+           [$3], [$2])])
 
 
 # AS_TMPDIR(PREFIX)
@@ -987,8 +1044,9 @@ m4_define([AS_INIT],
 # Forbidden tokens and exceptions.
 m4_pattern_forbid([^_?AS_])
 
-# Bangshe.
+# Bangshe and minimal initialization.
 m4_divert_text([BINSH], [@%:@! /bin/sh])
+m4_divert_text([M4SH-INIT], [AS_SHELL_SANITIZE])
 
 # Let's go!
 m4_wrap([m4_divert_pop([BODY])[]])

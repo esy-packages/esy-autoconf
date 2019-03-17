@@ -1,7 +1,6 @@
 # This file is part of Autoconf.                       -*- Autoconf -*-
 # Type related macros: existence, sizeof, and structure members.
-# Copyright 2000, 2001
-# Free Software Foundation, Inc.
+# Copyright (C) 2000, 2001, 2002 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -83,8 +82,8 @@
 # Check whether the type TYPE is supported by the system, maybe via the
 # the provided includes.  This macro implements the former task of
 # AC_CHECK_TYPE, with one big difference though: AC_CHECK_TYPE was
-# grepping in the headers, which, BTW, led to many problems until
-# the egrep expression was correct and did not given false positives.
+# grepping in the headers, which, BTW, led to many problems until the
+# extended regular expression was correct and did not given false positives.
 # It turned out there are even portability issues with egrep...
 #
 # The most obvious way to check for a TYPE is just to compile a variable
@@ -289,6 +288,26 @@ AU_DEFUN([AM_TYPE_PTRDIFF_T],
 [AC_CHECK_TYPES(ptrdiff_t)])
 
 
+# AC_TYPE_MBSTATE_T
+# -----------------
+AC_DEFUN([AC_TYPE_MBSTATE_T],
+  [AC_CACHE_CHECK([for mbstate_t], ac_cv_type_mbstate_t,
+     [AC_COMPILE_IFELSE(
+	[AC_LANG_PROGRAM(
+	   [AC_INCLUDES_DEFAULT
+#	    include <wchar.h>],
+	   [mbstate_t x; return sizeof x;])],
+	[ac_cv_type_mbstate_t=yes],
+	[ac_cv_type_mbstate_t=no])])
+   if test $ac_cv_type_mbstate_t = yes; then
+     AC_DEFINE([HAVE_MBSTATE_T], 1,
+	       [Define to 1 if <wchar.h> declares mbstate_t.])
+   else
+     AC_DEFINE([mbstate_t], int,
+	       [Define to a type if <wchar.h> does not define.])
+   fi])
+
+
 # AC_TYPE_UID_T
 # -------------
 # FIXME: Rewrite using AC_CHECK_TYPE.
@@ -434,7 +453,14 @@ dnl ac_aggr.MEMBER;
 if (ac_aggr.m4_bpatsubst([$1], [^[^.]*\.]))
 return 0;])],
                 [AS_VAR_SET(ac_Member, yes)],
-                [AS_VAR_SET(ac_Member, no)])])
+[AC_COMPILE_IFELSE([AC_LANG_PROGRAM([AC_INCLUDES_DEFAULT([$4])],
+[dnl AGGREGATE ac_aggr;
+static m4_bpatsubst([$1], [\..*]) ac_aggr;
+dnl sizeof ac_aggr.MEMBER;
+if (sizeof ac_aggr.m4_bpatsubst([$1], [^[^.]*\.]))
+return 0;])],
+                [AS_VAR_SET(ac_Member, yes)],
+                [AS_VAR_SET(ac_Member, no)])])])
 AS_IF([test AS_VAR_GET(ac_Member) = yes], [$2], [$3])dnl
 AS_VAR_POPDEF([ac_Member])dnl
 ])# AC_CHECK_MEMBER
