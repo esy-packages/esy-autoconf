@@ -4,14 +4,16 @@
   "description": "Autoconf packaged for esy",
   "esy": {
     "buildsInSource": true,
+    "buildEnv": {
+      "PATH": "#{self.bin : $PATH }"
+    },
     "build": [
       ["chmod", "755", "./configure", "./test.bash"],
-      ["ln", "-s", "/usr/bin/true", "#{ self.install / 'bin' / 'makeinfo' }"],
+      ["ln", "-s", "/usr/bin/true", "#{ self.bin / 'makeinfo' }"],
+      ["which", "makeinfo"],
       ["bash", "-c", "#{os == 'windows' ? './configure --prefix=$cur__install --host x86_64-w64-mingw32' : './configure --prefix=$cur__install'}"],
-      ["bash", "-c", "#{os == 'windows' ? 'ln -s /usr/bin/true /usr/bin/makeinfo': 'true' }"],
       ["make"],
-      ["make", "install"],
-      ["bash", "-c", "#{os == 'windows' ? 'rm /usr/bin/makeinfo': 'true' }"]
+      ["make", "install"]
     ]
   }
 }
