@@ -14,7 +14,8 @@
 
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+# 02111-1307, USA.
 
 # If given no args, create `configure' from template file `configure.in'.
 # With one arg, create a configure script on standard output from
@@ -121,7 +122,7 @@ $M4 -I$AC_MACRODIR $use_localdir $r autoconf.m4$f $infile > $tmpout ||
   { rm -f $tmpin $tmpout; exit 2; }
 
 # You could add your own prefixes to pattern if you wanted to check for
-# them too, e.g. pattern="AC_\|ILT_", except that UNIX sed doesn't do
+# them too, e.g. pattern='\(AC_\|ILT_\)', except that UNIX sed doesn't do
 # alternation.
 pattern="AC_"
 
