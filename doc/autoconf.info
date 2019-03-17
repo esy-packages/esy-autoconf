@@ -1,9 +1,9 @@
-Ceci est le fichier Info autoconf.info, produit par Makeinfo version
-4.2b à partir autoconf.texi.
+This is autoconf.info, produced by makeinfo version 4.3 from
+autoconf.texi.
 
 
 
-   This manual is for GNU Autoconf (version 2.56, 14 November 2002), a
+   This manual is for GNU Autoconf (version 2.57, 2 December 2002), a
 package for creating scripts to configure source code packages using
 templates and an M4 macro package.
 
@@ -59,7 +59,7 @@ Autoconf
 
 
 
-   This manual is for GNU Autoconf (version 2.56, 14 November 2002), a
+   This manual is for GNU Autoconf (version 2.57, 2 December 2002), a
 package for creating scripts to configure source code packages using
 templates and an M4 macro package.
 
@@ -1399,7 +1399,7 @@ Using them is optional.
      than VERSION, print an error message to the standard error output
      and do not create `configure'.  For example:
 
-          AC_PREREQ(2.56)
+          AC_PREREQ(2.57)
 
      This macro is the only macro that may be used before `AC_INIT', but
      for consistency, you are invited not to do so.
@@ -4883,7 +4883,7 @@ actually depend on the current language (*note Language Choice::) to
 
    For instance executing (observe the double quotation!):
 
-     AC_INIT(Autoconf Documentation, 2.56, bug-autoconf@gnu.org)
+     AC_INIT(Autoconf Documentation, 2.57, bug-autoconf@gnu.org)
      AC_DEFINE([HELLO_WORLD], ["Hello, World\n"])
      AC_LANG_CONFTEST(
         [AC_LANG_SOURCE([[const char hw[] = "Hello, World\n";]])])
@@ -4898,8 +4898,8 @@ results in:
      
      #define PACKAGE_NAME "Autoconf Documentation"
      #define PACKAGE_TARNAME "autoconf-documentation"
-     #define PACKAGE_VERSION "2.56"
-     #define PACKAGE_STRING "Autoconf Documentation 2.56"
+     #define PACKAGE_VERSION "2.57"
+     #define PACKAGE_STRING "Autoconf Documentation 2.57"
      #define PACKAGE_BUGREPORT "bug-autoconf@gnu.org"
      #define HELLO_WORLD "Hello, World\n"
      # 1170 "configure" 2
@@ -4913,7 +4913,7 @@ results in:
 
    For instance:
 
-     AC_INIT(Autoconf Documentation, 2.56, bug-autoconf@gnu.org)
+     AC_INIT(Autoconf Documentation, 2.57, bug-autoconf@gnu.org)
      AC_DEFINE([HELLO_WORLD], ["Hello, World\n"])
      AC_LANG_CONFTEST(
      [AC_LANG_PROGRAM([[const char hw[] = "Hello, World\n";]],
@@ -4929,8 +4929,8 @@ results in:
      
      #define PACKAGE_NAME "Autoconf Documentation"
      #define PACKAGE_TARNAME "autoconf-documentation"
-     #define PACKAGE_VERSION "2.56"
-     #define PACKAGE_STRING "Autoconf Documentation 2.56"
+     #define PACKAGE_VERSION "2.57"
+     #define PACKAGE_STRING "Autoconf Documentation 2.57"
      #define PACKAGE_BUGREPORT "bug-autoconf@gnu.org"
      #define HELLO_WORLD "Hello, World\n"
      # 1170 "configure" 2
@@ -4994,7 +4994,7 @@ temptation of following the easiest path.
 
    For instance:
 
-     AC_INIT(Autoconf Documentation, 2.56, bug-autoconf@gnu.org)
+     AC_INIT(Autoconf Documentation, 2.57, bug-autoconf@gnu.org)
      AC_DEFINE([HELLO_WORLD], ["Hello, World\n"])
      AC_PREPROC_IFELSE(
         [AC_LANG_PROGRAM([[const char hw[] = "Hello, World\n";]],
@@ -10671,10 +10671,10 @@ and the description.
 
      This macro is equivalent to:
 
-          AC_CHECK_TYPE([TYPE],
-                        [AC_DEFINE([TYPE], [DEFAULT],
-                                   [Define to `DEFAULT' if <sys/types.h>
-                                    does not define.])])
+          AC_CHECK_TYPE([TYPE],,
+                        [AC_DEFINE_UNQUOTED([TYPE], [DEFAULT],
+                                            [Define to `DEFAULT' if
+                                             <sys/types.h> does not define.])])
 
      In order to keep backward compatibility, the two versions of
      `AC_CHECK_TYPE' are implemented, selected by a simple heuristics:
@@ -12706,8 +12706,8 @@ File: autoconf.info,  Node: GNU Free Documentation License,  Up: Copying This Ma
 GNU Free Documentation License
 ==============================
 
-                        Version 1.1, March 2000
-     Copyright (C) 2000 Free Software Foundation, Inc.
+                      Version 1.2, November 2002
+     Copyright (C) 2000,2001,2002 Free Software Foundation, Inc.
      59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
      
      Everyone is permitted to copy and distribute verbatim copies
@@ -12716,12 +12716,12 @@ GNU Free Documentation License
   0. PREAMBLE
 
      The purpose of this License is to make a manual, textbook, or other
-     written document "free" in the sense of freedom: to assure everyone
-     the effective freedom to copy and redistribute it, with or without
-     modifying it, either commercially or noncommercially.  Secondarily,
-     this License preserves for the author and publisher a way to get
-     credit for their work, while not being considered responsible for
-     modifications made by others.
+     functional and useful document "free" in the sense of freedom: to
+     assure everyone the effective freedom to copy and redistribute it,
+     with or without modifying it, either commercially or
+     noncommercially.  Secondarily, this License preserves for the
+     author and publisher a way to get credit for their work, while not
+     being considered responsible for modifications made by others.
 
      This License is a kind of "copyleft", which means that derivative
      works of the document must themselves be free in the same sense.
@@ -12739,57 +12739,69 @@ GNU Free Documentation License
 
   1. APPLICABILITY AND DEFINITIONS
 
-     This License applies to any manual or other work that contains a
-     notice placed by the copyright holder saying it can be distributed
-     under the terms of this License.  The "Document", below, refers to
-     any such manual or work.  Any member of the public is a licensee,
-     and is addressed as "you".
+     This License applies to any manual or other work, in any medium,
+     that contains a notice placed by the copyright holder saying it
+     can be distributed under the terms of this License.  Such a notice
+     grants a world-wide, royalty-free license, unlimited in duration,
+     to use that work under the conditions stated herein.  The
+     "Document", below, refers to any such manual or work.  Any member
+     of the public is a licensee, and is addressed as "you".  You
+     accept the license if you copy, modify or distribute the work in a
+     way requiring permission under copyright law.
 
      A "Modified Version" of the Document means any work containing the
      Document or a portion of it, either copied verbatim, or with
      modifications and/or translated into another language.
 
-     A "Secondary Section" is a named appendix or a front-matter
-     section of the Document that deals exclusively with the
-     relationship of the publishers or authors of the Document to the
-     Document's overall subject (or to related matters) and contains
-     nothing that could fall directly within that overall subject.
-     (For example, if the Document is in part a textbook of
-     mathematics, a Secondary Section may not explain any mathematics.)
-     The relationship could be a matter of historical connection with
-     the subject or with related matters, or of legal, commercial,
-     philosophical, ethical or political position regarding them.
+     A "Secondary Section" is a named appendix or a front-matter section
+     of the Document that deals exclusively with the relationship of the
+     publishers or authors of the Document to the Document's overall
+     subject (or to related matters) and contains nothing that could
+     fall directly within that overall subject.  (Thus, if the Document
+     is in part a textbook of mathematics, a Secondary Section may not
+     explain any mathematics.)  The relationship could be a matter of
+     historical connection with the subject or with related matters, or
+     of legal, commercial, philosophical, ethical or political position
+     regarding them.
 
      The "Invariant Sections" are certain Secondary Sections whose
      titles are designated, as being those of Invariant Sections, in
      the notice that says that the Document is released under this
-     License.
+     License.  If a section does not fit the above definition of
+     Secondary then it is not allowed to be designated as Invariant.
+     The Document may contain zero Invariant Sections.  If the Document
+     does not identify any Invariant Sections then there are none.
 
      The "Cover Texts" are certain short passages of text that are
      listed, as Front-Cover Texts or Back-Cover Texts, in the notice
-     that says that the Document is released under this License.
+     that says that the Document is released under this License.  A
+     Front-Cover Text may be at most 5 words, and a Back-Cover Text may
+     be at most 25 words.
 
      A "Transparent" copy of the Document means a machine-readable copy,
      represented in a format whose specification is available to the
-     general public, whose contents can be viewed and edited directly
-     and straightforwardly with generic text editors or (for images
+     general public, that is suitable for revising the document
+     straightforwardly with generic text editors or (for images
      composed of pixels) generic paint programs or (for drawings) some
      widely available drawing editor, and that is suitable for input to
      text formatters or for automatic translation to a variety of
      formats suitable for input to text formatters.  A copy made in an
-     otherwise Transparent file format whose markup has been designed
-     to thwart or discourage subsequent modification by readers is not
-     Transparent.  A copy that is not "Transparent" is called "Opaque".
+     otherwise Transparent file format whose markup, or absence of
+     markup, has been arranged to thwart or discourage subsequent
+     modification by readers is not Transparent.  An image format is
+     not Transparent if used for any substantial amount of text.  A
+     copy that is not "Transparent" is called "Opaque".
 
      Examples of suitable formats for Transparent copies include plain
      ASCII without markup, Texinfo input format, LaTeX input format,
      SGML or XML using a publicly available DTD, and
-     standard-conforming simple HTML designed for human modification.
-     Opaque formats include PostScript, PDF, proprietary formats that
-     can be read and edited only by proprietary word processors, SGML
-     or XML for which the DTD and/or processing tools are not generally
-     available, and the machine-generated HTML produced by some word
-     processors for output purposes only.
+     standard-conforming simple HTML, PostScript or PDF designed for
+     human modification.  Examples of transparent image formats include
+     PNG, XCF and JPG.  Opaque formats include proprietary formats that
+     can be read and edited only by proprietary word processors, SGML or
+     XML for which the DTD and/or processing tools are not generally
+     available, and the machine-generated HTML, PostScript or PDF
+     produced by some word processors for output purposes only.
 
      The "Title Page" means, for a printed book, the title page itself,
      plus such following pages as are needed to hold, legibly, the
@@ -12797,6 +12809,22 @@ GNU Free Documentation License
      works in formats which do not have any title page as such, "Title
      Page" means the text near the most prominent appearance of the
      work's title, preceding the beginning of the body of the text.
+
+     A section "Entitled XYZ" means a named subunit of the Document
+     whose title either is precisely XYZ or contains XYZ in parentheses
+     following text that translates XYZ in another language.  (Here XYZ
+     stands for a specific section name mentioned below, such as
+     "Acknowledgements", "Dedications", "Endorsements", or "History".)
+     To "Preserve the Title" of such a section when you modify the
+     Document means that it remains a section "Entitled XYZ" according
+     to this definition.
+
+     The Document may include Warranty Disclaimers next to the notice
+     which states that this License applies to the Document.  These
+     Warranty Disclaimers are considered to be included by reference in
+     this License, but only as regards disclaiming warranties: any other
+     implication that these Warranty Disclaimers may have is void and
+     has no effect on the meaning of this License.
 
   2. VERBATIM COPYING
 
@@ -12816,10 +12844,11 @@ GNU Free Documentation License
 
   3. COPYING IN QUANTITY
 
-     If you publish printed copies of the Document numbering more than
-     100, and the Document's license notice requires Cover Texts, you
-     must enclose the copies in covers that carry, clearly and legibly,
-     all these Cover Texts: Front-Cover Texts on the front cover, and
+     If you publish printed copies (or copies in media that commonly
+     have printed covers) of the Document, numbering more than 100, and
+     the Document's license notice requires Cover Texts, you must
+     enclose the copies in covers that carry, clearly and legibly, all
+     these Cover Texts: Front-Cover Texts on the front cover, and
      Back-Cover Texts on the back cover.  Both covers must also clearly
      and legibly identify you as the publisher of these copies.  The
      front cover must present the full title with all words of the
@@ -12837,11 +12866,10 @@ GNU Free Documentation License
      If you publish or distribute Opaque copies of the Document
      numbering more than 100, you must either include a
      machine-readable Transparent copy along with each Opaque copy, or
-     state in or with each Opaque copy a publicly-accessible
-     computer-network location containing a complete Transparent copy
-     of the Document, free of added material, which the general
-     network-using public has access to download anonymously at no
-     charge using public-standard network protocols.  If you use the
+     state in or with each Opaque copy a computer-network location from
+     which the general network-using public has access to download
+     using public-standard network protocols a complete Transparent
+     copy of the Document, free of added material.  If you use the
      latter option, you must take reasonably prudent steps, when you
      begin distribution of Opaque copies in quantity, to ensure that
      this Transparent copy will remain thus accessible at the stated
@@ -12875,7 +12903,8 @@ GNU Free Documentation License
           entities responsible for authorship of the modifications in
           the Modified Version, together with at least five of the
           principal authors of the Document (all of its principal
-          authors, if it has less than five).
+          authors, if it has fewer than five), unless they release you
+          from this requirement.
 
        C. State on the Title page the name of the publisher of the
           Modified Version, as the publisher.
@@ -12896,10 +12925,10 @@ GNU Free Documentation License
 
        H. Include an unaltered copy of this License.
 
-       I. Preserve the section entitled "History", and its title, and
-          add to it an item stating at least the title, year, new
+       I. Preserve the section Entitled "History", Preserve its Title,
+          and add to it an item stating at least the title, year, new
           authors, and publisher of the Modified Version as given on
-          the Title Page.  If there is no section entitled "History" in
+          the Title Page.  If there is no section Entitled "History" in
           the Document, create one stating the title, year, authors,
           and publisher of the Document as given on its Title Page,
           then add an item describing the Modified Version as stated in
@@ -12914,21 +12943,24 @@ GNU Free Documentation License
           Document itself, or if the original publisher of the version
           it refers to gives permission.
 
-       K. In any section entitled "Acknowledgments" or "Dedications",
-          preserve the section's title, and preserve in the section all
-          the substance and tone of each of the contributor
-          acknowledgments and/or dedications given therein.
+       K. For any section Entitled "Acknowledgements" or "Dedications",
+          Preserve the Title of the section, and preserve in the
+          section all the substance and tone of each of the contributor
+          acknowledgements and/or dedications given therein.
 
        L. Preserve all the Invariant Sections of the Document,
           unaltered in their text and in their titles.  Section numbers
           or the equivalent are not considered part of the section
           titles.
 
-       M. Delete any section entitled "Endorsements".  Such a section
+       M. Delete any section Entitled "Endorsements".  Such a section
           may not be included in the Modified Version.
 
-       N. Do not retitle any existing section as "Endorsements" or to
-          conflict in title with any Invariant Section.
+       N. Do not retitle any existing section to be Entitled
+          "Endorsements" or to conflict in title with any Invariant
+          Section.
+
+       O. Preserve any Warranty Disclaimers.
 
      If the Modified Version includes new front-matter sections or
      appendices that qualify as Secondary Sections and contain no
@@ -12938,7 +12970,7 @@ GNU Free Documentation License
      Version's license notice.  These titles must be distinct from any
      other section titles.
 
-     You may add a section entitled "Endorsements", provided it contains
+     You may add a section Entitled "Endorsements", provided it contains
      nothing but endorsements of your Modified Version by various
      parties--for example, statements of peer review or that the text
      has been approved by an organization as the authoritative
@@ -12966,7 +12998,8 @@ GNU Free Documentation License
      modified versions, provided that you include in the combination
      all of the Invariant Sections of all of the original documents,
      unmodified, and list them all as Invariant Sections of your
-     combined work in its license notice.
+     combined work in its license notice, and that you preserve all
+     their Warranty Disclaimers.
 
      The combined work need only contain one copy of this License, and
      multiple identical Invariant Sections may be replaced with a single
@@ -12978,11 +13011,11 @@ GNU Free Documentation License
      the list of Invariant Sections in the license notice of the
      combined work.
 
-     In the combination, you must combine any sections entitled
+     In the combination, you must combine any sections Entitled
      "History" in the various original documents, forming one section
-     entitled "History"; likewise combine any sections entitled
-     "Acknowledgments", and any sections entitled "Dedications".  You
-     must delete all sections entitled "Endorsements."
+     Entitled "History"; likewise combine any sections Entitled
+     "Acknowledgements", and any sections Entitled "Dedications".  You
+     must delete all sections Entitled "Endorsements."
 
   6. COLLECTIONS OF DOCUMENTS
 
@@ -13003,20 +13036,20 @@ GNU Free Documentation License
 
      A compilation of the Document or its derivatives with other
      separate and independent documents or works, in or on a volume of
-     a storage or distribution medium, does not as a whole count as a
-     Modified Version of the Document, provided no compilation
-     copyright is claimed for the compilation.  Such a compilation is
-     called an "aggregate", and this License does not apply to the
-     other self-contained works thus compiled with the Document, on
-     account of their being thus compiled, if they are not themselves
-     derivative works of the Document.
+     a storage or distribution medium, is called an "aggregate" if the
+     copyright resulting from the compilation is not used to limit the
+     legal rights of the compilation's users beyond what the individual
+     works permit.  When the Document is included an aggregate, this
+     License does not apply to the other works in the aggregate which
+     are not themselves derivative works of the Document.
 
      If the Cover Text requirement of section 3 is applicable to these
-     copies of the Document, then if the Document is less than one
-     quarter of the entire aggregate, the Document's Cover Texts may be
-     placed on covers that surround only the Document within the
-     aggregate.  Otherwise they must appear on covers around the whole
-     aggregate.
+     copies of the Document, then if the Document is less than one half
+     of the entire aggregate, the Document's Cover Texts may be placed
+     on covers that bracket the Document within the aggregate, or the
+     electronic equivalent of covers if the Document is in electronic
+     form.  Otherwise they must appear on printed covers that bracket
+     the whole aggregate.
 
   8. TRANSLATION
 
@@ -13026,10 +13059,18 @@ GNU Free Documentation License
      permission from their copyright holders, but you may include
      translations of some or all Invariant Sections in addition to the
      original versions of these Invariant Sections.  You may include a
-     translation of this License provided that you also include the
-     original English version of this License.  In case of a
-     disagreement between the translation and the original English
-     version of this License, the original English version will prevail.
+     translation of this License, and all the license notices in the
+     Document, and any Warrany Disclaimers, provided that you also
+     include the original English version of this License and the
+     original versions of those notices and disclaimers.  In case of a
+     disagreement between the translation and the original version of
+     this License or a notice or disclaimer, the original version will
+     prevail.
+
+     If a section in the Document is Entitled "Acknowledgements",
+     "Dedications", or "History", the requirement (section 4) to
+     Preserve its Title (section 1) will typically require changing the
+     actual title.
 
   9. TERMINATION
 
@@ -13068,17 +13109,22 @@ notices just after the title page:
 
        Copyright (C)  YEAR  YOUR NAME.
        Permission is granted to copy, distribute and/or modify this document
-       under the terms of the GNU Free Documentation License, Version 1.1
+       under the terms of the GNU Free Documentation License, Version 1.2
        or any later version published by the Free Software Foundation;
-       with the Invariant Sections being LIST THEIR TITLES, with the
-       Front-Cover Texts being LIST, and with the Back-Cover Texts being LIST.
+       with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
        A copy of the license is included in the section entitled ``GNU
        Free Documentation License''.
 
-   If you have no Invariant Sections, write "with no Invariant Sections"
-instead of saying which ones are invariant.  If you have no Front-Cover
-Texts, write "no Front-Cover Texts" instead of "Front-Cover Texts being
-LIST"; likewise for Back-Cover Texts.
+   If you have Invariant Sections, Front-Cover Texts and Back-Cover
+Texts, replace the "with...Texts." line with this:
+
+         with the Invariant Sections being LIST THEIR TITLES, with
+         the Front-Cover Texts being LIST, and with the Back-Cover Texts
+         being LIST.
+
+   If you have Invariant Sections without Cover Texts, or some other
+combination of the three, merge those two alternatives to suit the
+situation.
 
    If your document contains nontrivial examples of program code, we
 recommend releasing these examples in parallel under your choice of
@@ -13183,8 +13229,8 @@ how this is done.
 * builddir:                              Preset Output Variables.
 * CC <1>:                                System Services.
 * CC:                                    C Compiler.
-* CFLAGS <1>:                            C Compiler.
-* CFLAGS:                                Preset Output Variables.
+* CFLAGS <1>:                            Preset Output Variables.
+* CFLAGS:                                C Compiler.
 * configure_input:                       Preset Output Variables.
 * CPP:                                   C Compiler.
 * CPPFLAGS:                              Preset Output Variables.
@@ -13227,18 +13273,19 @@ how this is done.
 * LEXLIB:                                Particular Programs.
 * libdir:                                Installation Directory Variables.
 * libexecdir:                            Installation Directory Variables.
-* LIBOBJS <1>:                           Particular Structures.
+* LIBOBJS <1>:                           Particular Functions.
 * LIBOBJS <2>:                           Generic Functions.
-* LIBOBJS:                               Particular Functions.
-* LIBS <1>:                              Obsolete Macros.
+* LIBOBJS <3>:                           Particular Functions.
+* LIBOBJS:                               Particular Structures.
+* LIBS <1>:                              Preset Output Variables.
 * LIBS <2>:                              UNIX Variants.
-* LIBS:                                  Preset Output Variables.
+* LIBS:                                  Obsolete Macros.
 * LN_S:                                  Particular Programs.
 * localstatedir:                         Installation Directory Variables.
 * mandir:                                Installation Directory Variables.
 * NEED_SETGID:                           Particular Functions.
-* OBJEXT <1>:                            Obsolete Macros.
-* OBJEXT:                                Compilers and Preprocessors.
+* OBJEXT <1>:                            Compilers and Preprocessors.
+* OBJEXT:                                Obsolete Macros.
 * oldincludedir:                         Installation Directory Variables.
 * PACKAGE_BUGREPORT:                     Initializing configure.
 * PACKAGE_NAME:                          Initializing configure.
@@ -13557,8 +13604,8 @@ list easier to use, the macros are listed without their preceding `AC_'.
 * HEADER_TIME:                           Particular Headers.
 * HEADER_TIOCGWINSZ:                     Particular Headers.
 * HELP_STRING:                           Pretty Help Strings.
-* INIT <1>:                              Obsolete Macros.
-* INIT:                                  Initializing configure.
+* INIT <1>:                              Initializing configure.
+* INIT:                                  Obsolete Macros.
 * INLINE:                                Obsolete Macros.
 * INT_16_BITS:                           Obsolete Macros.
 * IRIX_SUN:                              Obsolete Macros.
@@ -13600,8 +13647,8 @@ list easier to use, the macros are listed without their preceding `AC_'.
 * OBJEXT:                                Obsolete Macros.
 * OBSOLETE:                              Obsolete Macros.
 * OFF_T:                                 Obsolete Macros.
-* OUTPUT <1>:                            Obsolete Macros.
-* OUTPUT:                                Output.
+* OUTPUT <1>:                            Output.
+* OUTPUT:                                Obsolete Macros.
 * OUTPUT_COMMANDS:                       Obsolete Macros.
 * OUTPUT_COMMANDS_POST:                  Configuration Commands.
 * OUTPUT_COMMANDS_PRE:                   Configuration Commands.
@@ -13890,8 +13937,8 @@ introduced in this document.
 * Autotest:                              Using Autotest.
 * AUTOTEST_PATH:                         testsuite Invocation.
 * autoupdate:                            autoupdate Invocation.
-* Back trace <1>:                        autom4te Invocation.
-* Back trace:                            autoconf Invocation.
+* Back trace <1>:                        autoconf Invocation.
+* Back trace:                            autom4te Invocation.
 * Bash:                                  Shellology.
 * Bash 2.05 and later:                   Shellology.
 * BSD make and obj/:                     Limitations of Make.
@@ -13908,15 +13955,15 @@ introduced in this document.
 * config.sub:                            Specifying Names.
 * Configuration Header:                  Configuration Headers.
 * Configuration Header Template:         Header Templates.
-* configure <1>:                         Running configure Scripts.
-* configure:                             Making configure Scripts.
+* configure <1>:                         Making configure Scripts.
+* configure:                             Running configure Scripts.
 * configure.ac:                          Making configure Scripts.
 * configure.in:                          Making configure Scripts.
 * Copyright Notice:                      Notices.
 * Darwin:                                Systemology.
 * Declaration, checking:                 Declarations.
-* dnl <1>:                               Coding Style.
-* dnl:                                   Macro Definitions.
+* dnl <1>:                               Macro Definitions.
+* dnl:                                   Coding Style.
 * double-colon rules and VPATH:          Limitations of Make.
 * Endianness:                            C Compiler.
 * explicit rules, $<, and VPATH:         Limitations of Make.
@@ -13983,229 +14030,229 @@ introduced in this document.
 
 
 Tag Table:
-Node: Top2394
-Node: Introduction17230
-Ref: Introduction-Footnote-122065
-Ref: Introduction-Footnote-222146
-Ref: Introduction-Footnote-322240
-Ref: Introduction-Footnote-422354
-Node: The GNU Build System22429
-Node: Automake23348
-Node: Libtool25741
-Node: Pointers27163
-Ref: Pointers-Footnote-128473
-Ref: Pointers-Footnote-228532
-Ref: Pointers-Footnote-328591
-Ref: Pointers-Footnote-428648
-Ref: Pointers-Footnote-528790
-Ref: Pointers-Footnote-628864
-Ref: Pointers-Footnote-728936
-Node: Making configure Scripts29011
-Node: Writing configure.ac32060
-Node: Shell Script Compiler33489
-Node: Autoconf Language35753
-Node: configure.ac Layout40376
-Node: autoscan Invocation41771
-Node: ifnames Invocation44268
-Node: autoconf Invocation45462
-Node: autoreconf Invocation50780
-Node: Setup54420
-Node: Initializing configure55680
-Node: Notices57419
-Node: Input59052
-Node: Output60633
-Node: Configuration Actions62632
-Node: Configuration Files67246
-Node: Makefile Substitutions68716
-Node: Preset Output Variables70397
-Node: Installation Directory Variables75453
-Node: Build Directories80958
-Node: Automatic Remaking82596
-Node: Configuration Headers84766
-Node: Header Templates87496
-Node: autoheader Invocation89021
-Node: Autoheader Macros92178
-Node: Configuration Commands94369
-Node: Configuration Links95811
-Node: Subdirectories97226
-Node: Default Prefix99662
-Node: Existing Tests101075
-Node: Common Behavior102792
-Node: Standard Symbols103425
-Node: Default Includes103993
-Node: Alternative Programs105916
-Node: Particular Programs106598
-Node: Generic Programs111842
-Node: Files115757
-Node: Libraries116635
-Node: Library Functions119526
-Node: Function Portability120144
-Node: Particular Functions124093
-Node: Generic Functions137651
-Node: Header Files142481
-Node: Header Portability143110
-Node: Particular Headers143952
-Node: Generic Headers151499
-Node: Declarations153925
-Node: Particular Declarations154516
-Node: Generic Declarations154731
-Node: Structures157135
-Node: Particular Structures157745
-Node: Generic Structures159433
-Node: Types160708
-Node: Particular Types161222
-Node: Generic Types162551
-Node: Compilers and Preprocessors163953
-Node: Specific Compiler Characteristics165028
-Node: Generic Compiler Characteristics166156
-Node: C Compiler167039
-Node: C++ Compiler176468
-Node: Fortran 77 Compiler178464
-Node: System Services187016
-Ref: System Services-Footnote-1190133
-Node: UNIX Variants190224
-Node: Writing Tests191638
-Node: Language Choice193662
-Node: Writing Test Programs195693
-Node: Guidelines196274
-Node: Test Functions198223
-Node: Generating Sources199808
-Node: Running the Preprocessor203684
-Node: Running the Compiler206817
-Node: Running the Linker208006
-Node: Run Time209923
-Node: Systemology213196
-Ref: Systemology-Footnote-1214807
-Ref: Systemology-Footnote-2214872
-Ref: Systemology-Footnote-3214910
-Ref: Systemology-Footnote-4214978
-Ref: Systemology-Footnote-5215094
-Node: Multiple Cases215163
-Node: Results216493
-Node: Defining Symbols217242
-Node: Setting Output Variables220748
-Node: Caching Results225341
-Node: Cache Variable Names229018
-Node: Cache Files230575
-Node: Cache Checkpointing232596
-Node: Printing Messages233968
-Node: Programming in M4237467
-Node: M4 Quotation238261
-Node: Active Characters239101
-Ref: Active Characters-Footnote-1240447
-Node: One Macro Call240469
-Node: Quotation and Nested Macros242023
-Node: Changequote is Evil244981
-Node: Quadrigraphs247508
-Node: Quotation Rule Of Thumb249560
-Node: Using autom4te252183
-Ref: Using autom4te-Footnote-1252787
-Node: autom4te Invocation252836
-Node: Customizing autom4te261665
-Node: Programming in M4sugar262900
-Node: Redefined M4 Macros263503
-Node: Evaluation Macros265619
-Node: Forbidden Patterns266656
-Node: Programming in M4sh268012
-Node: Writing Autoconf Macros269437
-Node: Macro Definitions270238
-Node: Macro Names272013
-Node: Reporting Messages274623
-Node: Dependencies Between Macros275972
-Node: Prerequisite Macros276591
-Node: Suggested Ordering279342
-Node: Obsoleting Macros280849
-Node: Coding Style281964
-Node: Portable Shell288986
-Ref: Portable Shell-Footnote-1291359
-Node: Shellology291427
-Ref: Shellology-Footnote-1294958
-Node: Here-Documents295054
-Node: File Descriptors297247
-Node: File System Conventions299396
-Ref: File System Conventions-Footnote-1303491
-Node: Shell Substitutions303565
-Node: Assignments309630
-Node: Special Shell Variables311504
-Node: Limitations of Builtins318851
-Node: Limitations of Usual Tools334641
-Node: Limitations of Make352567
-Node: Manual Configuration371509
-Node: Specifying Names372335
-Node: Canonicalizing374618
-Node: Using System Type376865
-Node: Site Configuration378666
-Node: External Software379496
-Node: Package Options382789
-Node: Pretty Help Strings385648
-Node: Site Details387631
-Node: Transforming Names388858
-Node: Transformation Options389935
-Node: Transformation Examples390401
-Node: Transformation Rules392109
-Node: Site Defaults393649
-Node: Running configure Scripts397568
-Node: Basic Installation398579
-Node: Compilers and Options401420
-Node: Multiple Architectures402068
-Node: Installation Names403060
-Node: Optional Features404251
-Node: System Type405028
-Node: Sharing Defaults406344
-Node: Defining Variables406975
-Node: configure Invocation407647
-Node: config.status Invocation408769
-Node: Obsolete Constructs412725
-Node: Obsolete config.status Use413674
-Node: acconfig.h415440
-Node: autoupdate Invocation417450
-Node: Obsolete Macros419134
-Node: Autoconf 1438422
-Node: Changed File Names439481
-Node: Changed Makefiles440226
-Node: Changed Macros441308
-Node: Changed Results442560
-Node: Changed Macro Writing444661
-Node: Autoconf 2.13445930
-Node: Changed Quotation447132
-Node: New Macros449006
-Node: Hosts and Cross-Compilation450664
-Node: AC_LIBOBJ vs LIBOBJS454993
-Ref: AC_LIBOBJ vs LIBOBJS-Footnote-1457529
-Node: AC_FOO_IFELSE vs AC_TRY_FOO457605
-Node: Using Autotest459615
-Node: Using an Autotest Test Suite462050
-Node: testsuite Scripts462333
-Node: Autotest Logs466245
-Ref: Autotest Logs-Footnote-1468613
-Node: Writing testsuite.at468853
-Node: testsuite Invocation472625
-Node: Making testsuite Scripts475712
-Node: FAQ479167
-Node: Distributing479834
-Node: Why GNU m4480873
-Node: Bootstrapping481765
-Node: Why Not Imake482365
-Node: Defining Directories487085
-Ref: Defining Directories-Footnote-1489148
-Ref: Defining Directories-Footnote-2489223
-Node: autom4te.cache489298
-Node: History491094
-Node: Genesis491878
-Node: Exodus493051
-Node: Leviticus496094
-Node: Numbers497617
-Node: Deuteronomy499525
-Node: Copying This Manual502189
-Node: GNU Free Documentation License502401
-Node: Indices522269
-Node: Environment Variable Index522887
-Node: Output Variable Index525834
-Node: Preprocessor Symbol Index532558
-Node: Autoconf Macro Index540215
-Node: M4 Macro Index558438
-Node: Autotest Macro Index559624
-Node: Program & Function Index560383
-Node: Concept Index565819
+Node: Top2371
+Node: Introduction17206
+Ref: Introduction-Footnote-122041
+Ref: Introduction-Footnote-222122
+Ref: Introduction-Footnote-322216
+Ref: Introduction-Footnote-422330
+Node: The GNU Build System22405
+Node: Automake23324
+Node: Libtool25717
+Node: Pointers27139
+Ref: Pointers-Footnote-128449
+Ref: Pointers-Footnote-228508
+Ref: Pointers-Footnote-328567
+Ref: Pointers-Footnote-428624
+Ref: Pointers-Footnote-528766
+Ref: Pointers-Footnote-628840
+Ref: Pointers-Footnote-728912
+Node: Making configure Scripts28987
+Node: Writing configure.ac32036
+Node: Shell Script Compiler33465
+Node: Autoconf Language35729
+Node: configure.ac Layout40352
+Node: autoscan Invocation41747
+Node: ifnames Invocation44244
+Node: autoconf Invocation45438
+Node: autoreconf Invocation50756
+Node: Setup54396
+Node: Initializing configure55656
+Node: Notices57395
+Node: Input59028
+Node: Output60609
+Node: Configuration Actions62608
+Node: Configuration Files67222
+Node: Makefile Substitutions68692
+Node: Preset Output Variables70373
+Node: Installation Directory Variables75429
+Node: Build Directories80934
+Node: Automatic Remaking82572
+Node: Configuration Headers84742
+Node: Header Templates87472
+Node: autoheader Invocation88997
+Node: Autoheader Macros92154
+Node: Configuration Commands94345
+Node: Configuration Links95787
+Node: Subdirectories97202
+Node: Default Prefix99638
+Node: Existing Tests101051
+Node: Common Behavior102768
+Node: Standard Symbols103401
+Node: Default Includes103969
+Node: Alternative Programs105892
+Node: Particular Programs106574
+Node: Generic Programs111818
+Node: Files115733
+Node: Libraries116611
+Node: Library Functions119502
+Node: Function Portability120120
+Node: Particular Functions124069
+Node: Generic Functions137627
+Node: Header Files142457
+Node: Header Portability143086
+Node: Particular Headers143928
+Node: Generic Headers151475
+Node: Declarations153901
+Node: Particular Declarations154492
+Node: Generic Declarations154707
+Node: Structures157111
+Node: Particular Structures157721
+Node: Generic Structures159409
+Node: Types160684
+Node: Particular Types161198
+Node: Generic Types162527
+Node: Compilers and Preprocessors163929
+Node: Specific Compiler Characteristics165004
+Node: Generic Compiler Characteristics166132
+Node: C Compiler167015
+Node: C++ Compiler176444
+Node: Fortran 77 Compiler178440
+Node: System Services186992
+Ref: System Services-Footnote-1190109
+Node: UNIX Variants190200
+Node: Writing Tests191614
+Node: Language Choice193638
+Node: Writing Test Programs195669
+Node: Guidelines196250
+Node: Test Functions198199
+Node: Generating Sources199784
+Node: Running the Preprocessor203660
+Node: Running the Compiler206793
+Node: Running the Linker207982
+Node: Run Time209899
+Node: Systemology213172
+Ref: Systemology-Footnote-1214783
+Ref: Systemology-Footnote-2214848
+Ref: Systemology-Footnote-3214886
+Ref: Systemology-Footnote-4214954
+Ref: Systemology-Footnote-5215070
+Node: Multiple Cases215139
+Node: Results216469
+Node: Defining Symbols217218
+Node: Setting Output Variables220724
+Node: Caching Results225317
+Node: Cache Variable Names228994
+Node: Cache Files230551
+Node: Cache Checkpointing232572
+Node: Printing Messages233944
+Node: Programming in M4237443
+Node: M4 Quotation238237
+Node: Active Characters239077
+Ref: Active Characters-Footnote-1240423
+Node: One Macro Call240445
+Node: Quotation and Nested Macros241999
+Node: Changequote is Evil244957
+Node: Quadrigraphs247484
+Node: Quotation Rule Of Thumb249536
+Node: Using autom4te252159
+Ref: Using autom4te-Footnote-1252763
+Node: autom4te Invocation252812
+Node: Customizing autom4te261641
+Node: Programming in M4sugar262876
+Node: Redefined M4 Macros263479
+Node: Evaluation Macros265595
+Node: Forbidden Patterns266632
+Node: Programming in M4sh267988
+Node: Writing Autoconf Macros269413
+Node: Macro Definitions270214
+Node: Macro Names271989
+Node: Reporting Messages274599
+Node: Dependencies Between Macros275948
+Node: Prerequisite Macros276567
+Node: Suggested Ordering279318
+Node: Obsoleting Macros280825
+Node: Coding Style281940
+Node: Portable Shell288962
+Ref: Portable Shell-Footnote-1291335
+Node: Shellology291403
+Ref: Shellology-Footnote-1294934
+Node: Here-Documents295030
+Node: File Descriptors297223
+Node: File System Conventions299372
+Ref: File System Conventions-Footnote-1303467
+Node: Shell Substitutions303541
+Node: Assignments309606
+Node: Special Shell Variables311480
+Node: Limitations of Builtins318827
+Node: Limitations of Usual Tools334617
+Node: Limitations of Make352543
+Node: Manual Configuration371485
+Node: Specifying Names372311
+Node: Canonicalizing374594
+Node: Using System Type376841
+Node: Site Configuration378642
+Node: External Software379472
+Node: Package Options382765
+Node: Pretty Help Strings385624
+Node: Site Details387607
+Node: Transforming Names388834
+Node: Transformation Options389911
+Node: Transformation Examples390377
+Node: Transformation Rules392085
+Node: Site Defaults393625
+Node: Running configure Scripts397544
+Node: Basic Installation398555
+Node: Compilers and Options401396
+Node: Multiple Architectures402044
+Node: Installation Names403036
+Node: Optional Features404227
+Node: System Type405004
+Node: Sharing Defaults406320
+Node: Defining Variables406951
+Node: configure Invocation407623
+Node: config.status Invocation408745
+Node: Obsolete Constructs412701
+Node: Obsolete config.status Use413650
+Node: acconfig.h415416
+Node: autoupdate Invocation417426
+Node: Obsolete Macros419110
+Node: Autoconf 1438426
+Node: Changed File Names439485
+Node: Changed Makefiles440230
+Node: Changed Macros441312
+Node: Changed Results442564
+Node: Changed Macro Writing444665
+Node: Autoconf 2.13445934
+Node: Changed Quotation447136
+Node: New Macros449010
+Node: Hosts and Cross-Compilation450668
+Node: AC_LIBOBJ vs LIBOBJS454997
+Ref: AC_LIBOBJ vs LIBOBJS-Footnote-1457533
+Node: AC_FOO_IFELSE vs AC_TRY_FOO457609
+Node: Using Autotest459619
+Node: Using an Autotest Test Suite462054
+Node: testsuite Scripts462337
+Node: Autotest Logs466249
+Ref: Autotest Logs-Footnote-1468617
+Node: Writing testsuite.at468857
+Node: testsuite Invocation472629
+Node: Making testsuite Scripts475716
+Node: FAQ479171
+Node: Distributing479838
+Node: Why GNU m4480877
+Node: Bootstrapping481769
+Node: Why Not Imake482369
+Node: Defining Directories487089
+Ref: Defining Directories-Footnote-1489152
+Ref: Defining Directories-Footnote-2489227
+Node: autom4te.cache489302
+Node: History491098
+Node: Genesis491882
+Node: Exodus493055
+Node: Leviticus496098
+Node: Numbers497621
+Node: Deuteronomy499529
+Node: Copying This Manual502193
+Node: GNU Free Documentation License502405
+Node: Indices524798
+Node: Environment Variable Index525416
+Node: Output Variable Index528363
+Node: Preprocessor Symbol Index535150
+Node: Autoconf Macro Index542807
+Node: M4 Macro Index561030
+Node: Autotest Macro Index562216
+Node: Program & Function Index562975
+Node: Concept Index568411
 
 End Tag Table
