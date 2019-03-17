@@ -1,6 +1,6 @@
 # M4 macros used in building Autoconf test suites.        -*- Autotest -*-
 
-# Copyright 2000, 2001 Free Software Foundation, Inc.
+# Copyright (C) 2000, 2001, 2002 Free Software Foundation, Inc.
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -123,12 +123,12 @@ m4_define([AT_CONFIGURE_AC],
 # we can ask help from AC_SUBST.  We have the right to touch what
 # is AC_SUBST'ed.
 #
-# Some `egrep' choke on such a big regex (e.g., SunOS 4.1.3).  In this
-# case just don't pay attention to the env.  It would be great
+# Perhaps grep -E is not supported, or perhaps it chokes on such a big regex.
+# In this case just don't pay attention to the env.  It would be great
 # to keep the error message but we can't: that would break AT_CHECK.
 m4_defun([AC_STATE_SAVE],
 [(set) 2>&1 |
-  egrep -v -e 'm4_join([|],
+  grep -E -v -e 'm4_join([|],
       [^a[cs]_],
       [^((exec_)?prefix|DEFS|CONFIG_STATUS)=],
       [^(CC|CFLAGS|CPP|GCC|CXX|CXXFLAGS|CXXCPP|GXX|F77|FFLAGS|FLIBS|G77)=],
@@ -148,7 +148,7 @@ m4_defun([AC_STATE_SAVE],
   grep '^m4_defn([m4_re_word])=' >state-env.$[@]&t@1
 test $? = 0 || rm -f state-env.$[@]&t@1
 
-ls -1 | egrep -v '^(at-|state-|config\.)' | sort >state-ls.$[@]&t@1
+ls -1 | sed '/^at-/d;/^state-/d;/^config\./d' | sort >state-ls.$[@]&t@1
 ])# AC_STATE_SAVE
 ]])
 
@@ -201,11 +201,11 @@ m4_define([AT_CHECK_CONFIGURE],
 # me tests might exit prematurely when they find a problem, in
 # which case `env-after' is probably missing.  Don't check it then.
 m4_define([AT_CHECK_ENV],
-[if test -f state-env.before -a -f state-env.after; then
+[if test -f state-env.before && test -f state-env.after; then
   mv -f state-env.before expout
   AT_CHECK([cat state-env.after], 0, expout)
 fi
-if test -f state-ls.before -a -f state-ls.after; then
+if test -f state-ls.before && test -f state-ls.after; then
   mv -f state-ls.before expout
   AT_CHECK([cat state-ls.after], 0, expout)
 fi
@@ -220,8 +220,17 @@ fi
 # and symbols (PACKAGE_...).
 # AT_CHECK_HEADER is a better name, but too close from AC_CHECK_HEADER.
 m4_define([AT_CHECK_DEFINES],
-[AT_CHECK([[fgrep '#' config.h |
- egrep -v 'STDC_HEADERS|STD(INT|LIB)|INTTYPES|MEMORY|PACKAGE_|STRING|SYS_(TYPES|STAT)|UNISTD']],,
+[AT_CHECK([[sed '/#/!d
+/INTTYPES/d
+/MEMORY/d
+/PACKAGE_/d
+/STDC_HEADERS/d
+/STDINT/d
+/STDLIB/d
+/STRING/d
+/SYS_STAT/d
+/SYS_TYPES/d
+/UNISTD/d' config.h]],,
           [$1])])
 
 
@@ -278,7 +287,7 @@ AT_CLEANUP()dnl
 #
 # Updated configure.ac shall not depend upon obsolete macros, which votes
 # in favor of `-W obsolete', but since many of these macros leave a message
-# to be removed by the user once her code ajusted, let's not check.
+# to be removed by the user once her code is adjusted, let's not check.
 #
 # Remove config.hin to avoid `autoheader: config.hin is unchanged'.
 m4_define([AT_CHECK_AU_MACRO],

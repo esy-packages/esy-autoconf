@@ -1,7 +1,6 @@
 # This file is part of Autoconf.                       -*- Autoconf -*-
 # Programming languages support.
-# Copyright 2001
-# Free Software Foundation, Inc.
+# Copyright (C) 2001, 2002 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -130,12 +129,7 @@ $1])
 # --------------------------------------
 m4_define([AC_LANG_PROGRAM(C)],
 [$1
-#ifdef F77_DUMMY_MAIN
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int F77_DUMMY_MAIN() { return 1; }
-#endif
+m4_ifdef([_AC_LANG_PROGRAM_C_F77_HOOKS], [_AC_LANG_PROGRAM_C_F77_HOOKS])[]dnl
 int
 main ()
 {
@@ -432,6 +426,7 @@ m4_expand_once([_AC_COMPILER_OBJEXT])[]dnl
 _AC_LANG_COMPILER_GNU
 GCC=`test $ac_compiler_gnu = yes && echo yes`
 _AC_PROG_CC_G
+_AC_PROG_CC_STDC
 # Some people use a C++ compiler to compile C.  Since we use `exit',
 # in C++ we need to declare it.  In case someone uses the same compiler
 # for both compiling C and C++ we need to have the C++ compiler decide
@@ -723,24 +718,15 @@ fi
 # 4b. C compiler characteristics.  #
 # -------------------------------- #
 
-# AC_PROG_CC_STDC
-# ---------------
+# _AC_PROG_CC_STDC
+# ----------------
 # If the C compiler in not in ANSI C mode by default, try to add an
 # option to output variable @code{CC} to make it so.  This macro tries
 # various options that select ANSI C on some system or another.  It
 # considers the compiler to be in ANSI C mode if it handles function
 # prototypes correctly.
-AC_DEFUN([AC_PROG_CC_STDC],
-[AC_REQUIRE([AC_PROG_CC])dnl
-AC_BEFORE([$0], [AC_C_INLINE])dnl
-AC_BEFORE([$0], [AC_C_CONST])dnl
-dnl Force this before AC_PROG_CPP.  Some cpp's, eg on HPUX, require
-dnl a magic option to avoid problems with ANSI preprocessor commands
-dnl like #elif.
-dnl FIXME: can't do this because then AC_AIX won't work due to a
-dnl circular dependency.
-dnl AC_BEFORE([$0], [AC_PROG_CPP])
-AC_MSG_CHECKING([for $CC option to accept ANSI C])
+AC_DEFUN([_AC_PROG_CC_STDC],
+[AC_MSG_CHECKING([for $CC option to accept ANSI C])
 AC_CACHE_VAL(ac_cv_prog_cc_stdc,
 [ac_cv_prog_cc_stdc=no
 ac_save_CC=$CC
@@ -784,8 +770,8 @@ char **argv;]],
 for ac_arg in "" -qlanglvl=ansi -std1 -Ae "-Aa -D_HPUX_SOURCE" "-Xc -D__EXTENSIONS__"
 do
   CC="$ac_save_CC $ac_arg"
-  AC_COMPILE_IFELSE([],
-                    [ac_cv_prog_cc_stdc=$ac_arg
+  _AC_COMPILE_IFELSE([],
+                     [ac_cv_prog_cc_stdc=$ac_arg
 break])
 done
 rm -f conftest.$ac_ext conftest.$ac_objext
@@ -798,7 +784,36 @@ case "x$ac_cv_prog_cc_stdc" in
     AC_MSG_RESULT([$ac_cv_prog_cc_stdc])
     CC="$CC $ac_cv_prog_cc_stdc" ;;
 esac
-])# AC_PROG_CC_STDC
+])# _AC_PROG_CC_STDC
+
+
+# AC_PROG_CC_STDC
+# ---------------
+# Has been merged into AC_PROG_CC.
+AU_DEFUN([AC_PROG_CC_STDC], [])
+
+
+# AC_C_BACKSLASH_A
+# ----------------
+AC_DEFUN([AC_C_BACKSLASH_A],
+[
+  AC_CACHE_CHECK([whether backslash-a works in strings], ac_cv_c_backslash_a,
+   [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([],
+     [[
+#if '\a' == 'a'
+      syntax error;
+#endif
+      char buf['\a' == 'a' ? -1 : 1];
+      buf[0] = '\a';
+      return buf[0] != "\a"[0];
+     ]])],
+     [ac_cv_c_backslash_a=yes],
+     [ac_cv_c_backslash_a=no])])
+  if test $ac_cv_c_backslash_a = yes; then
+    AC_DEFINE(HAVE_C_BACKSLASH_A, 1,
+      [Define if backslash-a works in C strings.])
+  fi
+])
 
 
 # AC_C_CROSS
@@ -880,7 +895,7 @@ main ()
   u.l = 1;
   exit (u.c[sizeof (long) - 1] == 1);
 }], [ac_cv_c_bigendian=no], [ac_cv_c_bigendian=yes],
-[# try to guess the endianess by grep'ing values into an object file
+[# try to guess the endianness by grepping values into an object file
   ac_cv_c_bigendian=unknown
   AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
 [[short ascii_mm[] = { 0x4249, 0x4765, 0x6E44, 0x6961, 0x6E53, 0x7953, 0 };
@@ -890,10 +905,10 @@ short ebcdic_ii[] = { 0x89D3, 0xE3E3, 0x8593, 0x95C5, 0x89C4, 0x9581, 0 };
 short ebcdic_mm[] = { 0xC2C9, 0xC785, 0x95C4, 0x8981, 0x95E2, 0xA8E2, 0 };
 void _ebcdic () { char *s = (char *) ebcdic_mm; s = (char *) ebcdic_ii; }]],
 [[ _ascii (); _ebcdic (); ]])],
-[if fgrep BIGenDianSyS conftest.$ac_objext >/dev/null ; then
+[if grep BIGenDianSyS conftest.$ac_objext >/dev/null ; then
   ac_cv_c_bigendian=yes
 fi
-if fgrep LiTTleEnDian conftest.$ac_objext >/dev/null ; then
+if grep LiTTleEnDian conftest.$ac_objext >/dev/null ; then
   if test "$ac_cv_c_bigendian" = unknown; then
     ac_cv_c_bigendian=no
   else
@@ -911,7 +926,7 @@ case $ac_cv_c_bigendian in
     $2 ;;
   *)
     m4_default([$3],
-      [AC_MSG_ERROR([unknown endianess
+      [AC_MSG_ERROR([unknown endianness
 presetting ac_cv_c_bigendian=no (or yes) will help])]) ;;
 esac
 ])# AC_C_BIGENDIAN
@@ -922,15 +937,19 @@ esac
 # Do nothing if the compiler accepts the inline keyword.
 # Otherwise define inline to __inline__ or __inline if one of those work,
 # otherwise define inline to be empty.
+#
+# HP C version B.11.11.04 doesn't allow a typedef as the return value for an
+# inline function, only builtin types.
+#
 AC_DEFUN([AC_C_INLINE],
-[AC_REQUIRE([AC_PROG_CC_STDC])dnl
-AC_CACHE_CHECK([for inline], ac_cv_c_inline,
+[AC_CACHE_CHECK([for inline], ac_cv_c_inline,
 [ac_cv_c_inline=no
 for ac_kw in inline __inline__ __inline; do
   AC_COMPILE_IFELSE([AC_LANG_SOURCE(
 [#ifndef __cplusplus
-static $ac_kw int static_foo () {return 0; }
-$ac_kw int foo () {return 0; }
+typedef int foo_t;
+static $ac_kw foo_t static_foo () {return 0; }
+$ac_kw foo_t foo () {return 0; }
 #endif
 ])],
                     [ac_cv_c_inline=$ac_kw; break])
@@ -949,8 +968,7 @@ esac
 # AC_C_CONST
 # ----------
 AC_DEFUN([AC_C_CONST],
-[AC_REQUIRE([AC_PROG_CC_STDC])dnl
-AC_CACHE_CHECK([for an ANSI C-conforming const], ac_cv_c_const,
+[AC_CACHE_CHECK([for an ANSI C-conforming const], ac_cv_c_const,
 [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([],
 [[/* FIXME: Include the comments suggested by Paul. */
 #ifndef __cplusplus
@@ -1017,8 +1035,7 @@ fi
 # volatile away unless it is really necessary to allow the user's code
 # to compile cleanly.  Benign compiler failures should be tolerated.
 AC_DEFUN([AC_C_VOLATILE],
-[AC_REQUIRE([AC_PROG_CC_STDC])dnl
-AC_CACHE_CHECK([for working volatile], ac_cv_c_volatile,
+[AC_CACHE_CHECK([for working volatile], ac_cv_c_volatile,
 [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [
 volatile int x;
 int * volatile y;])],
@@ -1058,7 +1075,7 @@ fi
 # Check if the C compiler supports prototypes, included if it needs
 # options.
 AC_DEFUN([AC_C_PROTOTYPES],
-[AC_REQUIRE([AC_PROG_CC_STDC])dnl
+[AC_REQUIRE([AC_PROG_CC])dnl
 AC_MSG_CHECKING([for function prototypes])
 if test "$ac_cv_prog_cc_stdc" != no; then
   AC_MSG_RESULT([yes])

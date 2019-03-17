@@ -1,6 +1,6 @@
 # This file is part of Autoconf.                       -*- Autoconf -*-
 # Checking for programs.
-# Copyright 1992, 1993, 1994, 1995, 1996, 1998, 1999, 2000, 2001
+# Copyright (C) 1992, 1993, 1994, 1995, 1996, 1998, 1999, 2000, 2001, 2002
 # Free Software Foundation, Inc.
 
 # This program is free software; you can redistribute it and/or modify
@@ -92,9 +92,7 @@ m4_ifvaln([$6],
     # However, it has the same basename, so the bogon will be chosen
     # first if we set $1 to just the basename; use the full file name.
     shift
-    set dummy "$as_dir/$ac_word" ${1+"$[@]"}
-    shift
-    ac_cv_prog_$1="$[@]"
+    ac_cv_prog_$1="$as_dir/$ac_word${1+' '}$[@]"
 m4_if([$2], [$4],
 [  else
     # Default is a loser.
@@ -259,6 +257,31 @@ fi
 # Check for gawk first since it's generally better.
 AC_DEFUN([AC_PROG_AWK],
 [AC_CHECK_PROGS(AWK, gawk mawk nawk awk, )])
+
+
+# AC_PROG_EGREP
+# -------------
+AC_DEFUN([AC_PROG_EGREP],
+[AC_CACHE_CHECK([for egrep], [ac_cv_prog_egrep],
+   [if echo a | (grep -E '(a|b)') >/dev/null 2>&1
+    then ac_cv_prog_egrep='grep -E'
+    else ac_cv_prog_egrep='egrep'
+    fi])
+ EGREP=$ac_cv_prog_egrep
+ AC_SUBST([EGREP])
+])# AC_PROG_EGREP
+
+# AC_PROG_FGREP
+# -------------
+AC_DEFUN([AC_PROG_FGREP],
+[AC_CACHE_CHECK([for fgrep], [ac_cv_prog_fgrep],
+   [if echo 'ab*c' | (grep -F 'ab*c') >/dev/null 2>&1
+    then ac_cv_prog_fgrep='grep -F'
+    else ac_cv_prog_fgrep='fgrep'
+    fi])
+ FGREP=$ac_cv_prog_fgrep
+ AC_SUBST([FGREP])
+])# AC_PROG_FGREP
 
 
 # AC_PROG_INSTALL

@@ -2,11 +2,11 @@
 # -*- Perl -*-
 # @configure_input@
 
-eval 'exec @PERL@ -S $0 ${1+"$@"}'
+eval 'case $# in 0) exec @PERL@ -S "$0";; *) exec @PERL@ -S "$0" "$@";; esac'
     if 0;
 
 # autoheader -- create `config.h.in' from `configure.ac'
-# Copyright 1992, 1993, 1994, 1996, 1998, 1999, 2000, 2001
+# Copyright (C) 1992, 1993, 1994, 1996, 1998, 1999, 2000, 2001, 2002
 # Free Software Foundation, Inc.
 
 # This program is free software; you can redistribute it and/or modify
@@ -41,9 +41,10 @@ use strict;
 use vars qw ($config_h %verbatim %symbol);
 
 # Lib files.
-my $autom4te = $ENV{'AUTOM4TE'} || '@autom4te-name@';
+my $autom4te = $ENV{'AUTOM4TE'} || '@bindir@/@autom4te-name@';
 local $config_h;
 my $config_h_in;
+my @prepend_include;
 my @include;
 my @warning;
 
@@ -72,7 +73,8 @@ Warning categories include:
   \`error\'         warnings are error
 
 Library directories:
-  -I, --include=DIR  look for files in DIR (cumulative)
+  -B, --prepend-include=DIR  prepend directory DIR to search path
+  -I, --include=DIR          append directory DIR to search path
 
 Report bugs to <bug-autoconf\@gnu.org>.
 END
@@ -103,12 +105,13 @@ sub parse_args ()
   my $srcdir;
 
   getopt ('I|include|A|autoconf-dir|m|macrodir|l|localdir=s' => \@include,
-	  'W|warning' => \@warning);
+	  'B|prepend-include=s' => \@prepend_include,
+	  'W|warnings=s' => \@warning);
 
   if (! @ARGV)
     {
       my $configure_ac = find_configure_ac;
-      die "$me: no input file\n"
+      error "no input file"
 	unless $configure_ac;
       push @ARGV, $configure_ac;
     }
@@ -123,9 +126,12 @@ mktmpdir ('ah');
 parse_args;
 
 # Preach.
-my $config_h_top = find_file ("config.h.top?", @include);
-my $config_h_bot = find_file ("config.h.bot?", @include);
-my $acconfig_h = find_file ("acconfig.h?", @include);
+my $config_h_top = find_file ("config.h.top?",
+			      reverse(@prepend_include), @include);
+my $config_h_bot = find_file ("config.h.bot?",
+			      reverse(@prepend_include), @include);
+my $acconfig_h = find_file ("acconfig.h?",
+			    reverse(@prepend_include), @include);
 if ($config_h_top || $config_h_bot || $acconfig_h)
   {
     my $msg = << "END";
@@ -150,6 +156,7 @@ END
 # Set up autoconf.
 my $autoconf = "$autom4te --language=autoconf ";
 $autoconf .= join (' ', map { "--include=$_" } @include);
+$autoconf .= join (' ', map { "--prepend-include=$_" } @prepend_include);
 $autoconf .= ' --debug' if $debug;
 $autoconf .= ' --force' if $force;
 $autoconf .= ' --verbose' if $verbose;
@@ -169,7 +176,7 @@ xsystem ("$autoconf "
 local (%verbatim, %symbol);
 do "$tmp/traces.pl";
 warn "couldn't parse $tmp/traces.pl: $@" if $@;
-die "$me: error: AC_CONFIG_HEADERS not found in $ARGV[0]\n"
+error "error: AC_CONFIG_HEADERS not found in $ARGV[0]"
   unless $config_h;
 
 # We template only the first CONFIG_HEADER.
@@ -258,3 +265,20 @@ $out->close;
 }
 
 update_file ("$tmp/config.hin", "$config_h_in");
+
+### Setup "GNU" style for perl-mode and cperl-mode.
+## Local Variables:
+## perl-indent-level: 2
+## perl-continued-statement-offset: 2
+## perl-continued-brace-offset: 0
+## perl-brace-offset: 0
+## perl-brace-imaginary-offset: 0
+## perl-label-offset: -2
+## cperl-indent-level: 2
+## cperl-brace-offset: 0
+## cperl-continued-brace-offset: 0
+## cperl-label-offset: -2
+## cperl-extra-newline-before-brace: t
+## cperl-merge-trailing-else: nil
+## cperl-continued-statement-offset: 2
+## End:

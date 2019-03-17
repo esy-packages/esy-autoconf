@@ -1,6 +1,6 @@
 # This file is part of Autoconf.                       -*- Autoconf -*-
 # Parameterizing and creating config.status.
-# Copyright 1992, 1993, 1994, 1995, 1996, 1998, 1999, 2000, 2001
+# Copyright (C) 1992, 1993, 1994, 1995, 1996, 1998, 1999, 2000, 2001, 2002
 # Free Software Foundation, Inc.
 
 # This program is free software; you can redistribute it and/or modify
@@ -163,20 +163,21 @@ esac
 # Don't blindly perform a `cd $1/$ac_foo && pwd` since $ac_foo can be
 # absolute.
 ac_abs_builddir=`cd $1 && cd $ac_builddir && pwd`
-ac_abs_top_builddir=`cd $1 && cd $ac_top_builddir && pwd`
+ac_abs_top_builddir=`cd $1 && cd ${ac_top_builddir}. && pwd`
 ac_abs_srcdir=`cd $1 && cd $ac_srcdir && pwd`
 ac_abs_top_srcdir=`cd $1 && cd $ac_top_srcdir && pwd`
 ])# _AC_SRCPATHS
 
 
 
-## ---------------------------------- ##
-## Ensuring the unicity of the tags.  ##
-## ---------------------------------- ##
+## ------------------------------------- ##
+## Ensuring the uniqueness of the tags.  ##
+## ------------------------------------- ##
 
-# AC_CONFIG_IF_MEMBER(DEST, LIST, ACTION-IF-TRUE, ACTION-IF-FALSE)
+# AC_CONFIG_IF_MEMBER(DEST, LIST-NAME, ACTION-IF-TRUE, ACTION-IF-FALSE)
 # ----------------------------------------------------------------
-# If DEST is member of LIST, expand to ACTION-IF-TRUE, else ACTION-IF-FALSE.
+# If DEST is member of LIST-NAME, expand to ACTION-IF-TRUE, else
+# ACTION-IF-FALSE.
 #
 # LIST is an AC_CONFIG list, i.e., a list of DEST[:SOURCE], separated
 # with spaces.
@@ -186,8 +187,8 @@ ac_abs_top_srcdir=`cd $1 && cd $ac_top_srcdir && pwd`
 # matching.  The big problem is then that the active characters should
 # be quoted.  Currently `+*.' are quoted.
 m4_define([AC_CONFIG_IF_MEMBER],
-[m4_bmatch($2, [\(^\| \)]m4_re_escape([$1])[\(:\| \|$\)]),
-          [$3], [$4])])
+[m4_bmatch(m4_defn([$2]), [\(^\| \)]m4_re_escape([$1])[\([: ]\|$\)],
+           [$3], [$4])])
 
 
 # AC_FILE_DEPENDENCY_TRACE(DEST, SOURCE1, [SOURCE2...])
@@ -211,10 +212,8 @@ m4_define([_AC_CONFIG_DEPENDENCY],
 # -------------------------------------------------------
 # Declare the DESTs depend upon their SOURCE1 etc.
 m4_define([_AC_CONFIG_DEPENDENCIES],
-[m4_divert_push([KILL])
-AC_FOREACH([AC_File], [$1],
-  [_AC_CONFIG_DEPENDENCY(m4_bpatsubst(AC_File, [:], [,]))])
-m4_divert_pop([KILL])dnl
+[AC_FOREACH([AC_File], [$1],
+  [_AC_CONFIG_DEPENDENCY(m4_bpatsubst(AC_File, [:], [,]))])dnl
 ])
 
 
@@ -228,21 +227,19 @@ m4_divert_pop([KILL])dnl
 # Note that this macro does not check if the list $[1] itself
 # contains doubles.
 m4_define([_AC_CONFIG_UNIQUE],
-[m4_divert_push([KILL])
-AC_FOREACH([AC_File], [$1],
-[m4_pushdef([AC_Dest], m4_bpatsubst(AC_File, [:.*]))
-AC_CONFIG_IF_MEMBER(AC_Dest, [AC_LIST_HEADERS],
-     [AC_FATAL(`AC_Dest' [is already registered with AC_CONFIG_HEADER or AC_CONFIG_HEADERS.])])
+[AC_FOREACH([AC_File], [$1],
+[m4_pushdef([AC_Dest], m4_bpatsubst(AC_File, [:.*]))dnl
+  AC_CONFIG_IF_MEMBER(AC_Dest, [AC_LIST_HEADERS],
+     [AC_FATAL(`AC_Dest' [is already registered with AC_CONFIG_HEADERS.])])dnl
   AC_CONFIG_IF_MEMBER(AC_Dest, [AC_LIST_LINKS],
-     [AC_FATAL(`AC_Dest' [is already registered with AC_CONFIG_LINKS.])])
+     [AC_FATAL(`AC_Dest' [is already registered with AC_CONFIG_LINKS.])])dnl
   AC_CONFIG_IF_MEMBER(AC_Dest, [_AC_LIST_SUBDIRS],
-     [AC_FATAL(`AC_Dest' [is already registered with AC_CONFIG_SUBDIRS.])])
+     [AC_FATAL(`AC_Dest' [is already registered with AC_CONFIG_SUBDIRS.])])dnl
   AC_CONFIG_IF_MEMBER(AC_Dest, [AC_LIST_COMMANDS],
-     [AC_FATAL(`AC_Dest' [is already registered with AC_CONFIG_COMMANDS.])])
+     [AC_FATAL(`AC_Dest' [is already registered with AC_CONFIG_COMMANDS.])])dnl
   AC_CONFIG_IF_MEMBER(AC_Dest, [AC_LIST_FILES],
-     [AC_FATAL(`AC_Dest' [is already registered with AC_CONFIG_FILES or AC_OUTPUT.])])
-m4_popdef([AC_Dest])])
-m4_divert_pop([KILL])dnl
+     [AC_FATAL(`AC_Dest' [is already registered with AC_CONFIG_FILES.])])dnl
+m4_popdef([AC_Dest])])dnl
 ])
 
 
@@ -269,6 +266,18 @@ m4_define([_AC_CONFIG_COMMANDS_INIT],
 m4_define([_AC_OUTPUT_COMMANDS_INIT])
 
 
+# _AC_CONFIG_COMMAND(NAME, [COMMANDS])
+# ------------------------------------
+# See below.
+m4_define([_AC_CONFIG_COMMAND],
+[_AC_CONFIG_UNIQUE([$1])dnl
+m4_append([AC_LIST_COMMANDS], [ $1])dnl
+m4_ifval([$2],
+[m4_append([AC_LIST_COMMANDS_COMMANDS],
+[    ]m4_bpatsubst([$1], [:.*])[ ) $2 ;;
+])])dnl
+])
+
 # AC_CONFIG_COMMANDS(NAME...,[COMMANDS], [INIT-CMDS])
 # ---------------------------------------------------
 #
@@ -276,18 +285,10 @@ m4_define([_AC_OUTPUT_COMMANDS_INIT])
 # commands must be associated with a NAME, which should be thought
 # as the name of a file the COMMANDS create.
 AC_DEFUN([AC_CONFIG_COMMANDS],
-[m4_divert_push([KILL])
-_AC_CONFIG_UNIQUE([$1])
-m4_append([AC_LIST_COMMANDS], [ $1])
-
-m4_if([$2],,, [AC_FOREACH([AC_Name], [$1],
-[m4_append([AC_LIST_COMMANDS_COMMANDS],
-[    ]m4_bpatsubst(AC_Name, [:.*])[ ) $2 ;;
-])])])
-_AC_CONFIG_COMMANDS_INIT([$3])
-m4_divert_pop([KILL])dnl
+[AC_FOREACH([AC_Name], [$1], [_AC_CONFIG_COMMAND(m4_defn([AC_Name]), [$2])])dnl
+_AC_CONFIG_COMMANDS_INIT([$3])dnl
 ac_config_commands="$ac_config_commands $1"
-])dnl
+])
 
 # Initialize the lists.
 m4_define([AC_LIST_COMMANDS])
@@ -325,8 +326,15 @@ AC_DEFUN([AC_CONFIG_COMMANDS_PRE],
 [m4_append([AC_OUTPUT_COMMANDS_PRE], [$1
 ])])
 
-# Initialize.
-m4_define([AC_OUTPUT_COMMANDS_PRE])
+
+# AC_OUTPUT_COMMANDS_PRE
+# ----------------------
+# A *variable* in which we append all the actions that must be
+# performed before *creating* config.status.  For a start, clean
+# up all the LIBOBJ mess.
+m4_define([AC_OUTPUT_COMMANDS_PRE],
+[_AC_LIBOBJS_NORMALIZE()
+])
 
 
 # AC_CONFIG_COMMANDS_POST(CMDS)
@@ -379,6 +387,21 @@ _ACEOF
 ## ----------------------- ##
 
 
+# _AC_CONFIG_HEADER(HEADER, [COMMANDS])
+# -------------------------------------
+# See below.
+m4_define([_AC_CONFIG_HEADER],
+[_AC_CONFIG_UNIQUE([$1])dnl
+m4_append([AC_LIST_HEADERS], [ $1])dnl
+_AC_CONFIG_DEPENDENCIES([$1])dnl
+dnl Register the commands
+m4_ifval([$2],
+[m4_append([AC_LIST_HEADERS_COMMANDS],
+[    ]m4_bpatsubst([$1], [:.*])[ ) $2 ;;
+])])dnl
+])
+
+
 # AC_CONFIG_HEADERS(HEADERS..., [COMMANDS], [INIT-CMDS])
 # ------------------------------------------------------
 # Specify that the HEADERS are to be created by instantiation of the
@@ -392,19 +415,10 @@ _ACEOF
 #        AC_LIST_HEADERS_COMMANDS
 #      esac
 AC_DEFUN([AC_CONFIG_HEADERS],
-[m4_divert_push([KILL])
-_AC_CONFIG_UNIQUE([$1])
-_AC_CONFIG_DEPENDENCIES([$1])
-m4_append([AC_LIST_HEADERS], [ $1])
-dnl Register the commands
-m4_ifval([$2], [AC_FOREACH([AC_File], [$1],
-[m4_append([AC_LIST_HEADERS_COMMANDS],
-[    ]m4_bpatsubst(AC_File, [:.*])[ ) $2 ;;
-])])])
-_AC_CONFIG_COMMANDS_INIT([$3])
-m4_divert_pop([KILL])dnl
+[AC_FOREACH([AC_File], [$1], [_AC_CONFIG_HEADER(m4_defn([AC_File]), [$2])])dnl
+_AC_CONFIG_COMMANDS_INIT([$3])dnl
 ac_config_headers="$ac_config_headers m4_normalize([$1])"
-])dnl
+])
 
 # Initialize to empty.  It is much easier and uniform to have a config
 # list expand to empty when undefined, instead of special casing when
@@ -570,7 +584,7 @@ _ACEOF
 # Break up conftest.defines because some shells have a limit on the size
 # of here documents, and old seds have small limits too (100 cmds).
 echo '  # Handle all the #define templates only if necessary.' >>$CONFIG_STATUS
-echo '  if egrep ["^[ 	]*#[ 	]*define"] $tmp/in >/dev/null; then' >>$CONFIG_STATUS
+echo '  if grep ["^[ 	]*#[ 	]*define"] $tmp/in >/dev/null; then' >>$CONFIG_STATUS
 echo '  # If there are no defines, we may have an empty if/fi' >>$CONFIG_STATUS
 echo '  :' >>$CONFIG_STATUS
 rm -f conftest.tail
@@ -594,7 +608,7 @@ do
   mv conftest.tail conftest.defines
 done
 rm -f conftest.defines
-echo '  fi # egrep' >>$CONFIG_STATUS
+echo '  fi # grep' >>$CONFIG_STATUS
 echo >>$CONFIG_STATUS
 
 # Break up conftest.undefs because some shells have a limit on the size
@@ -647,6 +661,11 @@ cat >>$CONFIG_STATUS <<\_ACEOF
     cat $tmp/config.h
     rm -f $tmp/config.h
   fi
+dnl If running for Automake, be ready to perform additional
+dnl commands to set up the timestamp files.
+m4_ifdef([_AC_AM_CONFIG_HEADER_HOOK],
+         [_AC_AM_CONFIG_HEADER_HOOK([$ac_file])
+])dnl
 m4_ifset([AC_LIST_HEADERS_COMMANDS],
 [  # Run the commands associated with the file.
   case $ac_file in
@@ -664,6 +683,21 @@ _ACEOF
 ## --------------------- ##
 
 
+# _AC_CONFIG_LINK(DEST:SOURCE, [COMMANDS])
+# ----------------------------------------
+# See below.
+m4_define([_AC_CONFIG_LINK],
+[_AC_CONFIG_UNIQUE([$1])dnl
+m4_append([AC_LIST_LINKS], [ $1])dnl
+_AC_CONFIG_DEPENDENCIES([$1])dnl
+m4_bmatch([$1], [^\.:\| \.:], [m4_fatal([$0: invalid destination: `.'])])dnl
+dnl Register the commands
+m4_ifval([$2],
+[m4_append([AC_LIST_LINKS_COMMANDS],
+[    ]m4_bpatsubst([$1], [:.*])[ ) $2 ;;
+])])dnl
+])
+
 # AC_CONFIG_LINKS(DEST:SOURCE..., [COMMANDS], [INIT-CMDS])
 # --------------------------------------------------------
 # Specify that config.status should establish a (symbolic if possible)
@@ -671,20 +705,10 @@ _ACEOF
 # Reject DEST=., because it is makes it hard for ./config.status
 # to guess the links to establish (`./config.status .').
 AC_DEFUN([AC_CONFIG_LINKS],
-[m4_divert_push([KILL])
-_AC_CONFIG_UNIQUE([$1])
-_AC_CONFIG_DEPENDENCIES([$1])
-m4_bmatch([$1], [^\.:\| \.:], [m4_fatal([$0: invalid destination: `.'])])
-m4_append([AC_LIST_LINKS], [ $1])
-dnl Register the commands
-m4_ifval([$2], [AC_FOREACH([AC_File], [$1],
-[m4_append([AC_LIST_LINKS_COMMANDS],
-[    ]m4_bpatsubst(AC_File, [:.*])[ ) $2 ;;
-])])])
-_AC_CONFIG_COMMANDS_INIT([$3])
-m4_divert_pop([KILL])dnl
+[AC_FOREACH([AC_File], [$1], [_AC_CONFIG_LINK(m4_defn([AC_File]), [$2])])dnl
+_AC_CONFIG_COMMANDS_INIT([$3])dnl
 ac_config_links="$ac_config_links m4_normalize([$1])"
-])dnl
+])
 
 
 # Initialize the list.
@@ -765,10 +789,11 @@ for ac_file in : $CONFIG_LINKS; do test "x$ac_file" = x: && continue
       *) ac_rel_source=$ac_top_builddir$srcdir/$ac_source ;;
   esac
 
-  # Make a symlink if possible; otherwise try a hard link.
+  # Try a symlink, then a hard link, then a copy.
   ln -s $ac_rel_source $ac_dest 2>/dev/null ||
-    ln $srcdir/$ac_source $ac_dest ||
-    AC_MSG_ERROR([cannot link $ac_dest to $srcdir/$ac_source])
+    ln $srcdir/$ac_source $ac_dest 2>/dev/null ||
+    cp -p $srcdir/$ac_source $ac_dest ||
+    AC_MSG_ERROR([cannot link or copy $srcdir/$ac_source to $ac_dest])
 m4_ifset([AC_LIST_LINKS_COMMANDS],
 [  # Run the commands associated with the file.
   case $ac_file in
@@ -786,6 +811,20 @@ _ACEOF
 ## --------------------- ##
 
 
+# _AC_CONFIG_FILE(FILE..., [COMMANDS])
+# ------------------------------------
+# See below.
+m4_define([_AC_CONFIG_FILE],
+[_AC_CONFIG_UNIQUE([$1])dnl
+m4_append([AC_LIST_FILES], [ $1])dnl
+_AC_CONFIG_DEPENDENCIES([$1])dnl
+dnl Register the commands.
+m4_ifval([$2],
+[m4_append([AC_LIST_FILES_COMMANDS],
+[    ]m4_bpatsubst([$1], [:.*])[ ) $2 ;;
+])])dnl
+])
+
 # AC_CONFIG_FILES(FILE..., [COMMANDS], [INIT-CMDS])
 # -------------------------------------------------
 # Specify output files, as with AC_OUTPUT, i.e., files that are
@@ -799,19 +838,10 @@ _ACEOF
 #        AC_LIST_FILES_COMMANDS
 #      esac
 AC_DEFUN([AC_CONFIG_FILES],
-[m4_divert_push([KILL])
-_AC_CONFIG_UNIQUE([$1])
-_AC_CONFIG_DEPENDENCIES([$1])
-m4_append([AC_LIST_FILES], [ $1])
-dnl Register the commands.
-m4_ifval([$2], [AC_FOREACH([AC_File], [$1],
-[m4_append([AC_LIST_FILES_COMMANDS],
-[    ]m4_bpatsubst(AC_File, [:.*])[ ) $2 ;;
-])])])
-_AC_CONFIG_COMMANDS_INIT([$3])
-m4_divert_pop([KILL])dnl
+[AC_FOREACH([AC_File], [$1], [_AC_CONFIG_FILE(m4_defn([AC_File]), [$2])])dnl
+_AC_CONFIG_COMMANDS_INIT([$3])dnl
 ac_config_files="$ac_config_files m4_normalize([$1])"
-])dnl
+])
 
 # Initialize the lists.
 m4_define([AC_LIST_FILES])
@@ -845,7 +875,15 @@ dnl the other too.
 dnl These here document variables are unquoted when configure runs
 dnl but quoted when config.status runs, so variables are expanded once.
 dnl Insert the sed substitutions of variables.
-_AC_SUBST_SED_PROGRAM()dnl
+m4_ifdef([_AC_SUBST_VARS],
+         [AC_FOREACH([AC_Var], m4_defn([_AC_SUBST_VARS]),
+[s,@AC_Var@,$AC_Var,;t t
+])])dnl
+m4_ifdef([_AC_SUBST_FILES],
+         [AC_FOREACH([AC_Var], m4_defn([_AC_SUBST_FILES]),
+[/@AC_Var@/r $AC_Var
+s,@AC_Var@,,;t t
+])])dnl
 CEOF
 
 _ACEOF
@@ -1132,9 +1170,9 @@ fi
 
 
 
-## ------------------------- ##
-## Outputing config.status.  ##
-## ------------------------- ##
+## -------------------------- ##
+## Outputting config.status.  ##
+## -------------------------- ##
 
 
 # autoupdate::AC_OUTPUT([CONFIG_FILES...], [EXTRA-CMDS], [INIT-CMDS])
@@ -1244,6 +1282,10 @@ _ACEOF
 
 cat >>$CONFIG_STATUS <<\_ACEOF
 AS_SHELL_SANITIZE
+dnl Watch out, this is directly the initializations, do not use
+dnl AS_PREPARE, otherwise you'd get it output in the initialization
+dnl of configure, not config.status.
+_AS_PREPARE
 exec AS_MESSAGE_FD>&1
 
 # Open the log real soon, to keep \$[0] and so on meaningful, and to
@@ -1361,17 +1403,20 @@ do
   --*=*)
     ac_option=`expr "x$[1]" : 'x\([[^=]]*\)='`
     ac_optarg=`expr "x$[1]" : 'x[[^=]]*=\(.*\)'`
-    shift
-    set dummy "$ac_option" "$ac_optarg" ${1+"$[@]"}
-    shift
+    ac_shift=:
     ;;
-  -*);;
+  -*)
+    ac_option=$[1]
+    ac_optarg=$[2]
+    ac_shift=shift
+    ;;
   *) # This is not an option, so the user has probably given explicit
      # arguments.
+     ac_option=$[1]
      ac_need_defaults=false;;
   esac
 
-  case $[1] in
+  case $ac_option in
   # Handling of the options.
 _ACEOF
 cat >>$CONFIG_STATUS <<_ACEOF
@@ -1391,12 +1436,12 @@ Try `$[0] --help' for more information.]);;
   --debug | --d* | -d )
     debug=: ;;
   --file | --fil | --fi | --f )
-    shift
-    CONFIG_FILES="$CONFIG_FILES $[1]"
+    $ac_shift
+    CONFIG_FILES="$CONFIG_FILES $ac_optarg"
     ac_need_defaults=false;;
   --header | --heade | --head | --hea )
-    shift
-    CONFIG_HEADERS="$CONFIG_HEADERS $[1]"
+    $ac_shift
+    CONFIG_HEADERS="$CONFIG_HEADERS $ac_optarg"
     ac_need_defaults=false;;
 
   # This is an error.

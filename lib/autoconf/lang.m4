@@ -1,7 +1,6 @@
 # This file is part of Autoconf.                       -*- Autoconf -*-
 # Programming languages support.
-# Copyright 2000, 2001
-# Free Software Foundation, Inc.
+# Copyright (C) 2000, 2001, 2002 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -351,7 +350,7 @@ AC_DEFUN([AC_REQUIRE_CPP],
 # compiler often expects to be able to link with some of such
 # libraries.
 #
-# In several of these libraries, work-arounds have been introduced to
+# In several of these libraries, workarounds have been introduced to
 # avoid the AC_PROG_CC_WORKS test, that would just abort their
 # configuration.  The introduction of AC_EXEEXT, enabled either by
 # libtool or by CVS autoconf, have just made matters worse.
@@ -391,7 +390,29 @@ m4_divert_pop()dnl
 #
 # When the w32 free Borland C++ command line compiler links a program
 # (conftest.exe), it also produces a file named `conftest.tds' in
-# addition to `conftest.obj'
+# addition to `conftest.obj'.
+#
+# - *.bb, *.bbg
+#   Created per object by GCC when given -ftest-coverage.
+#
+# - *.xSYM
+#   Created on BeOS.  Seems to be per executable.
+
+
+# _AC_COMPILER_OBJEXT_REJECT
+# --------------------------
+# Case/esac pattern matching the files to be ignored when looking for
+# compiled object files.
+m4_define([_AC_COMPILER_OBJEXT_REJECT],
+[*.$ac_ext | *.xcoff | *.tds | *.d | *.pdb | *.xSYM | *.bb | *.bbg])
+
+
+# _AC_COMPILER_EXEEXT_REJECT
+# --------------------------
+# Case/esac pattern matching the files to be ignored when looking for
+# compiled executables.
+m4_define([_AC_COMPILER_EXEEXT_REJECT],
+[_AC_COMPILER_OBJEXT_REJECT | *.o | *.obj])
 
 
 # We must not AU define them, because autoupdate would then remove
@@ -426,11 +447,10 @@ AS_IF([AC_TRY_EVAL(ac_link_default)],
 # Be careful to initialize this variable, since it used to be cached.
 # Otherwise an old cache value of `no' led to `EXEEXT = no' in a Makefile.
 ac_cv_exeext=
-for ac_file in `ls a_out.exe a.exe conftest.exe 2>/dev/null;
-                ls a.out conftest 2>/dev/null;
-                ls a.* conftest.* 2>/dev/null`; do
+for ac_file in a_out.exe a.exe conftest.exe a.out conftest a.* conftest.*; do
+  test -f "$ac_file" || continue
   case $ac_file in
-    *.$ac_ext | *.o | *.obj | *.xcoff | *.tds | *.d | *.pdb | *.xSYM ) ;;
+    _AC_COMPILER_EXEEXT_REJECT ) ;;
     a.out ) # We found the default executable, but exeext='' is most
             # certainly right.
             break;;
@@ -443,7 +463,8 @@ for ac_file in `ls a_out.exe a.exe conftest.exe 2>/dev/null;
 done],
       [echo "$as_me: failed program was:" >&AS_MESSAGE_LOG_FD
 cat conftest.$ac_ext >&AS_MESSAGE_LOG_FD
-AC_MSG_ERROR([_AC_LANG compiler cannot create executables], 77)])
+AC_MSG_ERROR([_AC_LANG compiler cannot create executables
+check `config.log' for details.], 77)])
 ac_exeext=$ac_cv_exeext
 AC_MSG_RESULT([$ac_file])
 ])# _AC_COMPILER_EXEEXT_DEFAULT
@@ -494,9 +515,10 @@ AS_IF([AC_TRY_EVAL(ac_link)],
 # catch `conftest.exe'.  For instance with Cygwin, `ls conftest' will
 # work properly (i.e., refer to `conftest.exe'), while it won't with
 # `rm'.
-for ac_file in `(ls conftest.exe; ls conftest; ls conftest.*) 2>/dev/null`; do
+for ac_file in conftest.exe conftest conftest.*; do
+  test -f "$ac_file" || continue
   case $ac_file in
-    *.$ac_ext | *.o | *.obj | *.xcoff | *.tds | *.d | *.pdb ) ;;
+    _AC_COMPILER_EXEEXT_REJECT ) ;;
     *.* ) ac_cv_exeext=`expr "$ac_file" : ['[^.]*\(\..*\)']`
           export ac_cv_exeext
           break;;
@@ -540,7 +562,7 @@ ac_exeext=$EXEEXT
 # _AC_COMPILER_OBJEXT
 # -------------------
 # Check the object extension used by the compiler: typically `.o' or
-# `.obj'.  If this is called, some other behaviour will change,
+# `.obj'.  If this is called, some other behavior will change,
 # determined by ac_objext.
 #
 # This macro is called by AC_LANG_COMPILER, the latter being required
@@ -554,7 +576,7 @@ rm -f conftest.o conftest.obj
 AS_IF([AC_TRY_EVAL(ac_compile)],
 [for ac_file in `(ls conftest.o conftest.obj; ls conftest.*) 2>/dev/null`; do
   case $ac_file in
-    *.$ac_ext | *.xcoff | *.tds | *.d | *.pdb ) ;;
+    _AC_COMPILER_OBJEXT_REJECT ) ;;
     *) ac_cv_objext=`expr "$ac_file" : '.*\.\(.*\)'`
        break;;
   esac

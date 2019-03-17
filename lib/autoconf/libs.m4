@@ -1,7 +1,7 @@
 # This file is part of Autoconf.                       -*- Autoconf -*-
 # Checking for libraries.
-# Copyright 1992, 1993, 1994, 1995, 1996, 1998, 1999, 2000, 2001
-# Free Software Foundation, Inc.
+# Copyright (C) 1992, 1993, 1994, 1995, 1996, 1998, 1999, 2000, 2001,
+# 2002 Free Software Foundation, Inc.
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -52,11 +52,11 @@
 # Table of contents
 #
 # 1. Generic tests for libraries
-# 2. Tests for specific libraires
+# 2. Tests for specific libraries
 
 
 ## --------------------------------- ##
-## 1. Generic tests for libraires.## ##
+## 1. Generic tests for libraries.## ##
 ## --------------------------------- ##
 
 
@@ -103,7 +103,7 @@ AS_IF([test "$ac_cv_search_$1" != no],
 # ac_cv_lib_$lib_fun, which is definitely not what was meant.  Hence
 # the AS_LITERAL_IF indirection.
 #
-# FIXME: This macro is extremely suspicious.  It DEFINEs unconditionnally,
+# FIXME: This macro is extremely suspicious.  It DEFINEs unconditionally,
 # whatever the FUNCTION, in addition to not being a *S macro.  Note
 # that the cache does depend upon the function we are looking for.
 #
@@ -443,7 +443,7 @@ dnl FIXME: banish uname from this macro!
     # socket/setsockopt and other routines are undefined under SCO ODT
     # 2.0.  But -lsocket is broken on IRIX 5.2 (and is not necessary
     # on later versions), says Simon Leinen: it contains gethostby*
-    # variants that don't use the nameserver (or something).  -lsocket
+    # variants that don't use the name server (or something).  -lsocket
     # must be given before -lnsl if both are needed.  We assume that
     # if connect needs -lnsl, so does gethostbyname.
     AC_CHECK_FUNC(connect)

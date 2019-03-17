@@ -2,7 +2,7 @@
 
 AT_BANNER([Semantics.])
 
-# Copyright 2000, 2001 Free Software Foundation, Inc.
+# Copyright (C) 2000, 2001, 2002 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -123,7 +123,7 @@ AT_CHECK_DEFINES(
 ])
 
 AT_CHECK([sed 's/  */ /g;s/^ //;s/ $//' config.libobjs], [],
-         [autoconf_ftnirp.o
+         [autoconf_ftnirp$U.o
 ])
 
 AT_CLEANUP([config.libobjs])
@@ -174,7 +174,7 @@ AC_CHECK_SIZEOF(charcharchar)
 # AC_CHECK_SIZEOF
 # ---------------
 AT_CHECK_MACRO([AC_CHECK_SIZEOF],
-[[# Exercize the code used when cross-compiling
+[[# Exercise the code used when cross-compiling
 cross_compiling=yes
 AC_CHECK_SIZEOF(char)
 AC_CHECK_SIZEOF(charchar,,
@@ -353,11 +353,11 @@ _AT_CHECK_AC_MACRO(
   [cross_compiling=yes
    AC_C_BIGENDIAN([ac_endian=big],[ac_endian=little],[ac_endian=unknown])
    ac_prevendian=`cat at-endian`
-   # Chech we have found the same result as in the previous run
+   # Check that we have found the same result as in the previous run
    # or unknown (because the cross-compiling check is allowed to fail;
    # although it might be interesting to suppress this comparison, just
    # to know on which system it fails if it ever does).
-   if test $ac_endian != $ac_prevendian -a $ac_endian != unknow; then
+   if test $ac_endian != $ac_prevendian && test $ac_endian != unknown; then
      AC_MSG_ERROR([unexpected endianness: first run found '$ac_prevendian' but second run found '$ac_endian'])
    fi
 ])

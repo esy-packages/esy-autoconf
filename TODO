@@ -9,13 +9,26 @@ these suggestions... their presence here doesn't imply my endorsement.
 
 * Soon
 
+** AC_CHECK_HEADERS
+and the like, don't have a consistent way to handle multi-line
+arguments.  Fix, test, and document.
+
+** AC_PROG_INSTALL
+This test should be extended to check that install supports the GNU
+Install syntax: install FILES... DIR.  This will relieve everybody
+form having to use mkinstalldirs to create the directories, as install
+does it itself.  install-sh is already handling this case.  This also
+makes it simple not to create the directories where nothing will be
+installed because of configuration options, which is next to
+impossible using the current setting.
+
+In other words: everything is ready (install-sh and Automake), we just
+need a good reimplementation of AC_PROG_INSTALL.
+
 ** --target & AC_ARG_PROGRAM
 Shouldn't *any* `program' be installed as `$target_alias-program' even
 if AC_ARG_PROGRAM is not called?  That would be much more predictable.
 Ian?
-
-** RedHat's Autoconf page
-should be removed.
 
 ** AC_CHECK_TOOL...
 Write a test that checks that it honors the values set by the user.
@@ -31,6 +44,18 @@ where we had a problem (cf. AC_FUNC_MKTIME and AC_FUNC_MMAP for
 instance).  This is _bad_.  Maybe the #define func rpl_malloc should
 be performed in another file than confdefs.h, say confh.h, which is
 used for config.h generation, but not used in configure's own tests.
+
+** AC_PROG_CC
+Currently it tries to put the C compiler in ANSI C mode by default.
+We should change this spec so that AC_PROG_CC tries to change the
+compiler to be the "nicest" mode, i.e. support for the latest standard
+features (currently ISO C99) plus support for all vendor extensions,
+even if they are slightly incompatible with C99.  The basic idea here
+is that AC_PROG_CC should disable pedanticisms and should enable
+extensions.
+
+** AC_GNU_SOURCE, AC_AIX, and AC_MINIX
+Deprecate these, as they will be superseded by the AC_PROG_CC changes.
 
 
 ** Automake 1.6
@@ -48,6 +73,45 @@ situations.
 
 * Later
 
+** config.site
+This guy is really a problem.  It's contents should be read before
+handling the options, so that the latter properly override the latter,
+but most people would want a means to have a config.site that depends
+on $prefix for instance.
+
+Some other would like config.site to be looked for in the current
+directory.
+
+Harlan:
+
+   I'll go further.
+
+   I'd like to see several layers of config.site available.
+
+   I'm starting to use "modules" at more places to handle software
+   installation, and it would be helpful to set general things like:
+
+   	prefix=/opt/pkg/@PACKAGE@/@VERSION@
+
+   once at a global level, and then, for example, have things like:
+
+   	--with-etcdir=$prefix/etc
+
+   stuffed "above" the various versions of SSH so I wouldn't have to hunt for
+   these things every time it was time to recompile a new version of a
+   previously installed package.
+
+   Something like:
+
+     src/config.site		Global stuff
+     ...
+     src/ssh/config.site		package-specific stuff
+     src/ssh/ssh-1.2.27/		the actual source code
+
+   I'd like to see automake/autoconf better support packaging tools (like
+   modules, the *BSD ports/ stuff, and others would like hooks for RPMs).
+
+
 ** Languages
 Integrate other Fortrans etc.
 
@@ -56,9 +120,6 @@ I have still not understood what's the difference  between the two
 which requires to have two different sources: AC_LANG_CALL and
 AC_LANG_FUNC_LINK_TRY (which names seem to be inappropriate).
 Wouldn't one be enough?
-
-** Autotest
-Document it.
 
 ** Document AC_COMPILE_IFELSE, AC_LANG_PROGRAM etc.
 And make AC_TRY_COMPILE etc. obsolete.
@@ -187,27 +248,10 @@ So that --recheck does not pass --no-recursive to configure.
 
 * autoconf.texi
 Move the specific macro documentation blocks into the source files,
-and use a doc-block extraction/merge technique to get docuemntation
+and use a doc-block extraction/merge technique to get documentation
 into texi-file.  This should help avoid bit-rot in the doc, and make
 the doc easier to update when people add/change macros.  The name
 "autodoc" is probably already taken so we probably need another one.
-
-------------------------------------------------------------------------------
-
-* Automake
-
-** missing.m4
-The test for a recent missing doesn't hide the error messages from the
-old missing.
-
-** AU_DEFUN
-The section for old macros is not completely up to date.  For
-instance, there is still AM_PROG_LIBTOOL.  Anyway, since autoupdate
-takes care of them, it is no longer the role of Automake to handle
-this.  Most should be removed.
-
-** Macros now swallowed by Autoconf.
-error.m4, obstack.m4, ptrdiff.m4, strtod.m4, termios.m4, winsz.m4.
 
 ------------------------------------------------------------------------------
 
@@ -616,7 +660,7 @@ name was used, whether X or Xt are in use, etc. The specific
 decisions, and progress messages, should be recorded on the terminal
 only if --verbose is used.
 
-    --silent just supresses the "checking for...result"
+    --silent just suppresses the "checking for...result"
     messages, not the "creating FOO" messages.
 
 I think the default should be to suppress both.
@@ -633,8 +677,8 @@ From: Roland McGrath <roland@gnu.ai.mit.edu>
 ------------------------------------------------------------------------------
 
 Another thing I wish for is a macro which figures out which libraries are
-needed for BSD-sytle sockets.  AC_PATH_X already detects this
-correctly...so it's just a matter of seperating out the socket-related code.
+needed for BSD-style sockets.  AC_PATH_X already detects this
+correctly...so it's just a matter of separating out the socket-related code.
 From: "Joel N. Weber II" <nemo@koa.iolani.honolulu.hi.us>
 
 ------------------------------------------------------------------------------
@@ -661,7 +705,7 @@ with autoconf scripts.
 
 ------------------------------------------------------------------------------
 
-Copyright 1994, 1995, 1996, 1999, 2000, 2001 Free Software
+Copyright (C) 1994, 1995, 1996, 1999, 2000, 2001, 2002 Free Software
 Foundation, Inc.
 
 This file is part of GNU Autoconf.

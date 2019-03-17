@@ -1,70 +1,4 @@
-#! /bin/sh
-## --------------------- ##
-## M4sh Initialization.  ##
-## --------------------- ##
-
-# Be Bourne compatible
-if test -n "${ZSH_VERSION+set}" && (emulate sh) >/dev/null 2>&1; then
-  emulate sh
-  NULLCMD=:
-  # Zsh 3.x and 4.x performs word splitting on ${1+"$@"}, which
-  # is contrary to our usage.  Disable this feature.
-  alias -g '${1+"$@"}'='"$@"'
-elif test -n "${BASH_VERSION+set}" && (set -o posix) >/dev/null 2>&1; then
-  set -o posix
-fi
-
-# Support unset when possible.
-if (FOO=FOO; unset FOO) >/dev/null 2>&1; then
-  as_unset=unset
-else
-  as_unset=false
-fi
-
-
-# Work around bugs in pre-3.0 UWIN ksh.
-$as_unset ENV MAIL MAILPATH
-PS1='$ '
-PS2='> '
-PS4='+ '
-
-# NLS nuisances.
-for as_var in LANG LANGUAGE LC_ALL LC_COLLATE LC_CTYPE LC_NUMERIC LC_MESSAGES LC_TIME
-do
-  if (set +x; test -n "`(eval $as_var=C; export $as_var) 2>&1`"); then
-    eval $as_var=C; export $as_var
-  else
-    $as_unset $as_var
-  fi
-done
-
-# Required to use basename.
-if expr a : '\(a\)' >/dev/null 2>&1; then
-  as_expr=expr
-else
-  as_expr=false
-fi
-
-if (basename /) >/dev/null 2>&1 && test "X`basename / 2>&1`" = "X/"; then
-  as_basename=basename
-else
-  as_basename=false
-fi
-
-
-# Name of the executable.
-as_me=`$as_basename "$0" ||
-$as_expr X/"$0" : '.*/\([^/][^/]*\)/*$' \| \
-	 X"$0" : 'X\(//\)$' \| \
-	 X"$0" : 'X\(/\)$' \| \
-	 .     : '\(.\)' 2>/dev/null ||
-echo X/"$0" |
-    sed '/^.*\/\([^/][^/]*\)\/*$/{ s//\1/; q; }
-  	  /^X\/\(\/\/\)$/{ s//\1/; q; }
-  	  /^X\/\(\/\).*/{ s//\1/; q; }
-  	  s/.*/./; q'`
-
-
+AS_INIT[]dnl                                            -*- shell-script -*-
 # autoconf -- create `configure' using m4 macros
 # Copyright (C) 1992, 1993, 1994, 1996, 1999, 2000, 2001, 2002
 # Free Software Foundation, Inc.
@@ -84,7 +18,7 @@ echo X/"$0" |
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 # 02111-1307, USA.
 
-usage="\
+usage=["\
 Usage: $0 [OPTION] ... [TEMPLATE-FILE]
 
 Generate a configuration script from a TEMPLATE-FILE if given, or
@@ -120,26 +54,17 @@ Tracing:
 
 In tracing mode, no configuration script is created.
 
-Report bugs to <bug-autoconf@gnu.org>."
+Report bugs to <bug-autoconf@gnu.org>."]
 
-version="\
+version=["\
 autoconf (@PACKAGE_NAME@) @VERSION@
 Written by David J. MacKenzie and Akim Demaille.
 
 Copyright 2002 Free Software Foundation, Inc.
 This is free software; see the source for copying conditions.  There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."]
 
-me=`$as_basename $0 ||
-$as_expr X/$0 : '.*/\([^/][^/]*\)/*$' \| \
-	 X$0 : 'X\(//\)$' \| \
-	 X$0 : 'X\(/\)$' \| \
-	 .     : '\(.\)' 2>/dev/null ||
-echo X/$0 |
-    sed '/^.*\/\([^/][^/]*\)\/*$/{ s//\1/; q; }
-  	  /^X\/\(\/\/\)$/{ s//\1/; q; }
-  	  /^X\/\(\/\).*/{ s//\1/; q; }
-  	  s/.*/./; q'`
+me=`AS_BASENAME([$0])`
 
 help="\
 Try \`$me --help' for more information."
@@ -151,27 +76,16 @@ exit 1"
 
 # Variables.
 : ${AUTOM4TE='@bindir@/@autom4te-name@'}
-dir=`(dirname $0) 2>/dev/null ||
-$as_expr X$0 : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \
-         X$0 : 'X\(//\)[^/]' \| \
-         X$0 : 'X\(//\)$' \| \
-         X$0 : 'X\(/\)' \| \
-         .     : '\(.\)' 2>/dev/null ||
-echo X$0 |
-    sed '/^X\(.*[^/]\)\/\/*[^/][^/]*\/*$/{ s//\1/; q; }
-  	  /^X\(\/\/\)[^/].*/{ s//\1/; q; }
-  	  /^X\(\/\/\)$/{ s//\1/; q; }
-  	  /^X\(\/\).*/{ s//\1/; q; }
-  	  s/.*/./; q'`
+dir=`AS_DIRNAME([$0])`
 outfile=
 verbose=:
 
 # Parse command line.
 while test $# -gt 0 ; do
-  option=`expr "x$1" : 'x\(--[^=]*\)' \| \
-               "x$1" : 'x\(-.\)'`
-  optarg=`expr "x$1" : 'x--[^=]*=\(.*\)' \| \
-               "x$1" : 'x-.\(.*\)'`
+  option=[`expr "x$1" : 'x\(--[^=]*\)' \| \
+               "x$1" : 'x\(-.\)'`]
+  optarg=[`expr "x$1" : 'x--[^=]*=\(.*\)' \| \
+               "x$1" : 'x-.\(.*\)'`]
   case $1 in
     --version | -V )
        echo "$version" ; exit 0 ;;

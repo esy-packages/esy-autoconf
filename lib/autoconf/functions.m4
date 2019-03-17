@@ -1,7 +1,6 @@
 # This file is part of Autoconf.                       -*- Autoconf -*-
 # Checking for functions.
-# Copyright 2000, 2001
-# Free Software Foundation, Inc.
+# Copyright (C) 2000, 2001, 2002 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -343,30 +342,90 @@ fi
 AU_ALIAS([AM_FUNC_ERROR_AT_LINE], [AC_FUNC_ERROR_AT_LINE])
 
 
+# _AC_FUNC_FNMATCH_IF(STANDARD = GNU | POSIX, CACHE_VAR, IF-TRUE, IF-FALSE)
+# -------------------------------------------------------------------------
+# If a STANDARD compliant fnmatch is found, run IF-TRUE, otherwise
+# IF-FALSE.  Use CACHE_VAR.
+AC_DEFUN([_AC_FUNC_FNMATCH_IF],
+[AC_CACHE_CHECK(
+   [for working $1 fnmatch],
+   [$2],
+  [# Some versions of Solaris, SCO, and the GNU C Library
+   # have a broken or incompatible fnmatch.
+   # So we run a test program.  If we are cross-compiling, take no chance.
+   # Thanks to John Oleynick, Franc,ois Pinard, and Paul Eggert for this test.
+   AC_RUN_IFELSE(
+      [AC_LANG_PROGRAM(
+	 [#include <fnmatch.h>
+#	   define y(a, b, c) (fnmatch (a, b, c) == 0)
+#	   define n(a, b, c) (fnmatch (a, b, c) == FNM_NOMATCH)
+         ],
+	 [exit
+	   (!(y ("a*", "abc", 0)
+	      && n ("d*/*1", "d/s/1", FNM_PATHNAME)
+	      && y ("a\\\\bc", "abc", 0)
+	      && n ("a\\\\bc", "abc", FNM_NOESCAPE)
+	      && y ("*x", ".x", 0)
+	      && n ("*x", ".x", FNM_PERIOD)
+	      && m4_if([$1], [GNU],
+		   [y ("xxXX", "xXxX", FNM_CASEFOLD)
+		    && y ("a++(x|yy)b", "a+xyyyyxb", FNM_EXTMATCH)
+		    && n ("d*/*1", "d/s/1", FNM_FILE_NAME)
+		    && y ("*", "x", FNM_FILE_NAME | FNM_LEADING_DIR)
+		    && y ("x*", "x/y/z", FNM_FILE_NAME | FNM_LEADING_DIR)
+		    && y ("*c*", "c/x", FNM_FILE_NAME | FNM_LEADING_DIR)],
+		   1)));])],
+      [$2=yes],
+      [$2=no],
+      [$2=cross])])
+AS_IF([test $$2 = yes], [$3], [$4])
+])# _AC_FUNC_FNMATCH_IF
+
+
 # AC_FUNC_FNMATCH
 # ---------------
-# We look for fnmatch.h to avoid that the test fails in C++.
 AC_DEFUN([AC_FUNC_FNMATCH],
-[AC_CACHE_CHECK([for working GNU-style fnmatch],
-                [ac_cv_func_fnmatch_works],
-# Some versions of Solaris, SCO, and the GNU C Library
-# have a broken or incompatible fnmatch.
-# So we run a test program.  If we are cross-compiling, take no chance.
-# Thanks to John Oleynick, Franc,ois Pinard, and Paul Eggert for this test.
-[AC_RUN_IFELSE([AC_LANG_PROGRAM([@%:@include <fnmatch.h>],
- [exit (fnmatch ("a*", "abc", 0) != 0
-	|| fnmatch ("d*/*1", "d/s/1", FNM_FILE_NAME) != FNM_NOMATCH
-	|| fnmatch ("*", "x", FNM_FILE_NAME | FNM_LEADING_DIR) != 0
-	|| fnmatch ("x*", "x/y/z", FNM_FILE_NAME | FNM_LEADING_DIR) != 0
-	|| fnmatch ("*c*", "c/x", FNM_FILE_NAME | FNM_LEADING_DIR) != 0);])],
-               [ac_cv_func_fnmatch_works=yes],
-               [ac_cv_func_fnmatch_works=no],
-               [ac_cv_func_fnmatch_works=no])])
-if test $ac_cv_func_fnmatch_works = yes; then
-  AC_DEFINE(HAVE_FNMATCH, 1,
-            [Define to 1 if your system has a working `fnmatch' function.])
-fi
+[_AC_FUNC_FNMATCH_IF([POSIX], [ac_cv_func_fnmatch_works],
+                     [AC_DEFINE([HAVE_FNMATCH], 1,
+                     [Define to 1 if your system has a working POSIX `fnmatch'
+                      function.])])
 ])# AC_FUNC_FNMATCH
+
+
+# _AC_LIBOBJ_FNMATCH
+# ------------------
+# Prepare the replacement of fnmatch.
+AC_DEFUN([_AC_LIBOBJ_FNMATCH],
+[AC_REQUIRE([AC_C_CONST])dnl
+AC_REQUIRE([AC_FUNC_ALLOCA])dnl
+AC_REQUIRE([AC_TYPE_MBSTATE_T])dnl
+AC_CHECK_DECLS([getenv])
+AC_CHECK_FUNCS([btowc mbsrtowcs mempcpy wmempcpy])
+AC_CHECK_HEADERS([wchar.h wctype.h])
+AC_LIBOBJ([fnmatch])
+AC_CONFIG_LINKS([$ac_config_libobj_dir/fnmatch.h:$ac_config_libobj_dir/fnmatch_.h])
+AC_DEFINE(fnmatch, rpl_fnmatch,
+          [Define to rpl_fnmatch if the replacement function should be used.])
+])# _AC_LIBOBJ_FNMATCH
+
+
+# AC_REPLACE_FNMATCH
+# ------------------
+AC_DEFUN([AC_REPLACE_FNMATCH],
+[_AC_FUNC_FNMATCH_IF([POSIX], [ac_cv_func_fnmatch_works],
+                     [rm -f $ac_config_libobj_dir/fnmatch.h],
+                     [_AC_LIBOBJ_FNMATCH])
+])# AC_REPLACE_FNMATCH
+
+
+# AC_FUNC_FNMATCH_GNU
+# -------------------
+AC_DEFUN([AC_FUNC_FNMATCH_GNU],
+[AC_REQUIRE([AC_GNU_SOURCE])
+_AC_FUNC_FNMATCH_IF([GNU], [ac_cv_func_fnmatch_gnu],
+                    [rm -f $ac_config_libobj_dir/fnmatch.h],
+                    [_AC_LIBOBJ_FNMATCH])
+])# AC_FUNC_FNMATCH_GNU
 
 
 # AU::AM_FUNC_FNMATCH
@@ -402,7 +461,7 @@ fi
 # AC_FUNC_GETGROUPS
 # -----------------
 # Try to find `getgroups', and check that it works.
-# When crosscompiling, assume getgroups is broken.
+# When cross-compiling, assume getgroups is broken.
 AC_DEFUN([AC_FUNC_GETGROUPS],
 [AC_REQUIRE([AC_TYPE_GETGROUPS])dnl
 AC_REQUIRE([AC_TYPE_SIZE_T])dnl
@@ -493,6 +552,10 @@ AC_CHECK_HEADERS(nlist.h,
 AC_DEFUN([AC_FUNC_GETLOADAVG],
 [ac_have_func=no # yes means we've found a way to get the load average.
 
+# Make sure getloadavg.c is where it belongs, at configure-time.
+test -f "$srcdir/$ac_config_libobj_dir/getloadavg.c" ||
+  AC_MSG_ERROR([$srcdir/$ac_config_libobj_dir/getloadavg.c is missing])
+
 ac_save_LIBS=$LIBS
 
 # Check for getloadavg, but be sure not to touch the cache variable.
@@ -534,11 +597,10 @@ AC_CHECK_FUNCS(getloadavg, [],
                [_AC_LIBOBJ_GETLOADAVG])
 
 # Some definitions of getloadavg require that the program be installed setgid.
-dnl FIXME: Don't hardwire the path of getloadavg.c in the top-level directory.
 AC_CACHE_CHECK(whether getloadavg requires setgid,
                ac_cv_func_getloadavg_setgid,
 [AC_EGREP_CPP([Yowza Am I SETGID yet],
-[#include "$srcdir/getloadavg.c"
+[#include "$srcdir/$ac_config_libobj_dir/getloadavg.c"
 #ifdef LDAV_PRIVILEGED
 Yowza Am I SETGID yet
 @%:@endif],
@@ -614,8 +676,8 @@ fi
 
 # AC_FUNC_LSTAT_FOLLOWS_SLASHED_SYMLINK
 # -------------------------------------
-# When crosscompiling, be pessimistic so we will end up using the
-# replacement version of lstat that checkes for trailing slashes and
+# When cross-compiling, be pessimistic so we will end up using the
+# replacement version of lstat that checks for trailing slashes and
 # calls lstat a second time when necessary.
 AC_DEFUN([AC_FUNC_LSTAT_FOLLOWS_SLASHED_SYMLINK],
 [AC_CACHE_CHECK(
@@ -652,10 +714,10 @@ fi
 ])
 
 
-# AC_FUNC_MALLOC
-# --------------
-# Is `malloc (0)' properly handled?
-AC_DEFUN([AC_FUNC_MALLOC],
+# _AC_FUNC_MALLOC_IF(IF-WORKS, IF-NOT)
+# ------------------------------------
+# If `malloc (0)' properly handled, run IF-WORKS, otherwise, IF-NOT.
+AC_DEFUN([_AC_FUNC_MALLOC_IF],
 [AC_REQUIRE([AC_HEADER_STDC])dnl
 AC_CHECK_HEADERS(stdlib.h)
 AC_CACHE_CHECK([for working malloc], ac_cv_func_malloc_works,
@@ -671,10 +733,23 @@ char *malloc ();
                [ac_cv_func_malloc_works=yes],
                [ac_cv_func_malloc_works=no],
                [ac_cv_func_malloc_works=no])])
-if test $ac_cv_func_malloc_works = yes; then
-  AC_DEFINE(HAVE_MALLOC, 1,
-            [Define to 1 if your system has a working `malloc' function.])
-fi
+AS_IF([test $ac_cv_func_malloc_works = yes], [$1], [$2])
+])# AC_FUNC_MALLOC
+
+
+# AC_FUNC_MALLOC
+# --------------
+# Report whether `malloc (0)' properly handled, and replace malloc if
+# needed.
+AC_DEFUN([AC_FUNC_MALLOC],
+[_AC_FUNC_MALLOC_IF(
+  [AC_DEFINE([HAVE_MALLOC], 1,
+             [Define to 1 if your system has a working `malloc' function,
+              and to 0 otherwise.])],
+  [AC_DEFINE([HAVE_MALLOC], 0)
+   AC_LIBOBJ(malloc)
+   AC_DEFINE([malloc], [rpl_malloc],
+      [Define to rpl_malloc if the replacement function should be used.])])
 ])# AC_FUNC_MALLOC
 
 
@@ -1053,6 +1128,46 @@ fi
 AU_ALIAS([AM_FUNC_OBSTACK], [AC_FUNC_OBSTACK])
 
 
+
+# _AC_FUNC_REALLOC_IF(IF-WORKS, IF-NOT)
+# -------------------------------------
+# If `realloc (0, 0)' properly handled, run IF-WORKS, otherwise, IF-NOT.
+AC_DEFUN([_AC_FUNC_REALLOC_IF],
+[AC_REQUIRE([AC_HEADER_STDC])dnl
+AC_CHECK_HEADERS(stdlib.h)
+AC_CACHE_CHECK([for working realloc], ac_cv_func_realloc_works,
+[AC_RUN_IFELSE(
+[AC_LANG_PROGRAM(
+[[#if STDC_HEADERS || HAVE_STDLIB_H
+# include <stdlib.h>
+#else
+char *realloc ();
+#endif
+]],
+                 [exit (realloc (0, 0) ? 0 : 1);])],
+               [ac_cv_func_realloc_works=yes],
+               [ac_cv_func_realloc_works=no],
+               [ac_cv_func_realloc_works=no])])
+AS_IF([test $ac_cv_func_realloc_works = yes], [$1], [$2])
+])# AC_FUNC_REALLOC
+
+
+# AC_FUNC_REALLOC
+# ---------------
+# Report whether `realloc (0, 0)' properly handled, and replace realloc if
+# needed.
+AC_DEFUN([AC_FUNC_REALLOC],
+[_AC_FUNC_REALLOC_IF(
+  [AC_DEFINE([HAVE_REALLOC], 1,
+             [Define to 1 if your system has a working `realloc' function,
+              and to 0 otherwise.])],
+  [AC_DEFINE([HAVE_REALLOC], 0)
+   AC_LIBOBJ([realloc])
+   AC_DEFINE([realloc], [rpl_realloc],
+      [Define to rpl_realloc if the replacement function should be used.])])
+])# AC_FUNC_REALLOC
+
+
 # AC_FUNC_SELECT_ARGTYPES
 # -----------------------
 # Determine the correct type to be passed to each of the `select'
@@ -1296,22 +1411,42 @@ test $ac_cv_func_strnlen_working = no && AC_LIBOBJ([strnlen])
 # AC_FUNC_SETVBUF_REVERSED
 # ------------------------
 AC_DEFUN([AC_FUNC_SETVBUF_REVERSED],
-[AC_CACHE_CHECK(whether setvbuf arguments are reversed,
+[AC_REQUIRE([AC_C_PROTOTYPES])dnl
+AC_CACHE_CHECK(whether setvbuf arguments are reversed,
   ac_cv_func_setvbuf_reversed,
-[AC_TRY_RUN([#include <stdio.h>
-/* If setvbuf has the reversed format, exit 0. */
-int
-main ()
-{
-  /* This call has the arguments reversed.
-     A reversed system may check and see that the address of main
-     is not _IOLBF, _IONBF, or _IOFBF, and return nonzero.  */
-  if (setvbuf(stdout, _IOLBF, (char *) main, BUFSIZ) != 0)
-    exit(1);
-  putc('\r', stdout);
-  exit(0);			/* Non-reversed systems segv here.  */
-}], ac_cv_func_setvbuf_reversed=yes, ac_cv_func_setvbuf_reversed=no)
-rm -f core core.* *.core])
+  [ac_cv_func_setvbuf_reversed=no
+   AC_LINK_IFELSE(
+     [AC_LANG_PROGRAM(
+	[[#include <stdio.h>
+#	  if PROTOTYPES
+	   int (setvbuf) (FILE *, int, char *, size_t);
+#	  endif]],
+	[[char buf; return setvbuf (stdout, _IOLBF, &buf, 1);]])],
+     [AC_LINK_IFELSE(
+	[AC_LANG_PROGRAM(
+	   [[#include <stdio.h>
+#	     if PROTOTYPES
+	      int (setvbuf) (FILE *, int, char *, size_t);
+#	     endif]],
+	   [[char buf; return setvbuf (stdout, &buf, _IOLBF, 1);]])],
+	[# It compiles and links either way, so it must not be declared
+	 # with a prototype and most likely this is a K&R C compiler.
+	 # Try running it.
+	 AC_RUN_IFELSE(
+	   [AC_LANG_PROGRAM(
+	      [[#include <stdio.h>]],
+	      [[/* This call has the arguments reversed.
+		   A reversed system may check and see that the address of buf
+		   is not _IOLBF, _IONBF, or _IOFBF, and return nonzero.  */
+		char buf;
+		if (setvbuf (stdout, _IOLBF, &buf, 1) != 0)
+		  exit (1);
+		putchar ('\r');
+		exit (0); /* Non-reversed systems SEGV here.  */]])],
+	   ac_cv_func_setvbuf_reversed=yes,
+	   rm -f core core.* *.core,
+	   [[: # Assume setvbuf is not reversed when cross-compiling.]])]
+	ac_cv_func_setvbuf_reversed=yes)])])
 if test $ac_cv_func_setvbuf_reversed = yes; then
   AC_DEFINE(SETVBUF_REVERSED, 1,
             [Define to 1 if the `setvbuf' function takes the buffering type as
@@ -1387,9 +1522,10 @@ AC_DEFUN([AC_FUNC_FORK],
 [AC_REQUIRE([AC_TYPE_PID_T])dnl
 AC_CHECK_HEADERS(unistd.h vfork.h)
 AC_CHECK_FUNCS(fork vfork)
-ac_cv_func_fork_works=$ac_cv_func_fork
 if test "x$ac_cv_func_fork" = xyes; then
   _AC_FUNC_FORK
+else
+  ac_cv_func_fork_works=$ac_cv_func_fork
 fi
 if test "x$ac_cv_func_fork_works" = xcross; then
   case $host in

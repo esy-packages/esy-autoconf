@@ -1,7 +1,7 @@
 #! @PERL@ -w
 # -*- perl -*-
 # autoupdate - modernize an Autoconf file.
-# Copyright 1994, 1999, 2000, 2001 Free Software Foundation, Inc.
+# Copyright (C) 1994, 1999, 2000, 2001, 2002 Free Software Foundation, Inc.
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
 # Originally written by David MacKenzie <djm@gnu.ai.mit.edu>.
 # Rewritten by Akim Demaille <akim@freefriends.org>.
 
-eval 'exec @PERL@ -S $0 ${1+"$@"}'
+eval 'case $# in 0) exec @PERL@ -S "$0";; *) exec @PERL@ -S "$0" "$@";; esac'
     if 0;
 
 BEGIN
@@ -36,9 +36,10 @@ use Autom4te::XFile;
 use strict;
 
 # Lib files.
-my $autom4te = $ENV{'AUTOM4TE'} || '@autom4te-name@';
+my $autom4te = $ENV{'AUTOM4TE'} || '@bindir@/@autom4te-name@';
 my $autoconf = "$autom4te --language=autoconf";
 # We need to find m4sugar.
+my @prepend_include;
 my @include = ('@datadir@');
 my $force = 0;
 # m4.
@@ -58,7 +59,8 @@ Operation modes:
   -V, --version        print version number, then exit
   -v, --verbose        verbosely report processing
   -d, --debug          don't remove temporary files
-  -I, --include=DIR    look for input files in DIR (cumulative)
+  -B, --prepend-include=DIR  prepend directory DIR to search path
+  -I, --include=DIR          append directory DIR to search path
   -f, --force          consider all files obsolete
 
 Report bugs to <bug-autoconf\@gnu.org>.
@@ -87,12 +89,13 @@ sub parse_args ()
   my $srcdir;
 
   getopt ('I|include|A|autoconf-dir|m|macrodir|l|localdir=s' => \@include,
+	  'B|prepend-include=s' => \@prepend_include,
 	  'f|force' => \$force);
 
   if (! @ARGV)
     {
       my $configure_ac = find_configure_ac;
-      die "$me: no input file\n"
+      error "no input file"
 	unless $configure_ac;
       push @ARGV, $configure_ac;
     }
@@ -167,12 +170,11 @@ sub handle_autoconf_macros ()
       my ($domain, $file, $macro) = /^(AC|AU):(.*):([^:]*)$/ or next;
       # ../lib/m4sugar/m4sugar.m4  -> m4sugar
       # ../lib/autoconf/general.m4 -> autoconf
-      # aclocal.m4 -> ignore
-      next
-	if $file eq 'aclocal.m4';
+      # aclocal.m4 -> aclocal
       my $set = basename (dirname ($file));
-      die "$me: unknown set: $set: $_\n"
-	unless $set =~ /^(m4sugar|autoconf)$/;
+      $set = 'aclocal' if $file eq 'aclocal.m4';
+      error "unknown set: $set: $_"
+	unless $set =~ /^(m4sugar|aclocal|autoconf)$/;
       if ($domain eq "AC")
 	{
 	  $ac_macros{$macro} = $set;
@@ -191,9 +193,9 @@ sub handle_autoconf_macros ()
   # such as `builtin', `changequote' etc.  See autoconf/autoconf.m4.
   delete $ac_macros{$_}
     foreach (@m4_builtins);
-  die "$me: no current Autoconf macros found\n"
+  error "no current Autoconf macros found"
     unless keys %ac_macros;
-  die "$me: no obsolete Autoconf macros found\n"
+  error "no obsolete Autoconf macros found"
     unless keys %au_macros;
 
   if ($debug)
@@ -227,6 +229,7 @@ $autoconf .= " --debug" if $debug;
 $autoconf .= " --force" if $force;
 $autoconf .= " --verbose" if $verbose;
 $autoconf .= join (' --include=', '', @include);
+$autoconf .= join (' --prepend-include=', '', @prepend_include);
 
 mktmpdir ('au');
 handle_m4_macros;
@@ -290,10 +293,10 @@ foreach my $file (@ARGV)
 
       # They work by pair: each time an AU macro is activated, it runs
       # _au_enable, and at its end its runs _au_disable (see _au_defun
-      # above).  But since AU macros might use AU macros, which should
-      # enable/disable only for the outter AU macros.
+      # above).  AU macros might use AU macros, which should
+      # enable/disable only for the outer AU macros.
       #
-      # `_au_enabled' is used to this end, condionning whether we really
+      # `_au_enabled' is used to this end, determining whether we really
       # enable/disable.
 
 
@@ -368,9 +371,9 @@ EOF
 
     # prepared input -- input, but reenables the quote before each AU macro.
     open INPUT_M4, ">$tmp/input.m4"
-       or die "$me: cannot open: $!\n";
+       or error "cannot open: $!";
     open FILE, "<$file"
-       or die "$me: cannot open: $!\n";
+       or error "cannot open: $!";
     print INPUT_M4 "$input_m4";
     while (<FILE>)
        {
@@ -378,14 +381,14 @@ EOF
 	 print INPUT_M4;
        }
     close FILE
-       or die "$me: cannot close $file: $!\n";
+       or error "cannot close $file: $!";
     close INPUT_M4
-       or die "$me: cannot close $tmp/input.m4: $!\n";
+       or error "cannot close $tmp/input.m4: $!";
 
     # Now ask m4 to perform the update.
-    # M4 and I don't agree on the associativity of `--include': reverse!
-    xsystem ("$m4"
-	     . join (' --include=', '', reverse (@include, $tmp))
+    xsystem ("$m4 --include=$tmp"
+	     . join (' --include=', '', reverse (@prepend_include))
+	     . join (' --include=', '', @include)
 	     . " $tmp/input.m4 >$tmp/updated");
     update_file ("$tmp/updated",
 		 "$file" eq "$tmp/stdin" ? '-' : "$file");
@@ -759,7 +762,7 @@ exit 0;
 # 	  0)
 #
 # In French, we say `Youpi !', which you might roughly translate as
-# `yipeee!'.
+# `Yippee!'.
 #
 #
 # # First step: computation
@@ -879,7 +882,7 @@ exit 0;
 # Worse yet, if `idem(0)' was used later, then autoupdate sees that
 # `OLD' is used, computes the result for `OLD(0, 0)' and sets up a
 # dispatcher for `OLD'.  Since there was no computed value for `OLD(0,
-# [$1])', the dispatcher would have replaced with... nothinhg, leading
+# [$1])', the dispatcher would have replaced with... nothing, leading
 # to
 #
 # 	  define([idem], [])
@@ -1017,11 +1020,11 @@ exit 0;
 #
 # Well... almost.
 #
-# There is a slight problem that remains: if an AU macro OUTTER includes
-# an AU macro INNER, then _au_enable will be run when entering OUTTER
+# There is a slight problem that remains: if an AU macro OUTER includes
+# an AU macro INNER, then _au_enable will be run when entering OUTER
 # and when entering INNER (not good, but not too bad yet).  But when
 # getting out of INNER, _au_disable will disable everything while we
-# were still in OUTTER.  Badaboom.
+# were still in OUTER.  Badaboom.
 #
 # Therefore _au_enable and _au_disable have to be written to work by
 # pairs: each _au_enable pushdef's _au_enabled, and each _au_disable
@@ -1030,3 +1033,20 @@ exit 0;
 #
 # Finally, version V' is ready.  And there is much rejoicing.  (And I
 # have free time again.  I think.  Yeah, right.)
+
+### Setup "GNU" style for perl-mode and cperl-mode.
+## Local Variables:
+## perl-indent-level: 2
+## perl-continued-statement-offset: 2
+## perl-continued-brace-offset: 0
+## perl-brace-offset: 0
+## perl-brace-imaginary-offset: 0
+## perl-label-offset: -2
+## cperl-indent-level: 2
+## cperl-brace-offset: 0
+## cperl-continued-brace-offset: 0
+## cperl-label-offset: -2
+## cperl-extra-newline-before-brace: t
+## cperl-merge-trailing-else: nil
+## cperl-continued-statement-offset: 2
+## End:
