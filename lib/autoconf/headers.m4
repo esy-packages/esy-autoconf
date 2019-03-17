@@ -1,7 +1,7 @@
 # This file is part of Autoconf.                       -*- Autoconf -*-
 # Checking for headers.
-# Copyright 2000, 2001
-# Free Software Foundation, Inc.
+#
+# Copyright (C) 2000, 2001, 2002 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -54,7 +54,8 @@
 #
 # 1. Generic tests for headers
 # 2. Default includes
-# 3. Tests for specific headers
+# 3. Headers to tests with AC_CHECK_HEADERS
+# 4. Tests for specific headers
 
 
 ## ------------------------------ ##
@@ -123,11 +124,21 @@ AC_MSG_RESULT([$ac_header_preproc])
 case $ac_header_compiler:$ac_header_preproc in
   yes:no )
     AC_MSG_WARN([$1: accepted by the compiler, rejected by the preprocessor!])
-    AC_MSG_WARN([$1: proceeding with the preprocessor's result]);;
+    AC_MSG_WARN([$1: proceeding with the preprocessor's result])
+    (
+      AS_BOX([Report this to bug-autoconf@gnu.org.])
+    ) |
+      sed "s/^/$as_me: WARNING:     /" >&2
+    ;;
   no:yes )
     AC_MSG_WARN([$1: present but cannot be compiled])
     AC_MSG_WARN([$1: check for missing prerequisite headers?])
-    AC_MSG_WARN([$1: proceeding with the preprocessor's result]);;
+    AC_MSG_WARN([$1: proceeding with the preprocessor's result])
+    (
+      AS_BOX([Report this to bug-autoconf@gnu.org.])
+    ) |
+      sed "s/^/$as_me: WARNING:     /" >&2
+    ;;
 esac
 AC_CACHE_CHECK([for $1], ac_Header,
                [AS_VAR_SET(ac_Header, $ac_header_preproc)])
@@ -191,7 +202,6 @@ AC_CHECK_HEADER($ac_header,
                 [$4])dnl
 done
 ])# AC_CHECK_HEADERS
-
 
 
 
@@ -274,8 +284,75 @@ $ac_includes_default])])
 
 
 
+## ------------------------------------------- ##
+## 3. Headers to check with AC_CHECK_HEADERS.  ##
+## ------------------------------------------- ##
+
+# errno.h is portable.
+
+AN_HEADER([OS.h],               [AC_CHECK_HEADERS])
+AN_HEADER([argz.h],             [AC_CHECK_HEADERS])
+AN_HEADER([arpa/inet.h],        [AC_CHECK_HEADERS])
+AN_HEADER([fcntl.h],            [AC_CHECK_HEADERS])
+AN_HEADER([fenv.h],             [AC_CHECK_HEADERS])
+AN_HEADER([float.h],            [AC_CHECK_HEADERS])
+AN_HEADER([fs_info.h],          [AC_CHECK_HEADERS])
+AN_HEADER([inttypes.h],         [AC_CHECK_HEADERS])
+AN_HEADER([langinfo.h],         [AC_CHECK_HEADERS])
+AN_HEADER([libintl.h],          [AC_CHECK_HEADERS])
+AN_HEADER([limits.h],           [AC_CHECK_HEADERS])
+AN_HEADER([locale.h],           [AC_CHECK_HEADERS])
+AN_HEADER([mach/mach.h],        [AC_CHECK_HEADERS])
+AN_HEADER([malloc.h],           [AC_CHECK_HEADERS])
+AN_HEADER([memory.h],           [AC_CHECK_HEADERS])
+AN_HEADER([mntent.h],           [AC_CHECK_HEADERS])
+AN_HEADER([mnttab.h],           [AC_CHECK_HEADERS])
+AN_HEADER([netdb.h],            [AC_CHECK_HEADERS])
+AN_HEADER([netinet/in.h],       [AC_CHECK_HEADERS])
+AN_HEADER([nl_types.h],         [AC_CHECK_HEADERS])
+AN_HEADER([nlist.h],            [AC_CHECK_HEADERS])
+AN_HEADER([paths.h],            [AC_CHECK_HEADERS])
+AN_HEADER([sgtty.h],            [AC_CHECK_HEADERS])
+AN_HEADER([shadow.h],           [AC_CHECK_HEADERS])
+AN_HEADER([stddef.h],           [AC_CHECK_HEADERS])
+AN_HEADER([stdint.h],           [AC_CHECK_HEADERS])
+AN_HEADER([stdio_ext.h],        [AC_CHECK_HEADERS])
+AN_HEADER([stdlib.h],           [AC_CHECK_HEADERS])
+AN_HEADER([string.h],           [AC_CHECK_HEADERS])
+AN_HEADER([strings.h],          [AC_CHECK_HEADERS])
+AN_HEADER([sys/acl.h],          [AC_CHECK_HEADERS])
+AN_HEADER([sys/file.h],         [AC_CHECK_HEADERS])
+AN_HEADER([sys/filsys.h],       [AC_CHECK_HEADERS])
+AN_HEADER([sys/fs/s5param.h],   [AC_CHECK_HEADERS])
+AN_HEADER([sys/fs_types.h],     [AC_CHECK_HEADERS])
+AN_HEADER([sys/fstyp.h],        [AC_CHECK_HEADERS])
+AN_HEADER([sys/ioctl.h],        [AC_CHECK_HEADERS])
+AN_HEADER([sys/mntent.h],       [AC_CHECK_HEADERS])
+AN_HEADER([sys/mount.h],        [AC_CHECK_HEADERS])
+AN_HEADER([sys/param.h],        [AC_CHECK_HEADERS])
+AN_HEADER([sys/socket.h],       [AC_CHECK_HEADERS])
+AN_HEADER([sys/statfs.h],       [AC_CHECK_HEADERS])
+AN_HEADER([sys/statvfs.h],      [AC_CHECK_HEADERS])
+AN_HEADER([sys/systeminfo.h],   [AC_CHECK_HEADERS])
+AN_HEADER([sys/time.h],         [AC_CHECK_HEADERS])
+AN_HEADER([sys/timeb.h],        [AC_CHECK_HEADERS])
+AN_HEADER([sys/vfs.h],          [AC_CHECK_HEADERS])
+AN_HEADER([sys/window.h],       [AC_CHECK_HEADERS])
+AN_HEADER([syslog.h],           [AC_CHECK_HEADERS])
+AN_HEADER([termio.h],           [AC_CHECK_HEADERS])
+AN_HEADER([termios.h],          [AC_CHECK_HEADERS])
+AN_HEADER([unistd.h],           [AC_CHECK_HEADERS])
+AN_HEADER([utime.h],            [AC_CHECK_HEADERS])
+AN_HEADER([utmp.h],             [AC_CHECK_HEADERS])
+AN_HEADER([utmpx.h],            [AC_CHECK_HEADERS])
+AN_HEADER([values.h],           [AC_CHECK_HEADERS])
+AN_HEADER([wchar.h],            [AC_CHECK_HEADERS])
+AN_HEADER([wctype.h],           [AC_CHECK_HEADERS])
+
+
+
 ## ------------------------------- ##
-## 3. Tests for specific headers.  ##
+## 4. Tests for specific headers.  ##
 ## ------------------------------- ##
 
 
@@ -310,6 +387,10 @@ m4_define([AH_CHECK_HEADERS_DIRENT],
 
 # AC_HEADER_DIRENT
 # ----------------
+AN_HEADER([dirent.h],   [AC_HEADER_DIRENT])
+AN_HEADER([ndir.h],     [AC_HEADER_DIRENT])
+AN_HEADER([sys/dir.h],  [AC_HEADER_DIRENT])
+AN_HEADER([sys/ndir.h], [AC_HEADER_DIRENT])
 AC_DEFUN([AC_HEADER_DIRENT],
 [AH_CHECK_HEADERS_DIRENT(dirent.h sys/ndir.h sys/dir.h ndir.h)
 ac_header_dirent=no
@@ -329,6 +410,10 @@ fi
 
 # AC_HEADER_MAJOR
 # ---------------
+AN_FUNCTION([major],     [AC_HEADER_MAJOR])
+AN_FUNCTION([makedev],   [AC_HEADER_MAJOR])
+AN_FUNCTION([minor],     [AC_HEADER_MAJOR])
+AN_HEADER([sys/mkdev.h], [AC_HEADER_MAJOR])
 AC_DEFUN([AC_HEADER_MAJOR],
 [AC_CACHE_CHECK(whether sys/types.h defines makedev,
                 ac_cv_header_sys_types_h_makedev,
@@ -357,6 +442,13 @@ fi
 # AC_HEADER_STAT
 # --------------
 # FIXME: Shouldn't this be named AC_HEADER_SYS_STAT?
+AN_IDENTIFIER([S_ISBLK], [AC_HEADER_STAT])
+AN_IDENTIFIER([S_ISCHR], [AC_HEADER_STAT])
+AN_IDENTIFIER([S_ISDIR], [AC_HEADER_STAT])
+AN_IDENTIFIER([S_ISFIFO], [AC_HEADER_STAT])
+AN_IDENTIFIER([S_ISLNK], [AC_HEADER_STAT])
+AN_IDENTIFIER([S_ISREG], [AC_HEADER_STAT])
+AN_IDENTIFIER([S_ISSOCK], [AC_HEADER_STAT])
 AC_DEFUN([AC_HEADER_STAT],
 [AC_CACHE_CHECK(whether stat file-mode macros are broken,
   ac_cv_header_stat_broken,
@@ -395,15 +487,92 @@ fi
 ])# AC_HEADER_STAT
 
 
+# AC_HEADER_STDBOOL
+# -----------------
+# Check for stdbool.h that conforms to C99.
+AN_IDENTIFIER([bool], [AC_HEADER_STDBOOL])
+AN_IDENTIFIER([true], [AC_HEADER_STDBOOL])
+AN_IDENTIFIER([false],[AC_HEADER_STDBOOL])
+AC_DEFUN([AC_HEADER_STDBOOL],
+[AC_CACHE_CHECK([for stdbool.h that conforms to C99],
+   [ac_cv_header_stdbool_h],
+   [AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
+      [[
+#include <stdbool.h>
+#ifndef bool
+# error bool is not defined
+#endif
+#ifndef false
+# error false is not defined
+#endif
+#if false
+# error false is not 0
+#endif
+#ifndef true
+# error true is not defined
+#endif
+#if true != 1
+# error true is not 1
+#endif
+#ifndef __bool_true_false_are_defined
+# error __bool_true_false_are_defined is not defined
+#endif
+
+        struct s { _Bool s: 1; _Bool t; } s;
+
+        char a[true == 1 ? 1 : -1];
+        char b[false == 0 ? 1 : -1];
+        char c[__bool_true_false_are_defined == 1 ? 1 : -1];
+        char d[(bool) -0.5 == true ? 1 : -1];
+        bool e = &s;
+        char f[(_Bool) -0.0 == false ? 1 : -1];
+        char g[true];
+        char h[sizeof (_Bool)];
+        char i[sizeof s.t];
+      ]],
+      [[ return !a + !b + !c + !d + !e + !f + !g + !h + !i; ]])],
+      [ac_cv_header_stdbool_h=yes],
+      [ac_cv_header_stdbool_h=no])])
+AC_CHECK_TYPES([_Bool])
+if test $ac_cv_header_stdbool_h = yes; then
+  AC_DEFINE(HAVE_STDBOOL_H, 1, [Define to 1 if stdbool.h conforms to C99.])
+fi
+])# AC_HEADER_STDBOOL
+
+
 # AC_HEADER_STDC
 # --------------
+# FIXME: I find this list very strange.  It comes from the original
+# autoscan list, but I don't think it is useful for the same reason
+# that we don't bind AC_PROG_CC to finding a C function calls: if the
+# user uses bcmp, then she will certainly have the `#include', and
+# therefore, we will trigger AC_HEADER_STDC elsewhere.  --akim 2002-09-28
+# FIXME: Err... index and rindex are _not_ to be used... --akim 2002-09-28
+AN_FUNCTION([bcmp],     [AC_HEADER_STDC])
+AN_FUNCTION([bcopy],    [AC_HEADER_STDC])
+AN_FUNCTION([bzero],    [AC_HEADER_STDC])
+AN_FUNCTION([index],    [AC_HEADER_STDC])
+AN_FUNCTION([memchr],   [AC_HEADER_STDC])
+AN_FUNCTION([memcpy],   [AC_HEADER_STDC])
+AN_FUNCTION([memmove],  [AC_HEADER_STDC])
+AN_FUNCTION([memset],   [AC_HEADER_STDC])
+AN_FUNCTION([rindex],   [AC_HEADER_STDC])
+
+AN_HEADER([float.h],    [AC_HEADER_STDC])
+AN_HEADER([stdarg.h],   [AC_HEADER_STDC])
+AN_HEADER([stddef.h],   [AC_HEADER_STDC])
+AN_HEADER([stdlib.h],   [AC_HEADER_STDC])
+AN_HEADER([string.h],   [AC_HEADER_STDC])
+
 AC_DEFUN([AC_HEADER_STDC],
 [AC_CACHE_CHECK(for ANSI C header files, ac_cv_header_stdc,
-[AC_TRY_CPP([#include <stdlib.h>
+[AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
 #include <float.h>
-], ac_cv_header_stdc=yes, ac_cv_header_stdc=no)
+]])],
+                    [ac_cv_header_stdc=yes],
+                    [ac_cv_header_stdc=no])
 
 if test $ac_cv_header_stdc = yes; then
   # SunOS 4.x string.h does not declare mem*, contrary to ANSI.
@@ -417,13 +586,14 @@ fi
 
 if test $ac_cv_header_stdc = yes; then
   # /bin/cc in Irix-4.0.5 gets non-ANSI ctype macros unless using -ansi.
-  AC_TRY_RUN(
-[#include <ctype.h>
+  AC_RUN_IFELSE([AC_LANG_SOURCE(
+[[#include <ctype.h>
 #if ((' ' & 0x0FF) == 0x020)
 # define ISLOWER(c) ('a' <= (c) && (c) <= 'z')
 # define TOUPPER(c) (ISLOWER(c) ? 'A' + ((c) - 'a') : (c))
 #else
-# define ISLOWER(c) (('a' <= (c) && (c) <= 'i') \
+# define ISLOWER(c) \
+                   (('a' <= (c) && (c) <= 'i') \
                      || ('j' <= (c) && (c) <= 'r') \
                      || ('s' <= (c) && (c) <= 'z'))
 # define TOUPPER(c) (ISLOWER(c) ? ((c) | 0x40) : (c))
@@ -439,7 +609,7 @@ main ()
         || toupper (i) != TOUPPER (i))
       exit(2);
   exit (0);
-}], , ac_cv_header_stdc=no, :)
+}]])], , ac_cv_header_stdc=no, :)
 fi])
 if test $ac_cv_header_stdc = yes; then
   AC_DEFINE(STDC_HEADERS, 1,
@@ -450,6 +620,7 @@ fi
 
 # AC_HEADER_SYS_WAIT
 # ------------------
+AN_HEADER([sys/wait.h], [AC_HEADER_SYS_WAIT])
 AC_DEFUN([AC_HEADER_SYS_WAIT],
 [AC_CACHE_CHECK([for sys/wait.h that is POSIX.1 compatible],
   ac_cv_header_sys_wait_h,
@@ -477,6 +648,7 @@ fi
 
 # AC_HEADER_TIME
 # --------------
+AN_IDENTIFIER([timeval],  [AC_HEADER_TIME])
 AC_DEFUN([AC_HEADER_TIME],
 [AC_CACHE_CHECK([whether time.h and sys/time.h may both be included],
   ac_cv_header_time,
@@ -558,16 +730,19 @@ AU_DEFUN([AC_UNISTD_H],
 # Define `USG' if string functions are in strings.h.
 AU_DEFUN([AC_USG],
 [AC_DIAGNOSE([obsolete],
-[$0: Remove `AC_MSG_CHECKING', `AC_TRY_LINK' and this `AC_WARNING'
+[$0: Remove `AC_MSG_CHECKING', `AC_LINK_IFELSE' and this `AC_WARNING'
 when you adjust your code to use HAVE_STRING_H.])dnl
 AC_MSG_CHECKING([for BSD string and memory functions])
-AC_TRY_LINK([@%:@include <strings.h>], [rindex(0, 0); bzero(0, 0);],
-  [AC_MSG_RESULT(yes)],
-  [AC_MSG_RESULT(no)
-   AC_DEFINE(USG, 1,
-       [Define to 1 if you do not have <strings.h>, index, bzero, etc...
-        This symbol is obsolete, you should not depend upon it.])])
-AC_CHECK_HEADERS(string.h)])
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[@%:@include <strings.h>]],
+                                [[rindex(0, 0); bzero(0, 0);]])],
+               [AC_MSG_RESULT(yes)],
+               [AC_MSG_RESULT(no)
+                AC_DEFINE(USG, 1,
+                          [Define to 1 if you do not have <strings.h>, index,
+                           bzero, etc... This symbol is obsolete, you should
+                           not depend upon it.])])
+AC_CHECK_HEADERS(string.h)
+])# AU::AC_USG
 
 
 # AU::AC_MEMORY_H

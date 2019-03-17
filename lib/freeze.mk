@@ -17,6 +17,11 @@
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 ## 02111-1307, USA.
 
+
+## ----------------- ##
+## Freeze M4 files.  ##
+## ----------------- ##
+
 SUFFIXES = .m4 .m4f
 
 # Do not use AUTOM4TE here, since Makefile.maint (my-distcheck)
@@ -24,11 +29,11 @@ SUFFIXES = .m4 .m4f
 # others) to `false'.  But we _ship_ tests/autom4te, so it doesn't
 # apply to us.
 MY_AUTOM4TE = $(top_builddir)/tests/autom4te
-$(MY_AUTOM4TE):
+$(MY_AUTOM4TE): $(top_srcdir)/tests/wrapper.in
 	cd $(top_builddir)/tests && $(MAKE) $(AM_MAKEFLAGS) autom4te
 
 AUTOM4TE_CFG = $(top_builddir)/lib/autom4te.cfg
-$(AUTOM4TE_CFG):
+$(AUTOM4TE_CFG): $(top_srcdir)/lib/autom4te.in
 	cd $(top_builddir)/lib && $(MAKE) $(AM_MAKEFLAGS) autom4te.cfg
 
 # When processing the file with diversion disabled, there must be no
@@ -41,8 +46,6 @@ $(AUTOM4TE_CFG):
 	$(MY_AUTOM4TE)				\
 		--language=$*			\
 		--freeze			\
-		--include=$(srcdir)/..		\
-		--include=..			\
 		--output=$@
 
 # Factor the dependencies between all the frozen files.
@@ -73,6 +76,7 @@ autotest_m4f_dependencies = 			\
 
 autoconf_m4f_dependencies =			\
 	$(m4sh_m4f_dependencies)		\
+	$(src_libdir)/autoconf/autoscan.m4	\
 	$(src_libdir)/autoconf/general.m4	\
 	$(src_libdir)/autoconf/autoheader.m4	\
 	$(src_libdir)/autoconf/autoupdate.m4	\
@@ -89,3 +93,38 @@ autoconf_m4f_dependencies =			\
 	$(src_libdir)/autoconf/libs.m4		\
 	$(src_libdir)/autoconf/programs.m4	\
 	$(src_libdir)/autoconf/autoconf.m4
+
+
+## --------------------------- ##
+## Run ETAGS on some M4 code.  ##
+## --------------------------- ##
+
+ETAGS_FOR_M4 = \
+  --lang=none \
+  --regex='/\(m4_define\|define\)(\[\([^]]*\)\]/\2/'
+
+ETAGS_FOR_M4SUGAR = \
+  $(ETAGS_FOR_M4) \
+  --regex='/m4_defun(\[\([^]]*\)\]/\1/'
+
+ETAGS_FOR_AUTOCONF = \
+  $(ETAGS_FOR_M4SUGAR) \
+  --regex='/\(A[CU]_DEFUN\|AU_ALIAS\)(\[\([^]]*\)\]/\2/' \
+  --regex='/AN_\(FUNCTION\|HEADER\|IDENTIFIER\|LIBRARY\|MAKEVAR\|PROGRAM\)(\[\([^]]*\)\]/\2/'
+
+
+## -------------------------------- ##
+## Looking for forbidden patterns.  ##
+## -------------------------------- ##
+
+check-forbidden-patterns:
+	if (cd $(srcdir) && \
+	    grep $(forbidden_patterns) $(forbidden_patterns_files)) \
+	    >forbidden.log; then \
+	  echo "ERROR: forbidden patterns were found:" >&2; \
+	  sed "s,^,$*.m4: ," <forbidden.log >&2; \
+	  echo >&2; \
+	  exit 1; \
+	else \
+	  rm -f forbidden.log; \
+	fi

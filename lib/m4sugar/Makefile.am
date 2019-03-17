@@ -47,24 +47,17 @@ version.m4: $(top_srcdir)/configure.ac
 
 TAGS_FILES = $(dist_m4sugarlib_DATA)
 
-ETAGS_ARGS = --lang=none \
-  --regex='/\(A[CU]_DEFUN\|m4_\(defun\|define\)\|define\)(\[\([^]]*\)\]/\3/'
+ETAGS_ARGS = $(ETAGS_FOR_AUTOCONF)
 
 
 ## -------- ##
 ## Checks.  ##
 ## -------- ##
 
-check-local:
-	if (cd $(srcdir) && \
-	    grep '^_*EOF' $(dist_m4sugarlib_DATA)) >eof.log; then \
-	  echo "ERROR: user EOF tags were used:" >&2; \
-	  sed "s,^,$*.m4: ," <eof.log >&2; \
-	  echo >&2; \
-	  exit 1; \
-	else \
-	  rm -f eof.log; \
-	fi
+check-local: check-forbidden-patterns
+forbidden_patterns = -e '^_*EOF' -e ' cmp '
+forbidden_patterns_files = $(dist_m4sugarlib_DATA)
+
 
 
 ## ------------------ ##

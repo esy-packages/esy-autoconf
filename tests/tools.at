@@ -111,6 +111,39 @@ AT_CLEANUP
 
 
 
+## ------------------ ##
+## autom4te's cache.  ##
+## ------------------ ##
+
+AT_SETUP([autom4te cache])
+
+AT_DATA_M4SUGAR([[script.4s]],
+[[m4_include([foo])
+]])
+
+# Everything is OK.
+touch foo
+AT_CHECK_M4SUGAR
+
+# We moved a file: it should fail
+mkdir sub
+mv foo sub
+AT_CHECK_M4SUGAR([], [1], [],
+[m4: script.4s: 1: Cannot open foo: No such file or directory
+autom4te: m4 failed with exit status: 1
+])
+
+# But if we change the main file, then we should no longer complain of
+# missing files.
+AT_DATA_M4SUGAR([[script.4s]],
+[[m4_include([sub/foo])
+]])
+AT_CHECK_M4SUGAR
+
+AT_CLEANUP
+
+
+
 
 ## ------------------ ##
 ## autoconf --trace.  ##
@@ -133,7 +166,7 @@ TRACE1
 TRACE2
 
 # With arguments, single line.
-TRACE1(foo, bar, baz)
+TRACE1(foo, @bar, @baz)
 TRACE1(foo, TRACE1(bar, baz))
 TRACE1(foo, active, baz)
 TRACE1(foo, [active], TRACE1(active, [active]))
@@ -150,8 +183,8 @@ AT_CHECK_AUTOCONF([-t TRACE1 -t TRACE2], 0,
 [[configure.ac:6:TRACE1:
 configure.ac:6:TRACE2:
 configure.ac:7:TRACE2:
-configure.ac:10:TRACE1:foo:bar:baz
-configure.ac:10:TRACE2:bar:baz
+configure.ac:10:TRACE1:foo:@bar:@baz
+configure.ac:10:TRACE2:@bar:@baz
 configure.ac:11:TRACE1:bar:baz
 configure.ac:11:TRACE2:baz
 configure.ac:11:TRACE1:foo::baz
@@ -172,7 +205,7 @@ AT_CHECK_AUTOCONF([[-t TRACE1:'
 [[
 [], [], [].
 
-[foo], [bar], [baz].
+[foo], [@bar], [@baz].
 
 [bar], [baz], [].
 
@@ -193,7 +226,7 @@ foo], [].
 AT_CHECK_AUTOCONF([-t TRACE2:'${)===(}@'], 0,
 [[[]
 []
-[bar])===([baz]
+[@bar])===([@baz]
 [baz]
 [])===([baz]
 [ACTIVE])===([baz]
@@ -425,9 +458,14 @@ AT_DATA([configure.ac],
 AC_CONFIG_HEADERS(config.h:config.hin)
 AH_TOP([Top1 from configure.ac.])
 AH_TOP([Top2 from configure.ac.])
+AH_TOP([The Cat in a h@t.])
 AH_VERBATIM([Middle], [Middle from configure.ac.])
+AH_VERBATIM([Mouse],  [The Mouse in a h@t.])
 AH_BOTTOM([Bottom1 from configure.ac.])
 AH_BOTTOM([Bottom2 from configure.ac.])
+AH_BOTTOM([The Dog in a h@t.])
+
+AC_DEFINE([ANT], [@], [The Ant in a h@t.])
 ]])
 
 
@@ -446,7 +484,14 @@ Top1 from configure.ac.
 
 Top2 from configure.ac.
 
+The Cat in a h@t.
+
+/* The Ant in a h@t. */
+#undef ANT
+
 Middle from configure.ac.
+
+The Mouse in a h@t.
 
 /* Define to the address where bug reports for this package should be sent. */
 #undef PACKAGE_BUGREPORT
@@ -466,6 +511,8 @@ Middle from configure.ac.
 Bottom1 from configure.ac.
 
 Bottom2 from configure.ac.
+
+The Dog in a h@t.
 /* Bottom from acconfig.h. */
 ]])
 
@@ -503,9 +550,7 @@ AC_OUTPUT
 AT_CHECK_AUTOUPDATE
 AT_CHECK([cat configure.ac], 0, [expout])
 # Checking that `autoupdate' is idempotent
-AT_CHECK([autoupdate], 0, [],
-         [autoupdate: `configure.ac' is unchanged
-])
+AT_CHECK_AUTOUPDATE
 AT_CHECK([cat configure.ac], 0, [expout])
 
 AT_CLEANUP(configure.ac~)

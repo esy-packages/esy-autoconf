@@ -235,6 +235,13 @@ AC_DEFUN([AC_CHECK_TYPE],
 
 
 
+# ---------------------------- #
+# Types that must be checked.  #
+# ---------------------------- #
+
+AN_IDENTIFIER([ptrdiff_t], [AC_CHECK_TYPES])
+
+
 # ----------------- #
 # Specific checks.  #
 # ----------------- #
@@ -284,6 +291,7 @@ AC_DEFINE_UNQUOTED(GETGROUPS_T, $ac_cv_type_getgroups,
 
 
 # AU::AM_TYPE_PTRDIFF_T
+# ---------------------
 AU_DEFUN([AM_TYPE_PTRDIFF_T],
 [AC_CHECK_TYPES(ptrdiff_t)])
 
@@ -311,6 +319,8 @@ AC_DEFUN([AC_TYPE_MBSTATE_T],
 # AC_TYPE_UID_T
 # -------------
 # FIXME: Rewrite using AC_CHECK_TYPE.
+AN_IDENTIFIER([gid_t], [AC_TYPE_UID_T])
+AN_IDENTIFIER([uid_t], [AC_TYPE_UID_T])
 AC_DEFUN([AC_TYPE_UID_T],
 [AC_CACHE_CHECK(for uid_t in sys/types.h, ac_cv_type_uid_t,
 [AC_EGREP_HEADER(uid_t, sys/types.h,
@@ -322,15 +332,23 @@ fi
 ])
 
 
+AN_IDENTIFIER([size_t], [AC_TYPE_SIZE_T])
 AC_DEFUN([AC_TYPE_SIZE_T], [AC_CHECK_TYPE(size_t, unsigned)])
+
+AN_IDENTIFIER([pid_t], [AC_TYPE_PID_T])
 AC_DEFUN([AC_TYPE_PID_T],  [AC_CHECK_TYPE(pid_t,  int)])
+
+AN_IDENTIFIER([off_t], [AC_TYPE_OFF_T])
 AC_DEFUN([AC_TYPE_OFF_T],  [AC_CHECK_TYPE(off_t,  long)])
+
+AN_IDENTIFIER([mode_t], [AC_TYPE_MODE_T])
 AC_DEFUN([AC_TYPE_MODE_T], [AC_CHECK_TYPE(mode_t, int)])
 
 
 # AC_TYPE_SIGNAL
 # --------------
 # Note that identifiers starting with SIG are reserved by ANSI C.
+AN_FUNCTION([signal],  [AC_TYPE_SIGNAL])
 AC_DEFUN([AC_TYPE_SIGNAL],
 [AC_CACHE_CHECK([return type of signal handlers], ac_cv_type_signal,
 [AC_COMPILE_IFELSE(
@@ -378,7 +396,7 @@ AC_CACHE_CHECK([size of $1], AS_TR_SH([ac_cv_sizeof_$1]),
   _AC_COMPUTE_INT([(long) (sizeof ($1))],
                   [AS_TR_SH([ac_cv_sizeof_$1])],
                   [AC_INCLUDES_DEFAULT([$3])],
-                  [AC_MSG_ERROR([cannot compute sizeof ($1), 77])])
+                  [AC_MSG_FAILURE([cannot compute sizeof ($1), 77])])
 else
   AS_TR_SH([ac_cv_sizeof_$1])=0
 fi])dnl
@@ -483,9 +501,14 @@ $2],
                  [$4])])])
 
 
-# ----------------- #
-# Specific checks.  #
-# ----------------- #
+
+# ------------------------------------------------------- #
+# Members that ought to be tested with AC_CHECK_MEMBERS.  #
+# ------------------------------------------------------- #
+
+AN_IDENTIFIER([st_blksize], [AC_CHECK_MEMBERS([struct stat.st_blksize])])
+AN_IDENTIFIER([st_rdev],    [AC_CHECK_MEMBERS([struct stat.st_rdev])])
+
 
 # Alphabetic order, please.
 
@@ -518,6 +541,7 @@ AC_CHECK_MEMBERS([struct stat.st_blksize],
 # Please note that it will define `HAVE_STRUCT_STAT_ST_BLOCKS',
 # and not `HAVE_ST_BLOCKS'.])dnl
 #
+AN_IDENTIFIER([st_blocks],  [AC_STRUCT_ST_BLOCKS])
 AC_DEFUN([AC_STRUCT_ST_BLOCKS],
 [AC_CHECK_MEMBERS([struct stat.st_blocks],
                   [AC_DEFINE(HAVE_ST_BLOCKS, 1,
@@ -547,6 +571,7 @@ AC_CHECK_MEMBERS([struct stat.st_rdev],
 # ------------
 # FIXME: This macro is badly named, it should be AC_CHECK_TYPE_STRUCT_TM.
 # Or something else, but what? AC_CHECK_TYPE_STRUCT_TM_IN_SYS_TIME?
+AN_IDENTIFIER([tm], [AC_STRUCT_TM])
 AC_DEFUN([AC_STRUCT_TM],
 [AC_CACHE_CHECK([whether struct tm is in sys/time.h or time.h],
   ac_cv_struct_tm,
@@ -568,6 +593,7 @@ fi
 # Figure out how to get the current timezone.  If `struct tm' has a
 # `tm_zone' member, define `HAVE_TM_ZONE'.  Otherwise, if the
 # external array `tzname' is found, define `HAVE_TZNAME'.
+AN_IDENTIFIER([tm_zone], [AC_STRUCT_TIMEZONE])
 AC_DEFUN([AC_STRUCT_TIMEZONE],
 [AC_REQUIRE([AC_STRUCT_TM])dnl
 AC_CHECK_MEMBERS([struct tm.tm_zone],,,[#include <sys/types.h>
@@ -579,13 +605,15 @@ if test "$ac_cv_member_struct_tm_tm_zone" = yes; then
              `HAVE_STRUCT_TM_TM_ZONE' instead.])
 else
   AC_CACHE_CHECK(for tzname, ac_cv_var_tzname,
-[AC_TRY_LINK(
-[#include <time.h>
+[AC_LINK_IFELSE([AC_LANG_PROGRAM(
+[[#include <time.h>
 #ifndef tzname /* For SGI.  */
 extern char *tzname[]; /* RS6000 and others reject char **tzname.  */
 #endif
-],
-[atoi(*tzname);], ac_cv_var_tzname=yes, ac_cv_var_tzname=no)])
+]],
+[atoi(*tzname);])],
+                [ac_cv_var_tzname=yes],
+                [ac_cv_var_tzname=no])])
   if test $ac_cv_var_tzname = yes; then
     AC_DEFINE(HAVE_TZNAME, 1,
               [Define to 1 if you don't have `tm_zone' but do have the external

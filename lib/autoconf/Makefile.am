@@ -21,7 +21,7 @@ autoconflibdir = $(pkgdatadir)/autoconf
 dist_autoconflib_DATA = \
 	autoconf.m4 \
         general.m4 status.m4 oldnames.m4 specific.m4 \
-	autoheader.m4 autoupdate.m4 autotest.m4 \
+	autoheader.m4 autoupdate.m4 autotest.m4 autoscan.m4 \
 	lang.m4 c.m4 fortran.m4 \
         functions.m4 headers.m4 types.m4 libs.m4 programs.m4
 
@@ -35,27 +35,16 @@ CLEANFILES = $(nodist_autoconflib_DATA)
 
 TAGS_FILES = $(dist_autoconflib_DATA)
 
-ETAGS_ARGS = --lang=none \
-  --regex='/\(A[CU]_DEFUN\|m4_\(defun\|define\)\|define\)(\[\([^]]*\)\]/\3/'
-
-
-
+ETAGS_ARGS = $(ETAGS_FOR_AUTOCONF)
 
 
 ## -------- ##
 ## Checks.  ##
 ## -------- ##
 
-check-local:
-	if (cd $(srcdir) && \
-	    grep '^_*EOF' $(dist_autoconflib_DATA)) >eof.log; then \
-	  echo "ERROR: user EOF tags were used:" >&2; \
-	  sed "s,^,$*.m4: ," <eof.log >&2; \
-	  echo >&2; \
-	  exit 1; \
-	else \
-	  rm -f eof.log; \
-	fi
+check-local: check-forbidden-patterns
+forbidden_patterns = -e '^_*EOF' -e ' cmp '
+forbidden_patterns_files = $(dist_autoconflib_DATA)
 
 
 ## ------------------ ##
