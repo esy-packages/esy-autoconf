@@ -1,6 +1,6 @@
 {
   "name": "esy-autoconf",
-  "version": "2.10.000",
+  "version": "2.11.000",
   "description": "Autoconf packaged for esy",
   "esy": {
     "buildsInSource": true,
