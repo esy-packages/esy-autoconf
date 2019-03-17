@@ -7,20 +7,23 @@ these suggestions... their presence here doesn't imply my endorsement.
 
 ------------------------------------------------------------------------------
 
-* Autoconf 2.50
+* Soon
 
 ** --target & AC_ARG_PROGRAM
 Shouldn't *any* `program' be installed as `$target_alias-program' even
 if AC_ARG_PROGRAM is not called?  That would be much more predictable.
 Ian?
 
-** Document
-Automake, Libtool.
+** RedHat's Autoconf page
+should be removed.
 
 ** AC_CHECK_TOOL...
 Write a test that checks that it honors the values set by the user.
 
-* Autoconf 2.51
+* Autoconf 2.52 or later
+
+** Languages
+Integrate other Fortrans etc.
 
 ** AC_CHECK_FUNCS and AC_TRY_LINK_FUNC
 I have still not understood what's the difference  between the two
@@ -46,8 +49,6 @@ Can be introduced even before specializing macros.  It just means that
 specializing macros will call them.  OTOH, this doubles our work,
 since specializing macros will save us from additional typing.  But
 the more powerful autoscan is, the better...
-
-* Autoconf 2.51 or later
 
 ** Libtool
 Define once for all the hooks they need, any redefinition of
@@ -118,11 +119,11 @@ technology.  Should we make this a new language?  AC_LANG(ISO C).  It
 would be great to introduce AC_LANG_COMPILER in this release too.
 
 * autoconf.texi
-Move the specific macro documentation blocks into the source files, and use
-a doc-block extraction/merge technique to get docuemntation into texi-file.
-This should help avoid bit-rot in the doc, and make the doc easier to update
-when people add/change macros.  The name "autodoc" is probably already taken 
-so we probably need another one.
+Move the specific macro documentation blocks into the source files,
+and use a doc-block extraction/merge technique to get docuemntation
+into texi-file.  This should help avoid bit-rot in the doc, and make
+the doc easier to update when people add/change macros.  The name
+"autodoc" is probably already taken so we probably need another one.
 
 ------------------------------------------------------------------------------
 
@@ -182,13 +183,6 @@ Conversely:
 ------------------------------------------------------------------------------
 
 * Autoconf 3
-
-** Split all those &#@! files.
-acgeneral and acspecific is a bad design.  The split should be done
-according to the families.  For instance AC_CHECK_FUNCS,
-AC_CHECK_FUNC, AC_FUNC_FNMATCH etc. *and* AH_CHECK_FUNCS, AU_* should
-be in, acfunc.m4.  I suppose there should be small exceptions, e.g.,
-the family AC_REPLACE_FUNCS should still be in acfunc.m4.
 
 ** Cache name spaces.
 Cf the discussion with Kaveh.  One would like to

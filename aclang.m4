@@ -354,8 +354,11 @@ $1])
 
 # AC_LANG_PROGRAM(C)([PROLOGUE], [BODY])
 # --------------------------------------
+# If AC_F77_DUMMY_MAIN was run, then any C/C++ program might be linked
+# against Fortran code, hence a dummy main might be needed.
 m4_define([AC_LANG_PROGRAM(C)],
 [$1
+m4_ifdef([_AC_LANG_PROGRAM_C_F77_HOOKS], [_AC_LANG_PROGRAM_C_F77_HOOKS()])dnl
 int
 main ()
 {
@@ -600,12 +603,16 @@ AC_DEFUN([AC_REQUIRE_CPP],
 AC_DEFUN_ONCE([AC_NO_EXECUTABLES],
 [m4_divert_push([KILL])
 
-AC_BEFORE([$0], [_AC_LANG_COMPILER_WORKS])
+AC_BEFORE([$0], [_AC_COMPILER_EXEEXT_WORKS])
 AC_BEFORE([$0], [_AC_COMPILER_EXEEXT])
 
-m4_define([_AC_LANG_COMPILER_WORKS], [cross_compiling=maybe])
+m4_define([_AC_COMPILER_EXEEXT_WORKS],
+[cross_compiling=maybe
+])
 
-m4_define([_AC_COMPILER_EXEEXT], [EXEEXT=])
+m4_define([_AC_COMPILER_EXEEXT],
+[EXEEXT=
+])
 
 m4_define([AC_LINK_IFELSE],
 [AC_FATAL([All the tests involving linking were disabled by $0])])
@@ -648,18 +655,24 @@ AC_DEFUN([AC_OBJEXT],   [])
 # it compiles properly.
 m4_define([_AC_COMPILER_EXEEXT_DEFAULT],
 [# Try to create an executable without -o first, disregard a.out.
-# It will help us diagnose broken compiler, and finding out an intuition
+# It will help us diagnose broken compilers, and finding out an intuition
 # of exeext.
 AC_MSG_CHECKING([for _AC_LANG compiler default output])
 ac_link_default=`echo "$ac_link" | sed ['s/ -o *conftest[^ ]*//']`
 AS_IF([AC_TRY_EVAL(ac_link_default)],
-[for ac_file in `ls a.exe conftest.exe a.* conftest conftest.* 2>/dev/null`; do
+[# Find the output, starting from the most likely.  This scheme is
+# not robust to junk in `.', hence go to wildcards (a.*) only as a last
+# resort.
+for ac_file in `ls a.exe conftest.exe 2>/dev/null;
+                ls a.out conftest 2>/dev/null;
+                ls a.* conftest.* 2>/dev/null`; do
   case $ac_file in
     *.$ac_ext | *.o | *.obj | *.xcoff | *.tds | *.d | *.pdb ) ;;
     a.out ) # We found the default executable, but exeext='' is most
             # certainly right.
             break;;
     *.* ) ac_cv_exeext=`expr "$ac_file" : ['[^.]*\(\..*\)']`
+          # FIXME: I believe we export ac_cv_exeext for Libtool --akim.
           export ac_cv_exeext
           break;;
     * ) break;;
@@ -881,8 +894,7 @@ if test -z "$CPP"; then
     # Double quotes because CPP needs to be expanded
     for CPP in "$CC -E" "$CC -E -traditional-cpp" "/lib/cpp"
     do
-      # break 2 since there is a loop in there.
-      _AC_PROG_PREPROC_WORKS_IFELSE([break 2])
+      _AC_PROG_PREPROC_WORKS_IFELSE([break])
     done
     ac_cv_prog_CPP=$CPP
   ])dnl
@@ -938,6 +950,14 @@ fi
 ])
 
 test -z "$CC" && AC_MSG_ERROR([no acceptable cc found in \$PATH])
+
+# Provide some information about the compiler.
+echo "$as_me:__oline__:" \
+     "checking for _AC_LANG compiler version" >&AS_MESSAGE_LOG_FD
+ac_compiler=`set X $ac_compile; echo $[2]`
+_AC_EVAL([$ac_compiler --version </dev/null >&AS_MESSAGE_LOG_FD])
+_AC_EVAL([$ac_compiler -v </dev/null >&AS_MESSAGE_LOG_FD])
+_AC_EVAL([$ac_compiler -V </dev/null >&AS_MESSAGE_LOG_FD])
 
 m4_expand_once([_AC_COMPILER_EXEEXT])[]dnl
 m4_expand_once([_AC_COMPILER_OBJEXT])[]dnl
@@ -1089,8 +1109,7 @@ if test -z "$CXXCPP"; then
     # Double quotes because CXXCPP needs to be expanded
     for CXXCPP in "$CXX -E" "/lib/cpp"
     do
-      # break 2 since there is a loop in there.
-      _AC_PROG_PREPROC_WORKS_IFELSE([break 2])
+      _AC_PROG_PREPROC_WORKS_IFELSE([break])
     done
     ac_cv_prog_CXXCPP=$CXXCPP
   ])dnl
@@ -1127,6 +1146,7 @@ AU_DEFUN([ac_cv_prog_gxx],
 # user an opportunity to specify an alternative search list for the C++
 # compiler.
 # aCC	HP-UX C++ compiler much better than `CC', so test before.
+# FCC   Fujitsu C++ compiler
 # KCC	KAI C++ compiler
 # RCC	Rational C++
 # xlC_r	AIX C Set++ (with support for reentrant code)
@@ -1139,8 +1159,16 @@ _AC_ARG_VAR_LDFLAGS()dnl
 _AC_ARG_VAR_CPPFLAGS()dnl
 AC_CHECK_TOOLS(CXX,
                [$CCC m4_default([$1],
-                          [g++ c++ gpp aCC CC cxx cc++ cl KCC RCC xlC_r xlC])],
+                          [g++ c++ gpp aCC CC cxx cc++ cl FCC KCC RCC xlC_r xlC])],
                g++)
+
+# Provide some information about the compiler.
+echo "$as_me:__oline__:" \
+     "checking for _AC_LANG compiler version" >&AS_MESSAGE_LOG_FD
+ac_compiler=`set X $ac_compile; echo $[2]`
+_AC_EVAL([$ac_compiler --version </dev/null >&AS_MESSAGE_LOG_FD])
+_AC_EVAL([$ac_compiler -v </dev/null >&AS_MESSAGE_LOG_FD])
+_AC_EVAL([$ac_compiler -V </dev/null >&AS_MESSAGE_LOG_FD])
 
 m4_expand_once([_AC_COMPILER_EXEEXT])[]dnl
 m4_expand_once([_AC_COMPILER_OBJEXT])[]dnl
@@ -1205,9 +1233,12 @@ $ac_declaration],
                                       [exit (42);])],
                      [break])
 done
-echo '#ifdef __cplusplus' >>confdefs.h
-echo $ac_declaration      >>confdefs.h
-echo '#endif'             >>confdefs.h
+rm -f conftest*
+if test -n "$ac_declaration"; then
+  echo '#ifdef __cplusplus' >>confdefs.h
+  echo $ac_declaration      >>confdefs.h
+  echo '#endif'             >>confdefs.h
+fi
 ])# _AC_PROG_CXX_EXIT_DECLARATION
 
 
@@ -1255,12 +1286,14 @@ AU_DEFUN([ac_cv_prog_g77],
 # It is believed that under HP-UX `fort77' is the name of the native
 # compiler.  On some Cray systems, fort77 is a native compiler.
 # cf77 and cft77 are (older) Cray F77 compilers.
+# frt is the Fujitsu F77 compiler.
 # pgf77 and pgf90 are the Portland Group F77 and F90 compilers.
 # xlf/xlf90/xlf95 are IBM (AIX) F77/F90/F95 compilers.
 # lf95 is the Lahey-Fujitsu compiler.
 # fl32 is the Microsoft Fortran "PowerStation" compiler.
 # af77 is the Apogee F77 compiler for Intergraph hardware running CLIX.
 # epcf90 is the "Edinburgh Portable Compiler" F90.
+# fort is the Compaq Fortran 90 (now 95) compiler for Tru64 and Linux/Alpha.
 AC_DEFUN([AC_PROG_F77],
 [AC_LANG_PUSH(Fortran 77)dnl
 AC_ARG_VAR([F77],    [Fortran 77 compiler command])dnl
@@ -1268,7 +1301,15 @@ AC_ARG_VAR([FFLAGS], [Fortran 77 compiler flags])dnl
 _AC_ARG_VAR_LDFLAGS()dnl
 AC_CHECK_TOOLS(F77,
       [m4_default([$1],
-                  [g77 f77 xlf cf77 cft77 pgf77 fl32 af77 fort77 f90 xlf90 pgf90 epcf90 f95 xlf95 lf95 g95 fc])])
+                  [g77 f77 xlf cf77 cft77 frt pgf77 fl32 af77 fort77 f90 xlf90 pgf90 epcf90 f95 fort xlf95 lf95 g95 fc])])
+
+# Provide some information about the compiler.
+echo "$as_me:__oline__:" \
+     "checking for _AC_LANG compiler version" >&AS_MESSAGE_LOG_FD
+ac_compiler=`set X $ac_compile; echo $[2]`
+_AC_EVAL([$ac_compiler --version </dev/null >&AS_MESSAGE_LOG_FD])
+_AC_EVAL([$ac_compiler -v </dev/null >&AS_MESSAGE_LOG_FD])
+_AC_EVAL([$ac_compiler -V </dev/null >&AS_MESSAGE_LOG_FD])
 
 m4_expand_once([_AC_COMPILER_EXEEXT])[]dnl
 m4_expand_once([_AC_COMPILER_OBJEXT])[]dnl
@@ -1717,7 +1758,7 @@ ac_f77_v_output=`eval $ac_link AS_MESSAGE_LOG_FD>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&AS_MESSAGE_LOG_FD
 FFLAGS=$ac_save_FFLAGS
 
-rm -f conftest.*
+rm -f conftest*
 AC_LANG_POP(Fortran 77)dnl
 
 # If we are using xlf then replace all the commas with spaces.
@@ -1740,7 +1781,7 @@ fi[]dnl
 # Determine the flag that causes the Fortran 77 compiler to print
 # information of library and object files (normally -v)
 # Needed for AC_F77_LIBRARY_FLAGS
-# Some compilers don't accept -v (Lahey: -verbose, xlf: -V)
+# Some compilers don't accept -v (Lahey: -verbose, xlf: -V, Fujitsu: -###)
 AC_DEFUN([_AC_PROG_F77_V],
 [AC_CACHE_CHECK([how to get verbose linking output from $F77],
                 [ac_cv_prog_f77_v],
@@ -1748,7 +1789,7 @@ AC_DEFUN([_AC_PROG_F77_V],
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM()],
 [ac_cv_prog_f77_v=
 # Try some options frequently used verbose output
-for ac_verb in -v -verbose --verbose -V; do
+for ac_verb in -v -verbose --verbose -V -\#\#\#; do
   _AC_PROG_F77_V_OUTPUT($ac_verb)
   # look for -l* and *.a constructs in the output
   for ac_arg in $ac_f77_v_output; do
@@ -1877,6 +1918,115 @@ AC_LANG_POP(Fortran 77)dnl
 ])# AC_F77_LIBRARY_LDFLAGS
 
 
+# AC_F77_DUMMY_MAIN([ACTION-IF-FOUND], [ACTION-IF-NOT-FOUND])
+# -----------------------------------------------------------
+#
+# Detect name of dummy main routine required by the Fortran libraries,
+# (if any) and define F77_DUMMY_MAIN to this name (which should be
+# used for a dummy declaration, if it is defined).  On some systems,
+# linking a C program to the Fortran library does not work unless you
+# supply a dummy function called something like MAIN__.
+#
+# Execute ACTION-IF-NOT-FOUND if no way of successfully linking a C
+# program with the F77 libs is found; default to exiting with an error
+# message.  Execute ACTION-IF-FOUND if a dummy routine name is needed
+# and found or if it is not needed (default to defining F77_DUMMY_MAIN
+# when needed).
+#
+# What is technically happening is that the Fortran libraries provide
+# their own main() function, which usually initializes Fortran I/O and
+# similar stuff, and then calls MAIN__, which is the entry point of
+# your program.  Usually, a C program will override this with its own
+# main() routine, but the linker sometimes complain if you don't
+# provide a dummy (never-called) MAIN__ routine anyway.
+#
+# Of course, programs that want to allow Fortran subroutines to do
+# I/O, etcetera, should call their main routine MAIN__() (or whatever)
+# instead of main().  A separate autoconf test (AC_F77_MAIN) checks
+# for the routine to use in this case (since the semantics of the test
+# are slightly different).  To link to e.g. purely numerical
+# libraries, this is normally not necessary, however, and most C/C++
+# programs are reluctant to turn over so much control to Fortran.  =)
+#
+# The name variants we check for are (in order):
+#   MAIN__ (g77, MAIN__ required on some systems; IRIX, MAIN__ optional)
+#   MAIN_, __main (SunOS)
+#   MAIN _MAIN __MAIN main_ main__ _main (we follow DDD and try these too)
+AC_DEFUN([AC_F77_DUMMY_MAIN],
+[AC_REQUIRE([AC_F77_LIBRARY_LDFLAGS])dnl
+m4_define([_AC_LANG_PROGRAM_C_F77_HOOKS],
+[#ifdef F77_DUMMY_MAIN
+#  ifdef __cplusplus
+     extern "C"
+#  endif
+   int F77_DUMMY_MAIN() { return 1; }
+#endif
+])
+AC_CACHE_CHECK([for dummy main to link with Fortran 77 libraries],
+               ac_cv_f77_dummy_main,
+[AC_LANG_PUSH(C)dnl
+ ac_f77_dm_save_LIBS=$LIBS
+ LIBS="$LIBS $FLIBS"
+
+ # First, try linking without a dummy main:
+ AC_TRY_LINK([], [],
+             ac_cv_f77_dummy_main=none,
+             ac_cv_f77_dummy_main=unknown)
+
+ if test $ac_cv_f77_dummy_main = unknown; then
+   for ac_func in MAIN__ MAIN_ __main MAIN _MAIN __MAIN main_ main__ _main; do
+     AC_TRY_LINK([@%:@define F77_DUMMY_MAIN $ac_func],
+                 [], [ac_cv_f77_dummy_main=$ac_func; break])
+   done
+ fi
+ rm -f conftest*
+ LIBS=$ac_f77_dm_save_LIBS
+ AC_LANG_POP(C)dnl
+])
+F77_DUMMY_MAIN=$ac_cv_f77_dummy_main
+AS_IF([test "$F77_DUMMY_MAIN" != unknown],
+      [m4_default([$1],
+[if test $F77_DUMMY_MAIN != none; then
+  AC_DEFINE_UNQUOTED([F77_DUMMY_MAIN], $F77_DUMMY_MAIN,
+                     [Define to dummy `main' function (if any) required to
+                      link to the Fortran 77 libraries.])
+fi])],
+      [m4_default([$2],
+                [AC_MSG_ERROR([Linking to Fortran libraries from C fails.])])])
+])# AC_F77_DUMMY_MAIN
+
+
+# AC_F77_MAIN
+# -----------
+# Define F77_MAIN to name of alternate main() function for use with
+# the Fortran libraries.  (Typically, the libraries may define their
+# own main() to initialize I/O, etcetera, that then call your own
+# routine called MAIN__ or whatever.)  See AC_F77_DUMMY_MAIN, above.
+# If no such alternate name is found, just define F77_MAIN to main.
+#
+AC_DEFUN([AC_F77_MAIN],
+[AC_REQUIRE([AC_F77_LIBRARY_LDFLAGS])dnl
+AC_CACHE_CHECK([for alternate main to link with Fortran 77 libraries],
+               ac_cv_f77_main,
+[AC_LANG_PUSH(C)dnl
+ ac_f77_m_save_LIBS=$LIBS
+ LIBS="$LIBS $FLIBS"
+ ac_cv_f77_main="main" # default entry point name
+
+ for ac_func in MAIN__ MAIN_ __main MAIN _MAIN __MAIN main_ main__ _main; do
+   AC_TRY_LINK([#undef F77_DUMMY_MAIN
+@%:@define main $ac_func], [], [ac_cv_f77_main=$ac_func; break])
+ done
+ rm -f conftest*
+ LIBS=$ac_f77_m_save_LIBS
+ AC_LANG_POP(C)dnl
+])
+AC_DEFINE_UNQUOTED([F77_MAIN], $ac_cv_f77_main,
+                   [Define to alternate name for `main' routine that is
+                    called from a `main' in the Fortran libraries.])
+])# AC_F77_MAIN
+
+
 # _AC_F77_NAME_MANGLING
 # ---------------------
 # Test for the name mangling scheme used by the Fortran 77 compiler.
@@ -1894,6 +2044,7 @@ AC_LANG_POP(Fortran 77)dnl
 #
 AC_DEFUN([_AC_F77_NAME_MANGLING],
 [AC_REQUIRE([AC_F77_LIBRARY_LDFLAGS])dnl
+AC_REQUIRE([AC_F77_DUMMY_MAIN])dnl
 AC_CACHE_CHECK([for Fortran 77 name-mangling scheme],
                ac_cv_f77_mangling,
 [AC_LANG_PUSH(Fortran 77)dnl
@@ -1909,7 +2060,7 @@ AC_COMPILE_IFELSE(
   AC_LANG_PUSH(C)dnl
 
   ac_save_LIBS=$LIBS
-  LIBS="cf77_test.$ac_objext $FLIBS $LIBS"
+  LIBS="cf77_test.$ac_objext $LIBS $FLIBS"
 
   ac_success=no
   for ac_foobar in foobar FOOBAR; do

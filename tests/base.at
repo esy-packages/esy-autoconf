@@ -32,7 +32,9 @@ AC_DEFUN([TEST3],
 [REQUIRE_AND_CHECK([TEST2a])
 test3=set])
 
-AC_PLAIN_SCRIPT
+AC_PLAIN_SCRIPT()dnl
+#! /bin/sh
+
 TEST1
 test -z "$test1" &&
   AC_MSG_ERROR([\$test1 is empty])
@@ -63,7 +65,9 @@ AC_DEFUN([MULTI_TEST],
 AC_DEFUN_ONCE([SINGLE_TEST],
 [single_test=".$single_test"])
 
-AC_PLAIN_SCRIPT
+AC_PLAIN_SCRIPT()dnl
+#! /bin/sh
+
 TEST
 TEST
 MULTI_TEST
@@ -79,8 +83,8 @@ esac
 ]])
 
 AT_CHECK_AUTOCONF([], 0, [],
-[configure.ac:16: warning: SINGLE_TEST invoked multiple times
-configure.ac:17: warning: SINGLE_TEST invoked multiple times
+[configure.ac:18: warning: SINGLE_TEST invoked multiple times
+configure.ac:19: warning: SINGLE_TEST invoked multiple times
 ])
 
 AT_CHECK_CONFIGURE
@@ -106,7 +110,9 @@ AC_DEFUN([MULTI_TEST],
 AC_DEFUN_ONCE([SINGLE_TEST],
 [single_test=".$single_test"])
 
-AC_PLAIN_SCRIPT
+AC_PLAIN_SCRIPT()dnl
+#! /bin/sh
+
 MULTI_TEST
 MULTI_TEST
 SINGLE_TEST
@@ -123,7 +129,7 @@ esac
 ]])
 
 AT_CHECK_AUTOCONF([], 0, [],
-[configure.ac:15: warning: SINGLE_TEST invoked multiple times
+[configure.ac:17: warning: SINGLE_TEST invoked multiple times
 ])
 AT_CHECK_CONFIGURE
 
@@ -144,7 +150,9 @@ AT_DATA([configure.ac],
 AC_DEFUN([INNER_TEST],
 [inner_test=".$inner_test"])
 
-AC_PLAIN_SCRIPT
+AC_PLAIN_SCRIPT()dnl
+#! /bin/sh
+
 AC_PROVIDE([INNER_TEST])
 TEST
 

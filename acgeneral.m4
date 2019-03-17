@@ -91,7 +91,11 @@
 #   Tail of the handling of --help.
 #
 # - VERSION_BEGIN
-#   Copyright notice for --version.
+#   Head of the handling of --version.
+# - VERSION_FSF
+#   FSF copyright notice for --version.
+# - VERSION_USER
+#   User copyright notice for --version.
 # - VERSION_END
 #   Tail of the handling of --version.
 #
@@ -124,7 +128,9 @@ m4_define([_m4_divert(HELP_VAR_END)],   15)
 m4_define([_m4_divert(HELP_END)],       16)
 
 m4_define([_m4_divert(VERSION_BEGIN)],  20)
-m4_define([_m4_divert(VERSION_END)],    21)
+m4_define([_m4_divert(VERSION_FSF)],    21)
+m4_define([_m4_divert(VERSION_USER)],   22)
+m4_define([_m4_divert(VERSION_END)],    23)
 
 m4_define([_m4_divert(INIT_PREPARE)],   30)
 
@@ -337,142 +343,6 @@ m4_define([_AH_COUNTER], [0])
 
 
 
-## --------------------------------------------------- ##
-## Common m4/sh handling of variables (indirections).  ##
-## --------------------------------------------------- ##
-
-
-# The purpose of this section is to provide a uniform API for
-# reading/setting sh variables with or without indirection.
-# Typically, one can write
-#   AC_VAR_SET(var, val)
-# or
-#   AC_VAR_SET(ac_$var, val)
-# and expect the right thing to happen.
-
-
-# AC_VAR_SET(VARIABLE, VALUE)
-# ---------------------------
-# Set the VALUE of the shell VARIABLE.
-# If the variable contains indirections (e.g. `ac_cv_func_$ac_func')
-# perform whenever possible at m4 level, otherwise sh level.
-m4_define([AC_VAR_SET],
-[AS_LITERAL_IF([$1],
-               [$1=$2],
-               [eval "$1=$2"])])
-
-
-# AC_VAR_GET(VARIABLE)
-# --------------------
-# Get the value of the shell VARIABLE.
-# Evaluates to $VARIABLE if there are no indirection in VARIABLE,
-# else into the appropriate `eval' sequence.
-m4_define([AC_VAR_GET],
-[AS_LITERAL_IF([$1],
-               [$[]$1],
-               [`eval echo '${'m4_patsubst($1, [[\\`]], [\\\&])'}'`])])
-
-
-# AC_VAR_TEST_SET(VARIABLE)
-# -------------------------
-# Expands into the `test' expression which is true if VARIABLE
-# is set.  Polymorphic.  Should be dnl'ed.
-m4_define([AC_VAR_TEST_SET],
-[AS_LITERAL_IF([$1],
-               [test "${$1+set}" = set],
-               [eval "test \"\${$1+set}\" = set"])])
-
-
-# AC_VAR_SET_IFELSE(VARIABLE, IF-TRUE, IF-FALSE)
-# ----------------------------------------------
-# Implement a shell `if-then-else' depending whether VARIABLE is set
-# or not.  Polymorphic.
-m4_define([AC_VAR_SET_IFELSE],
-[AS_IF([AC_VAR_TEST_SET([$1])], [$2], [$3])])
-
-
-# AC_VAR_PUSHDEF and AC_VAR_POPDEF
-# --------------------------------
-#
-
-# Sometimes we may have to handle literals (e.g. `stdlib.h'), while at
-# other moments, the same code may have to get the value from a
-# variable (e.g., `ac_header').  To have a uniform handling of both
-# cases, when a new value is about to be processed, declare a local
-# variable, e.g.:
-#
-#   AC_VAR_PUSHDEF([header], [ac_cv_header_$1])
-#
-# and then in the body of the macro, use `header' as is.  It is of
-# first importance to use `AC_VAR_*' to access this variable.  Don't
-# quote its name: it must be used right away by m4.
-#
-# If the value `$1' was a literal (e.g. `stdlib.h'), then `header' is
-# in fact the value `ac_cv_header_stdlib_h'.  If `$1' was indirect,
-# then `header's value in m4 is in fact `$ac_header', the shell
-# variable that holds all of the magic to get the expansion right.
-#
-# At the end of the block, free the variable with
-#
-#   AC_VAR_POPDEF([header])
-
-
-# AC_VAR_PUSHDEF(VARNAME, VALUE)
-# ------------------------------
-# Define the m4 macro VARNAME to an accessor to the shell variable
-# named VALUE.  VALUE does not need to be a valid shell variable name:
-# the transliteration is handled here.  To be dnl'ed.
-m4_define([AC_VAR_PUSHDEF],
-[AS_LITERAL_IF([$2],
-               [m4_pushdef([$1], [AC_TR_SH($2)])],
-               [ac_$1=AC_TR_SH($2)
-m4_pushdef([$1], [$ac_[$1]])])])
-
-
-# AC_VAR_POPDEF(VARNAME)
-# ----------------------
-# Free the shell variable accessor VARNAME.  To be dnl'ed.
-m4_define([AC_VAR_POPDEF],
-[m4_popdef([$1])])
-
-
-
-## ------------------------------------ ##
-## Common m4/sh character translation.  ##
-## ------------------------------------ ##
-
-# The point of this section is to provide high level functions
-# comparable to m4's `translit' primitive, but m4:sh polymorphic.
-# Transliteration of literal strings should be handled by m4, while
-# shell variables' content will be translated at runtime (tr or sed).
-
-# AC_TR_CPP(EXPRESSION)
-# ---------------------
-# Map EXPRESSION to an upper case string which is valid as rhs for a
-# `#define'.  sh/m4 polymorphic.  Make sure to update the definition
-# of `$ac_tr_cpp' if you change this.
-m4_define([AC_TR_CPP],
-[AS_LITERAL_IF([$1],
-               [m4_patsubst(m4_translit([[$1]],
-                                        [*abcdefghijklmnopqrstuvwxyz],
-                                        [PABCDEFGHIJKLMNOPQRSTUVWXYZ]),
-                            [[^A-Z0-9_]], [_])],
-               [`echo "$1" | $ac_tr_cpp`])])
-
-
-# AC_TR_SH(EXPRESSION)
-# --------------------
-# Transform EXPRESSION into a valid shell variable name.
-# sh/m4 polymorphic.
-# Make sure to update the definition of `$ac_tr_sh' if you change this.
-m4_define([AC_TR_SH],
-[AS_LITERAL_IF([$1],
-               [m4_patsubst(m4_translit([[$1]], [*+], [pp]),
-                            [[^a-zA-Z0-9_]], [_])],
-               [`echo "$1" | $ac_tr_sh`])])
-
-
-
 ## ----------------------------- ##
 ## Implementing Autoconf loops.  ##
 ## ----------------------------- ##
@@ -585,8 +455,8 @@ m4_define([AC_PACKAGE_BUGREPORT], [$3])
 ])
 
 
-# AC_COPYRIGHT(TEXT)
-# ------------------
+# AC_COPYRIGHT(TEXT, [VERSION-DIVERSION = VERSION_USER])
+# ------------------------------------------------------
 # Append Copyright information in the top of `configure'.  TEXT is
 # evaluated once, hence TEXT can use macros.  Note that we do not
 # prepend `# ' but `@%:@ ', since m4 does not evaluate the comments.
@@ -599,7 +469,7 @@ m4_define([AC_COPYRIGHT],
 [m4_divert_text([NOTICE],
 [m4_patsubst([
 $1], [^], [@%:@ ])])dnl
-m4_divert_text([VERSION_BEGIN],
+m4_divert_text(m4_default([$2], [VERSION_USER]),
 [
 $1])dnl
 ])# AC_COPYRIGHT
@@ -678,12 +548,15 @@ m4_ifset([AC_PACKAGE_BUGREPORT],
 
 # _AC_INIT_COPYRIGHT
 # ------------------
+# We dump to VERSION_FSF to make sure we are inserted before the
+# user copyrights, and after the setup of the --version handling.
 m4_define([_AC_INIT_COPYRIGHT],
 [AC_COPYRIGHT(
 [Copyright 1992, 1993, 1994, 1995, 1996, 1998, 1999, 2000, 2001
 Free Software Foundation, Inc.
 This configure script is free software; the Free Software Foundation
-gives unlimited permission to copy, distribute and modify it.])dnl
+gives unlimited permission to copy, distribute and modify it.],
+              [VERSION_FSF])dnl
 ])
 
 
@@ -732,16 +605,6 @@ AC_SUBST(SHELL, ${CONFIG_SHELL-/bin/sh})dnl
 # This variable seems obsolete.  It should probably be removed, and
 # only ac_max_sed_lines should be used.
 : ${ac_max_here_lines=38}
-
-# Avoid depending upon Character Ranges.
-ac_cr_az='abcdefghijklmnopqrstuvwxyz'
-ac_cr_AZ='ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-ac_cr_09='0123456789'
-ac_cr_alnum=$ac_cr_az$ac_cr_AZ$ac_cr_09
-
-# Sed expression to map a string onto a valid sh and CPP variable names.
-ac_tr_sh="sed y%*+%pp%;s%[[^_$ac_cr_alnum]]%_%g"
-ac_tr_cpp="sed y%*$ac_cr_az%P$ac_cr_AZ%;s%[[^_$ac_cr_alnum]]%_%g"
 
 m4_divert_pop([DEFAULTS])dnl
 ])# _AC_INIT_DEFAULTS
@@ -897,7 +760,7 @@ do
   -disable-* | --disable-*)
     ac_feature=`expr "x$ac_option" : 'x-*disable-\(.*\)'`
     # Reject names that are not valid shell variable names.
-    expr "x$ac_feature" : "[.*[^-_$ac_cr_alnum]]" >/dev/null &&
+    expr "x$ac_feature" : "[.*[^-_$as_cr_alnum]]" >/dev/null &&
       AC_MSG_ERROR([invalid feature name: $ac_feature])
     ac_feature=`echo $ac_feature | sed 's/-/_/g'`
     eval "enable_$ac_feature=no" ;;
@@ -905,7 +768,7 @@ do
   -enable-* | --enable-*)
     ac_feature=`expr "x$ac_option" : 'x-*enable-\([[^=]]*\)'`
     # Reject names that are not valid shell variable names.
-    expr "x$ac_feature" : "[.*[^-_$ac_cr_alnum]]" >/dev/null &&
+    expr "x$ac_feature" : "[.*[^-_$as_cr_alnum]]" >/dev/null &&
       AC_MSG_ERROR([invalid feature name: $ac_feature])
     ac_feature=`echo $ac_feature | sed 's/-/_/g'`
     case $ac_option in
@@ -1086,7 +949,7 @@ do
   -with-* | --with-*)
     ac_package=`expr "x$ac_option" : 'x-*with-\([[^=]]*\)'`
     # Reject names that are not valid shell variable names.
-    expr "x$ac_package" : "[.*[^-_$ac_cr_alnum]]" >/dev/null &&
+    expr "x$ac_package" : "[.*[^-_$as_cr_alnum]]" >/dev/null &&
       AC_MSG_ERROR([invalid package name: $ac_package])
     ac_package=`echo $ac_package| sed 's/-/_/g'`
     case $ac_option in
@@ -1098,7 +961,7 @@ do
   -without-* | --without-*)
     ac_package=`expr "x$ac_option" : 'x-*without-\(.*\)'`
     # Reject names that are not valid shell variable names.
-    expr "x$ac_package" : "[.*[^-_$ac_cr_alnum]]" >/dev/null &&
+    expr "x$ac_package" : "[.*[^-_$as_cr_alnum]]" >/dev/null &&
       AC_MSG_ERROR([invalid package name: $ac_package])
     ac_package=`echo $ac_package | sed 's/-/_/g'`
     eval "with_$ac_package=no" ;;
@@ -1128,7 +991,7 @@ Try `$[0] --help' for more information.])
   *=*)
     ac_envvar=`expr "x$ac_option" : 'x\([[^=]]*\)='`
     # Reject names that are not valid shell variable names.
-    expr "x$ac_envvar" : "[.*[^_$ac_cr_alnum]]" >/dev/null &&
+    expr "x$ac_envvar" : "[.*[^_$as_cr_alnum]]" >/dev/null &&
       AC_MSG_ERROR([invalid variable name: $ac_envvar])
     ac_optarg=`echo "$ac_optarg" | sed "s/'/'\\\\\\\\''/g"`
     eval "$ac_envvar='$ac_optarg'"
@@ -1137,7 +1000,7 @@ Try `$[0] --help' for more information.])
   *)
     # FIXME: should be removed in autoconf 3.0.
     AC_MSG_WARN([you should use --build, --host, --target])
-    expr "x$ac_option" : "[.*[^-._$ac_cr_alnum]]" >/dev/null &&
+    expr "x$ac_option" : "[.*[^-._$as_cr_alnum]]" >/dev/null &&
       AC_MSG_WARN([invalid host type: $ac_option])
     : ${build_alias=$ac_option} ${host_alias=$ac_option} ${target_alias=$ac_option}
     ;;
@@ -1151,14 +1014,22 @@ if test -n "$ac_prev"; then
 fi
 
 # Be sure to have absolute paths.
+for ac_var in exec_prefix prefix
+do
+  eval ac_val=$`echo $ac_var`
+  case $ac_val in
+    [[\\/$]]* | ?:[[\\/]]* | NONE | '' ) ;;
+    *)  AC_MSG_ERROR([expected an absolute path for --$ac_var: $ac_val]);;
+  esac
+done
+
+# Be sure to have absolute paths.
 for ac_var in bindir sbindir libexecdir datadir sysconfdir sharedstatedir \
-              localstatedir libdir includedir oldincludedir infodir mandir \
-              exec_prefix prefix
+              localstatedir libdir includedir oldincludedir infodir mandir
 do
   eval ac_val=$`echo $ac_var`
   case $ac_val in
     [[\\/$]]* | ?:[[\\/]]* ) ;;
-    NONE ) ;;
     *)  AC_MSG_ERROR([expected an absolute path for --$ac_var: $ac_val]);;
   esac
 done
@@ -1472,7 +1343,7 @@ trap 'exit_status=$?
     exit $exit_status
      ' 0
 for ac_signal in 1 2 13 15; do
-  trap 'ac_status=$?; ac_signal='$ac_signal'; AS_EXIT([$ac_status])' $ac_signal
+  trap 'ac_signal='$ac_signal'; AS_EXIT([1])' $ac_signal
 done
 ac_signal=0
 
@@ -1548,8 +1419,6 @@ _AC_INIT_HELP
 _AC_INIT_VERSION
 _AC_INIT_CONFIG_LOG
 _AC_INIT_PREPARE
-dnl _AC_INIT_COPYRIGHT must be called after _AC_INIT_VERSION, since
-dnl it dumps into a diversion prepared by _AC_INIT_VERSION.
 _AC_INIT_NOTICE
 _AC_INIT_COPYRIGHT
 m4_ifval([$2], , [m4_ifval([$1], [AC_CONFIG_SRCDIR([$1])])])dnl
@@ -1633,7 +1502,8 @@ AU_DEFUN([AC_WITH],
 # In subsequent runs, after having loaded the cache, compare
 # ac_cv_env_foo against ac_env_foo.  See _AC_ARG_VAR_VALIDATE.
 m4_define([_AC_ARG_VAR_PRECIOUS],
-[m4_divert_once([PARSE_ARGS],
+[AC_SUBST([$1])dnl
+m4_divert_once([PARSE_ARGS],
 [ac_env_$1_set=${$1+set}
 ac_env_$1_value=$$1
 ac_cv_env_$1_set=${$1+set}
@@ -1643,10 +1513,21 @@ ac_cv_env_$1_value=$$1])dnl
 
 # _AC_ARG_VAR_VALIDATE
 # --------------------
+# The precious variables are saved twice at the beginning of
+# configure.  E.g., PRECIOUS, is saved as `ac_env_PRECIOUS_SET' and
+# `ac_env_PRECIOUS_VALUE' on the one hand and `ac_cv_env_PRECIOUS_SET'
+# and `ac_cv_env_PRECIOUS_VALUE' on the other hand.
+#
+# Now the cache has just been load, so `ac_cv_env_' represents the
+# content of the cached values, while `ac_env_' represents that of the
+# current values.
+#
+# So we check that `ac_env_' and `ac_cv_env_' are consistant.  If
+# they aren't, die.
 m4_define([_AC_ARG_VAR_VALIDATE],
 [# Check that the precious variables saved in the cache have kept the same
 # value.
-ac_suggest_removing_cache=false
+ac_cache_corrupted=false
 for ac_var in `(set) 2>&1 |
                sed -n 's/^ac_env_\([[a-zA-Z_0-9]]*\)_set=.*/\1/p'`; do
   eval ac_old_set=\$ac_cv_env_${ac_var}_set
@@ -1655,24 +1536,38 @@ for ac_var in `(set) 2>&1 |
   eval ac_new_val="\$ac_env_${ac_var}_value"
   case $ac_old_set,$ac_new_set in
     set,)
-      AC_MSG_WARN([`$ac_var' was set to `$ac_old_val' in the previous run])
-      ac_suggest_removing_cache=: ;;
+      AS_MESSAGE([error: `$ac_var' was set to `$ac_old_val' in the previous run], 2)
+      ac_cache_corrupted=: ;;
     ,set)
-      AC_MSG_WARN([`$ac_var' was not set in the previous run])
-      ac_suggest_removing_cache=: ;;
+      AS_MESSAGE([error: `$ac_var' was not set in the previous run], 2)
+      ac_cache_corrupted=: ;;
     ,);;
     *)
       if test "x$ac_old_val" != "x$ac_new_val"; then
-        AC_MSG_WARN([`$ac_var' has changed since the previous run:])
-        AC_MSG_WARN([  former value:  $ac_old_val])
-        AC_MSG_WARN([  current value: $ac_new_val])
-        ac_suggest_removing_cache=:
+        AS_MESSAGE([error: `$ac_var' has changed since the previous run:], 2)
+        AS_MESSAGE([  former value:  $ac_old_val], 2)
+        AS_MESSAGE([  current value: $ac_new_val], 2)
+        ac_cache_corrupted=:
       fi;;
   esac
+  # Pass precious variables to config.status.  It doesn't matter if
+  # we pass some twice (in addition to the command line arguments).
+  if test "$ac_new_set" = set; then
+    case $ac_new_val in
+dnl If you change this globbing pattern, test it on an old shell --
+dnl it's sensitive.  Putting any kind of quote in it causes syntax errors.
+[    *" "*|*"	"*|*[\[\]\~\#\$\^\&\*\(\)\{\}\\\|\;\<\>\?\"\']*)]
+      ac_arg=$ac_var=`echo "$ac_new_val" | sed "s/'/'\\\\\\\\''/g"`
+      ac_configure_args="$ac_configure_args '$ac_arg'"
+      ;;
+    *) ac_configure_args="$ac_configure_args $ac_var=$ac_new_val"
+       ;;
+    esac
+  fi
 done
-if $ac_suggest_removing_cache; then
-  AC_MSG_WARN([changes in the environment can compromise the build])
-  AC_MSG_WARN([consider removing $cache_file and starting over])
+if $ac_cache_corrupted; then
+  AS_MESSAGE([error: changes in the environment can compromise the build], 2)
+  AS_ERROR([run `make distclean' and/or `rm $cache_file' and start over])
 fi
 ])# _AC_ARG_VAR_VALIDATE
 
@@ -1691,7 +1586,6 @@ m4_expand_once([m4_divert_once([HELP_VAR],
                                [AC_HELP_STRING([$1], [$2], [              ])])],
                [$0($1)])dnl
 _AC_ARG_VAR_PRECIOUS([$1])dnl
-AC_SUBST([$1])dnl
 ])# AC_ARG_VAR
 
 
@@ -1716,24 +1610,18 @@ Program names:
   --program-suffix=SUFFIX            append SUFFIX to installed program names
   --program-transform-name=PROGRAM   run sed PROGRAM on installed program names
 m4_divert_pop([HELP_BEGIN])dnl
-if test "$program_transform_name" = s,x,x,; then
-  program_transform_name=
-else
-  # Double any \ or $.  echo might interpret backslashes.
-  cat <<\EOF >conftest.sed
-s,\\,\\\\,g; s,\$,$$,g
-EOF
-  program_transform_name=`echo $program_transform_name | sed -f conftest.sed`
-  rm -f conftest.sed
-fi
 test "$program_prefix" != NONE &&
-  program_transform_name="s,^,${program_prefix},;$program_transform_name"
+  program_transform_name="s,^,$program_prefix,;$program_transform_name"
 # Use a double $ so make ignores it.
 test "$program_suffix" != NONE &&
-  program_transform_name="s,\$\$,${program_suffix},;$program_transform_name"
-
-# sed with no file args requires a program.
-test -z "$program_transform_name" && program_transform_name="s,x,x,"
+  program_transform_name="s,\$,$program_suffix,;$program_transform_name"
+# Double any \ or $.  echo might interpret backslashes.
+# By default was `s,x,x', remove it if useless.
+cat <<\_ACEOF >conftest.sed
+[s/[\\$]/&&/g;s/;s,x,x,$//]
+_ACEOF
+program_transform_name=`echo $program_transform_name | sed -f conftest.sed`
+rm conftest.sed
 ])# AC_ARG_PROGRAM
 
 
@@ -1968,12 +1856,12 @@ m4_define([_AC_CACHE_DUMP],
       # substitution turns \\\\ into \\, and sed turns \\ into \).
       sed -n \
         ["s/'/'\\\\''/g;
-    	  s/^\\([_$ac_cr_alnum]*_cv_[_$ac_cr_alnum]*\\)=\\(.*\\)/\\1='\\2'/p"]
+    	  s/^\\([_$as_cr_alnum]*_cv_[_$as_cr_alnum]*\\)=\\(.*\\)/\\1='\\2'/p"]
       ;;
     *)
       # `set' quotes correctly as required by POSIX, so do not add quotes.
       sed -n \
-        ["s/^\\([_$ac_cr_alnum]*_cv_[_$ac_cr_alnum]*\\)=\\(.*\\)/\\1=\\2/p"]
+        ["s/^\\([_$as_cr_alnum]*_cv_[_$as_cr_alnum]*\\)=\\(.*\\)/\\1=\\2/p"]
       ;;
     esac;
 }dnl
@@ -2030,9 +1918,9 @@ m4_define([AC_CACHE_VAL],
       [AC_DIAGNOSE(syntax,
 [$0($1, ...): suspicious presence of an AC_DEFINE in the second argument, ]dnl
 [where no actions should be taken])])dnl
-AC_VAR_SET_IFELSE([$1],
-                  [echo $ECHO_N "(cached) $ECHO_C" >&AS_MESSAGE_FD],
-                  [$2])])
+AS_VAR_SET_IF([$1],
+              [echo $ECHO_N "(cached) $ECHO_C" >&AS_MESSAGE_FD],
+              [$2])])
 
 
 # AC_CACHE_CHECK(MESSAGE, CACHE-ID, COMMANDS)
@@ -2041,7 +1929,7 @@ AC_VAR_SET_IFELSE([$1],
 m4_define([AC_CACHE_CHECK],
 [AC_MSG_CHECKING([$1])
 AC_CACHE_VAL([$2], [$3])dnl
-AC_MSG_RESULT_UNQUOTED([AC_VAR_GET([$2])])])
+AC_MSG_RESULT_UNQUOTED([AS_VAR_GET([$2])])])
 
 
 
@@ -2311,8 +2199,12 @@ AC_DEFUN([_AC_INCLUDES_DEFAULT_REQUIREMENTS],
 dnl If ever you change this variable, please keep autoconf.texi in sync.
 ac_includes_default="\
 #include <stdio.h>
-#include <sys/types.h>
-#include <sys/stat.h>
+#if HAVE_SYS_TYPES_H
+# include <sys/types.h>
+#endif
+#if HAVE_SYS_STAT_H
+# include <sys/stat.h>
+#endif
 #if STDC_HEADERS
 # include <stdlib.h>
 # include <stddef.h>
@@ -2326,21 +2218,27 @@ ac_includes_default="\
 #  include <memory.h>
 # endif
 # include <string.h>
-#else
-# if HAVE_STRINGS_H
-#  include <strings.h>
-# endif
+#endif
+#if HAVE_STRINGS_H
+# include <strings.h>
 #endif
 #if HAVE_INTTYPES_H
 # include <inttypes.h>
+#else
+# if HAVE_STDINT_H
+#  include <stdint.h>
+# endif
 #endif
 #if HAVE_UNISTD_H
 # include <unistd.h>
 #endif"
 ])dnl
 AC_REQUIRE([AC_HEADER_STDC])dnl
-AC_CHECK_HEADERS(stdlib.h string.h memory.h strings.h inttypes.h unistd.h)
-])
+# On IRIX 5.3, sys/types and inttypes.h are conflicting.
+AC_CHECK_HEADERS([sys/types.h sys/stat.h stdlib.h string.h memory.h strings.h \
+                  inttypes.h stdint.h unistd.h],
+                 [], [], $ac_includes_default)
+])# _AC_INCLUDES_DEFAULT_REQUIREMENTS
 
 
 # AC_INCLUDES_DEFAULT([INCLUDES])
@@ -2650,6 +2548,11 @@ AS_IF([test "$ac_cv_search_$1" != no],
 # just for library $1.  Separate tests with the same $1 and different $2s
 # may have different results.
 #
+# Note that using directly AS_VAR_PUSHDEF([ac_Lib], [ac_cv_lib_$1_$2])
+# is asking for troubles, since AC_CHECK_LIB($lib, fun) would give
+# ac_cv_lib_$lib_fun, which is definitely not what was meant.  Hence
+# the AS_LITERAL_IF indirection.
+#
 # FIXME: This macro is extremely suspicious.  It DEFINEs unconditionnally,
 # whatever the FUNCTION, in addition to not being a *S macro.  Note
 # that the cache does depend upon the function we are looking for.
@@ -2661,27 +2564,29 @@ AS_IF([test "$ac_cv_search_$1" != no],
 # freedom.
 AC_DEFUN([AC_CHECK_LIB],
 [m4_ifval([$3], , [AH_CHECK_LIB([$1])])dnl
-AC_VAR_PUSHDEF([ac_Lib], [ac_cv_lib_$1_$2])dnl
+AS_LITERAL_IF([$1],
+              [AS_VAR_PUSHDEF([ac_Lib], [ac_cv_lib_$1_$2])],
+              [AS_VAR_PUSHDEF([ac_Lib], [ac_cv_lib_$1''_$2])])dnl
 AC_CACHE_CHECK([for $2 in -l$1], ac_Lib,
 [ac_check_lib_save_LIBS=$LIBS
 LIBS="-l$1 $5 $LIBS"
 AC_TRY_LINK_FUNC([$2],
-                 [AC_VAR_SET(ac_Lib, yes)],
-                 [AC_VAR_SET(ac_Lib, no)])
+                 [AS_VAR_SET(ac_Lib, yes)],
+                 [AS_VAR_SET(ac_Lib, no)])
 LIBS=$ac_check_lib_save_LIBS])
-AS_IF([test AC_VAR_GET(ac_Lib) = yes],
-      [m4_default([$3], [AC_DEFINE_UNQUOTED(AC_TR_CPP(HAVE_LIB$1))
+AS_IF([test AS_VAR_GET(ac_Lib) = yes],
+      [m4_default([$3], [AC_DEFINE_UNQUOTED(AS_TR_CPP(HAVE_LIB$1))
   LIBS="-l$1 $LIBS"
 ])],
       [$4])dnl
-AC_VAR_POPDEF([ac_Lib])dnl
+AS_VAR_POPDEF([ac_Lib])dnl
 ])# AC_CHECK_LIB
 
 
 # AH_CHECK_LIB(LIBNAME)
 # ---------------------
 m4_define([AH_CHECK_LIB],
-[AH_TEMPLATE(AC_TR_CPP(HAVE_LIB$1),
+[AH_TEMPLATE(AS_TR_CPP(HAVE_LIB$1),
              [Define if you have the `]$1[' library (-l]$1[).])])
 
 
@@ -2902,6 +2807,8 @@ AC_LINK_IFELSE([AC_LANG_PROGRAM([[$2]], [[$3]])], [$4], [$5])
 # ------------------------------------------------------------
 # Compile, link, and run.
 # This macro can be used during the selection of a compiler.
+# We also remove conftest.o as if the compilation fails, some compilers
+# don't remove it.
 m4_define([_AC_RUN_IFELSE],
 [m4_ifvaln([$1], [AC_LANG_CONFTEST([$1])])dnl
 rm -f conftest$ac_exeext
@@ -2911,7 +2818,7 @@ AS_IF([AC_TRY_EVAL(ac_link) && AC_TRY_COMMAND(./conftest$ac_exeext)],
 echo "$as_me: failed program was:" >&AS_MESSAGE_LOG_FD
 cat conftest.$ac_ext >&AS_MESSAGE_LOG_FD
 m4_ifvaln([$3], [$3])dnl])[]dnl
-rm -f core core.* *.core conftest$ac_exeext m4_ifval([$1],
+rm -f core core.* *.core conftest$ac_exeext conftest.$ac_objext m4_ifval([$1],
                                                      [conftest.$ac_ext])[]dnl
 ])# _AC_RUN_IFELSE
 
@@ -2956,17 +2863,17 @@ AC_DEFUN([AC_TRY_RUN],
 AC_DEFUN([AC_CHECK_FILE],
 [AC_DIAGNOSE([cross],
              [cannot check for file existence when cross compiling])dnl
-AC_VAR_PUSHDEF([ac_File], [ac_cv_file_$1])dnl
+AS_VAR_PUSHDEF([ac_File], [ac_cv_file_$1])dnl
 AC_CACHE_CHECK([for $1], ac_File,
 [test "$cross_compiling" = yes &&
   AC_MSG_ERROR([cannot check for file existence when cross compiling])
 if test -r "$1"; then
-  AC_VAR_SET(ac_File, yes)
+  AS_VAR_SET(ac_File, yes)
 else
-  AC_VAR_SET(ac_File, no)
+  AS_VAR_SET(ac_File, no)
 fi])
-AS_IF([test AC_VAR_GET(ac_File) = yes], [$2], [$3])[]dnl
-AC_VAR_POPDEF([ac_File])dnl
+AS_IF([test AS_VAR_GET(ac_File) = yes], [$2], [$3])[]dnl
+AS_VAR_POPDEF([ac_File])dnl
 ])# AC_CHECK_FILE
 
 
@@ -2975,7 +2882,7 @@ AC_VAR_POPDEF([ac_File])dnl
 AC_DEFUN([AC_CHECK_FILES],
 [AC_FOREACH([AC_FILE_NAME], [$1],
   [AC_CHECK_FILE(AC_FILE_NAME,
-                 [AC_DEFINE_UNQUOTED(AC_TR_CPP(HAVE_[]AC_FILE_NAME), 1,
+                 [AC_DEFINE_UNQUOTED(AS_TR_CPP(HAVE_[]AC_FILE_NAME), 1,
                                    [Define if you have the file `]AC_File['.])
 $2],
                  [$3])])])
@@ -2992,17 +2899,17 @@ $2],
 # -------------------------------------------------------
 # Check if SYMBOL (a variable or a function) is declared.
 AC_DEFUN([AC_CHECK_DECL],
-[AC_VAR_PUSHDEF([ac_Symbol], [ac_cv_have_decl_$1])dnl
+[AS_VAR_PUSHDEF([ac_Symbol], [ac_cv_have_decl_$1])dnl
 AC_CACHE_CHECK([whether $1 is declared], ac_Symbol,
 [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([AC_INCLUDES_DEFAULT([$4])],
 [#ifndef $1
   char *p = (char *) $1;
 #endif
 ])],
-                   [AC_VAR_SET(ac_Symbol, yes)],
-                   [AC_VAR_SET(ac_Symbol, no)])])
-AS_IF([test AC_VAR_GET(ac_Symbol) = yes], [$2], [$3])[]dnl
-AC_VAR_POPDEF([ac_Symbol])dnl
+                   [AS_VAR_SET(ac_Symbol, yes)],
+                   [AS_VAR_SET(ac_Symbol, no)])])
+AS_IF([test AS_VAR_GET(ac_Symbol) = yes], [$2], [$3])[]dnl
+AS_VAR_POPDEF([ac_Symbol])dnl
 ])# AC_CHECK_DECL
 
 
@@ -3016,11 +2923,11 @@ AC_VAR_POPDEF([ac_Symbol])dnl
 AC_DEFUN([AC_CHECK_DECLS],
 [m4_foreach([AC_Symbol], [$1],
   [AC_CHECK_DECL(AC_Symbol,
-                 [AC_DEFINE_UNQUOTED(AC_TR_CPP([HAVE_DECL_]AC_Symbol), 1,
+                 [AC_DEFINE_UNQUOTED(AS_TR_CPP([HAVE_DECL_]AC_Symbol), 1,
                                      [Define to 1 if you have the declaration
                                      of `]AC_Symbol[', and to 0 if you don't.])
 $2],
-                 [AC_DEFINE_UNQUOTED(AC_TR_CPP([HAVE_DECL_]AC_Symbol), 0)
+                 [AC_DEFINE_UNQUOTED(AS_TR_CPP([HAVE_DECL_]AC_Symbol), 0)
 $3],
                  [$4])])
 ])# AC_CHECK_DECLS
@@ -3551,7 +3458,7 @@ m4_ifval([$2$3],
          [AC_CONFIG_COMMANDS(default, [$2], [$3])])dnl
 m4_ifval([$1$2$3],
          [AC_DIAGNOSE([obsolete],
-                      [$0 should be used witout arguments.
+                      [$0 should be used without arguments.
 You should run autoupdate.])])dnl
 AC_CACHE_SAVE
 
@@ -3764,28 +3671,12 @@ Try `$[0] --help' for more information.]);;
     CONFIG_HEADERS="$CONFIG_HEADERS $[1]"
     ac_need_defaults=false;;
 
-  # Handling of arguments.
-AC_FOREACH([AC_File], AC_LIST_FILES,
-[  'm4_patsubst(AC_File, [:.*])' )dnl
- CONFIG_FILES="$CONFIG_FILES AC_File" ;;
-])dnl
-AC_FOREACH([AC_File], AC_LIST_LINKS,
-[  'm4_patsubst(AC_File, [:.*])' )dnl
- CONFIG_LINKS="$CONFIG_LINKS AC_File" ;;
-])dnl
-AC_FOREACH([AC_File], AC_LIST_COMMANDS,
-[  'm4_patsubst(AC_File, [:.*])' )dnl
- CONFIG_COMMANDS="$CONFIG_COMMANDS AC_File" ;;
-])dnl
-AC_FOREACH([AC_File], AC_LIST_HEADERS,
-[  'm4_patsubst(AC_File, [:.*])' )dnl
- CONFIG_HEADERS="$CONFIG_HEADERS AC_File" ;;
-])dnl
-
   # This is an error.
   -*) AC_MSG_ERROR([unrecognized option: $[1]
 Try `$[0] --help' for more information.]) ;;
-  *) AC_MSG_ERROR([invalid argument: $[1]]);;
+
+  *) ac_config_targets="$ac_config_targets $[1]" ;;
+
   esac
   shift
 done
@@ -3799,17 +3690,57 @@ cat >&AS_MESSAGE_LOG_FD << _ACEOF
 
 This file was extended by $as_me m4_ifset([AC_PACKAGE_STRING],
                             [(AC_PACKAGE_STRING) ])AC_ACVERSION, executed with
+  CONFIG_FILES    = $CONFIG_FILES
+  CONFIG_HEADERS  = $CONFIG_HEADERS
+  CONFIG_LINKS    = $CONFIG_LINKS
+  CONFIG_COMMANDS = $CONFIG_COMMANDS
   > $ac_cs_invocation
 on `(hostname || uname -n) 2>/dev/null | sed 1q`
 
 _ACEOF
 EOF
 
+dnl We output the INIT-CMDS first for obvious reasons :)
+m4_ifset([_AC_OUTPUT_COMMANDS_INIT],
+[cat >>$CONFIG_STATUS <<EOF
+#
+# INIT-COMMANDS section.
+#
+
+_AC_OUTPUT_COMMANDS_INIT()
+EOF])
+
+
 dnl Issue this section only if there were actually config files.
 dnl This checks if one of AC_LIST_HEADERS, AC_LIST_FILES, AC_LIST_COMMANDS,
 dnl or AC_LIST_LINKS is set.
 m4_ifval(AC_LIST_HEADERS()AC_LIST_LINKS()AC_LIST_FILES()AC_LIST_COMMANDS(),
-[cat >>$CONFIG_STATUS <<\EOF
+[
+cat >>$CONFIG_STATUS <<\EOF
+for ac_config_target in $ac_config_targets
+do
+  case "$ac_config_target" in
+  # Handling of arguments.
+AC_FOREACH([AC_File], AC_LIST_FILES,
+[  "m4_patsubst(AC_File, [:.*])" )dnl
+ CONFIG_FILES="$CONFIG_FILES AC_File" ;;
+])dnl
+AC_FOREACH([AC_File], AC_LIST_LINKS,
+[  "m4_patsubst(AC_File, [:.*])" )dnl
+ CONFIG_LINKS="$CONFIG_LINKS AC_File" ;;
+])dnl
+AC_FOREACH([AC_File], AC_LIST_COMMANDS,
+[  "m4_patsubst(AC_File, [:.*])" )dnl
+ CONFIG_COMMANDS="$CONFIG_COMMANDS AC_File" ;;
+])dnl
+AC_FOREACH([AC_File], AC_LIST_HEADERS,
+[  "m4_patsubst(AC_File, [:.*])" )dnl
+ CONFIG_HEADERS="$CONFIG_HEADERS AC_File" ;;
+])dnl
+  *) AC_MSG_ERROR([invalid argument: $ac_config_target]);;
+  esac
+done
+
 # If the user did not use the arguments to specify the items to instantiate,
 # then the envvar interface is used.  Set only those that are not.
 # We use the long form for the default assignment because of an extremely
@@ -3833,17 +3764,6 @@ AS_TMPDIR(cs)
 
 EOF
 ])[]dnl m4_ifval
-
-dnl We output the INIT-CMDS first for obvious reasons :)
-m4_ifset([_AC_OUTPUT_COMMANDS_INIT],
-[cat >>$CONFIG_STATUS <<EOF
-#
-# INIT-COMMANDS section.
-#
-
-_AC_OUTPUT_COMMANDS_INIT()
-EOF])
-
 
 dnl The following four sections are in charge of their own here
 dnl documenting into $CONFIG_STATUS.

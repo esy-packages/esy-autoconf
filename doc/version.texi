@@ -1,3 +1,3 @@
-@set UPDATED 19 May 2001
-@set EDITION 2.50
-@set VERSION 2.50
+@set UPDATED 17 July 2001
+@set EDITION 2.52
+@set VERSION 2.52

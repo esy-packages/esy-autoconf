@@ -64,13 +64,13 @@
 # AC_CHECK_FUNC(FUNCTION, [ACTION-IF-FOUND], [ACTION-IF-NOT-FOUND])
 # -----------------------------------------------------------------
 AC_DEFUN([AC_CHECK_FUNC],
-[AC_VAR_PUSHDEF([ac_var], [ac_cv_func_$1])dnl
+[AS_VAR_PUSHDEF([ac_var], [ac_cv_func_$1])dnl
 AC_CACHE_CHECK([for $1], ac_var,
 [AC_LINK_IFELSE([AC_LANG_FUNC_LINK_TRY([$1])],
-                [AC_VAR_SET(ac_var, yes)],
-                [AC_VAR_SET(ac_var, no)])])
-AS_IF([test AC_VAR_GET(ac_var) = yes], [$2], [$3])dnl
-AC_VAR_POPDEF([ac_var])dnl
+                [AS_VAR_SET(ac_var, yes)],
+                [AS_VAR_SET(ac_var, no)])])
+AS_IF([test AS_VAR_GET(ac_var) = yes], [$2], [$3])dnl
+AS_VAR_POPDEF([ac_var])dnl
 ])# AC_CHECK_FUNC
 
 
@@ -78,12 +78,12 @@ AC_VAR_POPDEF([ac_var])dnl
 # ---------------------------------------------------------------------
 AC_DEFUN([AC_CHECK_FUNCS],
 [AC_FOREACH([AC_Func], [$1],
-  [AH_TEMPLATE(AC_TR_CPP(HAVE_[]AC_Func),
+  [AH_TEMPLATE(AS_TR_CPP(HAVE_[]AC_Func),
                [Define if you have the `]AC_Func[' function.])])dnl
 for ac_func in $1
 do
 AC_CHECK_FUNC($ac_func,
-              [AC_DEFINE_UNQUOTED([AC_TR_CPP([HAVE_$ac_func])]) $2],
+              [AC_DEFINE_UNQUOTED([AS_TR_CPP([HAVE_$ac_func])]) $2],
               [$3])dnl
 done
 ])
@@ -257,17 +257,10 @@ AC_DEFUN([AC_FUNC_CHOWN],
 [AC_REQUIRE([AC_TYPE_UID_T])dnl
 AC_CHECK_HEADERS(unistd.h)
 AC_CACHE_CHECK([for working chown], ac_cv_func_chown_works,
-[AC_RUN_IFELSE([AC_LANG_SOURCE([[#include <sys/types.h>
-#include <sys/stat.h>
+[AC_RUN_IFELSE([AC_LANG_PROGRAM([AC_INCLUDES_DEFAULT
 #include <fcntl.h>
-#ifdef HAVE_UNISTD_H
-# include <unistd.h>
-#endif
-
-int
-main ()
-{
-  char *f = "conftest.chown";
+],
+[[  char *f = "conftest.chown";
   struct stat before, after;
 
   if (creat (f, 0600) < 0)
@@ -280,7 +273,7 @@ main ()
     exit (1);
   exit ((before.st_uid == after.st_uid
          && before.st_gid == after.st_gid) ? 0 : 1);
-}]])],
+]])],
                [ac_cv_func_chown_works=yes],
                [ac_cv_func_chown_works=no],
                [ac_cv_func_chown_works=no])
@@ -301,16 +294,13 @@ AC_DEFUN([AC_FUNC_CLOSEDIR_VOID],
 [AC_REQUIRE([AC_HEADER_DIRENT])dnl
 AC_CACHE_CHECK([whether closedir returns void],
                [ac_cv_func_closedir_void],
-[AC_RUN_IFELSE([AC_LANG_SOURCE(
-[#include <sys/types.h>
+[AC_RUN_IFELSE([AC_LANG_PROGRAM([AC_INCLUDES_DEFAULT
 #include <$ac_header_dirent>
-
+#ifndef __cplusplus
 int closedir ();
-int
-main ()
-{
-  exit (closedir (opendir (".")) != 0);
-}])],
+#endif
+],
+                                [[exit (closedir (opendir (".")) != 0);]])],
                [ac_cv_func_closedir_void=no],
                [ac_cv_func_closedir_void=yes],
                [ac_cv_func_closedir_void=yes])])
@@ -337,9 +327,7 @@ fi
 
 # AU::AM_FUNC_ERROR_AT_LINE
 # -------------------------
-# FIXME: Because Automake macros are defined with their name unquoted,
-# we can't yet provide the Autoupdate glue.
-# AU_ALIAS([AM_FUNC_ERROR_AT_LINE], [AC_FUNC_ERROR_AT_LINE])
+AU_ALIAS([AM_FUNC_ERROR_AT_LINE], [AC_FUNC_ERROR_AT_LINE])
 
 
 # AC_FUNC_FNMATCH
@@ -371,9 +359,7 @@ fi
 # AU::AM_FUNC_FNMATCH
 # AU::fp_FUNC_FNMATCH
 # -------------------
-# FIXME: Because Automake macros are defined with their name unquoted,
-# we can't yet provide the Autoupdate glue.
-# AU_ALIAS([AM_FUNC_FNMATCH], [AC_FUNC_FNMATCH])
+AU_ALIAS([AM_FUNC_FNMATCH], [AC_FUNC_FNMATCH])
 AU_ALIAS([fp_FUNC_FNMATCH], [AC_FUNC_FNMATCH])
 
 
@@ -596,19 +582,19 @@ AC_CHECK_FUNC(getmntent,
                          [Define if you have the `getmntent' function.])])])
 
 
-# AC_FUNC_GETPGRP
-# ---------------
-AC_DEFUN([AC_FUNC_GETPGRP],
-[AC_CACHE_CHECK(whether getpgrp takes no argument, ac_cv_func_getpgrp_void,
-[AC_RUN_IFELSE([AC_LANG_SOURCE([[
+# _AC_FUNC_GETPGRP_TEST
+# ---------------------
+# A program that exits with success iff `getpgrp' seems to ignore its
+# argument.
+m4_define([_AC_FUNC_GETPGRP_TEST],
+[AC_LANG_SOURCE([AC_INCLUDES_DEFAULT]
+[[
 /*
  * If this system has a BSD-style getpgrp(),
  * which takes a pid argument, exit unsuccessfully.
  *
  * Snarfed from Chet Ramey's bash pgrp.c test program
  */
-#include <stdio.h>
-#include <sys/types.h>
 
 int     pid;
 int     pg1, pg2, pg3, pg4;
@@ -649,10 +635,34 @@ main ()
       wait (&s);
       exit (s>>8);
     }
-}]])],
-               [ac_cv_func_getpgrp_void=yes],
-               [ac_cv_func_getpgrp_void=no],
-               [AC_MSG_ERROR([cannot check getpgrp if cross compiling])])
+}]])
+])# _AC_FUNC_GETPGRP_TEST
+
+
+# AC_FUNC_GETPGRP
+# ---------------
+# Figure out whether getpgrp takes an argument or not.  Try first using
+# prototypes (AC_COMPILE), and if the compiler is of no help, try a runtime
+# test.
+AC_DEFUN([AC_FUNC_GETPGRP],
+[AC_CACHE_CHECK(whether getpgrp takes no argument, ac_cv_func_getpgrp_void,
+[# Use it with a single arg.
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([AC_INCLUDES_DEFAULT], [getpgrp (0);])],
+                  [ac_func_getpgrp_1=yes],
+                  [ac_func_getpgrp_1=no])
+# Use it with no arg.
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([AC_INCLUDES_DEFAULT], [getpgrp ();])],
+                  [ac_func_getpgrp_0=yes],
+                  [ac_func_getpgrp_0=no])
+# If both static checks agree, we are done.
+case $ac_func_getpgrp_0:$ac_func_getpgrp_1 in
+  yes:no) ac_cv_func_getpgrp_void=yes;;
+  no:yes) ac_cv_func_getpgrp_void=false;;
+  *) AC_RUN_IFELSE([_AC_FUNC_GETPGRP_TEST],
+                   [ac_cv_func_getpgrp_void=yes],
+                   [ac_cv_func_getpgrp_void=no],
+                   [AC_MSG_ERROR([cannot check getpgrp if cross compiling])]);;
+esac # $ac_func_getpgrp_0:$ac_func_getpgrp_1
 ])
 if test $ac_cv_func_getpgrp_void = yes; then
   AC_DEFINE(GETPGRP_VOID, 1,
@@ -673,8 +683,7 @@ AC_DEFUN([AC_FUNC_LSTAT_FOLLOWS_SLASHED_SYMLINK],
 [rm -f conftest.sym conftest.file
 echo >conftest.file
 if ln -s conftest.file conftest.sym; then
-  AC_RUN_IFELSE([AC_LANG_PROGRAM([@%:@include <sys/types.h>
-@%:@include <sys/stat.h>],
+  AC_RUN_IFELSE([AC_LANG_PROGRAM([AC_INCLUDES_DEFAULT],
     [struct stat sbuf;
      /* Linux will dereference the symlink and fail.
         That is better in the sense that it means we will not
@@ -928,9 +937,7 @@ fi
 
 # AU::AM_FUNC_MKTIME
 # ------------------
-# FIXME: Because Automake macros are defined with their name unquoted,
-# we can't yet provide the Autoupdate glue.
-# AU_ALIAS([AM_FUNC_MKTIME], [AC_FUNC_MKTIME])
+AU_ALIAS([AM_FUNC_MKTIME], [AC_FUNC_MKTIME])
 
 
 # AC_FUNC_MMAP
@@ -939,7 +946,7 @@ AC_DEFUN([AC_FUNC_MMAP],
 [AC_CHECK_HEADERS(stdlib.h unistd.h)
 AC_CHECK_FUNCS(getpagesize)
 AC_CACHE_CHECK(for working mmap, ac_cv_func_mmap_fixed_mapped,
-[AC_RUN_IFELSE([AC_LANG_SOURCE(
+[AC_RUN_IFELSE([AC_LANG_SOURCE([AC_INCLUDES_DEFAULT]
 [[/* Thanks to Mike Haertel and Jim Avera for this test.
    Here is a matrix of mmap possibilities:
 	mmap private not fixed
@@ -961,19 +968,13 @@ AC_CACHE_CHECK(for working mmap, ac_cv_func_mmap_fixed_mapped,
    The main things grep needs to know about mmap are:
    * does it exist and is it safe to write into the mmap'd area
    * how to use it (BSD variants)  */
-#include <sys/types.h>
+
 #include <fcntl.h>
 #include <sys/mman.h>
 
-#if STDC_HEADERS || HAVE_STDLIB_H
-# include <stdlib.h>
-#else
+#if !STDC_HEADERS && !HAVE_STDLIB_H
 char *malloc ();
 #endif
-#if HAVE_UNISTD_H
-# include <unistd.h>
-#endif
-#include <sys/stat.h>
 
 /* This mess was copied from the GNU getpagesize.h.  */
 #if !HAVE_GETPAGESIZE
@@ -1104,9 +1105,7 @@ fi
 
 # AU::AM_FUNC_OBSTACK
 # -------------------
-# FIXME: Because Automake macros are defined with their name unquoted,
-# we can't yet provide the Autoupdate glue.
-# AU_ALIAS([AM_FUNC_OBSTACK], [AC_FUNC_OBSTACK])
+AU_ALIAS([AM_FUNC_OBSTACK], [AC_FUNC_OBSTACK])
 
 
 # AC_FUNC_SELECT_ARGTYPES
@@ -1115,23 +1114,25 @@ fi
 # function's arguments, and define those types in `SELECT_TYPE_ARG1',
 # `SELECT_TYPE_ARG234', and `SELECT_TYPE_ARG5'.
 AC_DEFUN([AC_FUNC_SELECT_ARGTYPES],
-[AC_CACHE_CHECK([types of arguments for select],
+[AC_CHECK_HEADERS(sys/select.h sys/socket.h)
+AC_CACHE_CHECK([types of arguments for select],
 [ac_cv_func_select_args],
 [for ac_arg234 in 'fd_set *' 'int *' 'void *'; do
  for ac_arg1 in 'int' 'size_t' 'unsigned long' 'unsigned'; do
   for ac_arg5 in 'struct timeval *' 'const struct timeval *'; do
-   AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
-[#include <sys/types.h>
-#if HAVE_SYS_TIME_H
-# include <sys/time.h>
-#endif
+   AC_COMPILE_IFELSE(
+       [AC_LANG_PROGRAM(
+[AC_INCLUDES_DEFAULT
 #if HAVE_SYS_SELECT_H
 # include <sys/select.h>
 #endif
 #if HAVE_SYS_SOCKET_H
 # include <sys/socket.h>
 #endif
-extern int select ($ac_arg1,$ac_arg234,$ac_arg234,$ac_arg234,$ac_arg5);])],
+],
+                        [extern int select ($ac_arg1,
+                                            $ac_arg234, $ac_arg234, $ac_arg234,
+                                            $ac_arg5);])],
               [ac_cv_func_select_args="$ac_arg1,$ac_arg234,$ac_arg5"; break 3])
   done
  done
@@ -1189,22 +1190,15 @@ m4_define([_AC_FUNC_STAT],
 [AC_REQUIRE([AC_FUNC_LSTAT_FOLLOWS_SLASHED_SYMLINK])dnl
 AC_CACHE_CHECK([whether $1 accepts an empty string],
                [ac_cv_func_$1_empty_string_bug],
-[AC_TRY_RUN(
-[#include <sys/types.h>
-#include <sys/stat.h>
-
-int
-main ()
-{
-  struct stat sbuf;
-  exit ($1 ("", &sbuf) ? 1 : 0);
-}],
+[AC_RUN_IFELSE([AC_LANG_PROGRAM([AC_INCLUDES_DEFAULT],
+[[struct stat sbuf;
+  exit ($1 ("", &sbuf) ? 1 : 0);]])],
             [ac_cv_func_$1_empty_string_bug=yes],
             [ac_cv_func_$1_empty_string_bug=no],
             [ac_cv_func_$1_empty_string_bug=yes])])
 if test $ac_cv_func_$1_empty_string_bug = yes; then
   AC_LIBOBJ([$1])
-  AC_DEFINE_UNQUOTED(AC_TR_CPP([HAVE_$1_EMPTY_STRING_BUG]), 1,
+  AC_DEFINE_UNQUOTED(AS_TR_CPP([HAVE_$1_EMPTY_STRING_BUG]), 1,
                      [Define if `$1' has the bug that it succeeds when
                       given the zero-length file name argument.])
 fi
@@ -1234,7 +1228,7 @@ fi
 # --------------
 AC_DEFUN([AC_FUNC_STRTOD],
 [AC_CACHE_CHECK(for working strtod, ac_cv_func_strtod,
-[AC_TRY_RUN([
+[AC_RUN_IFELSE([AC_LANG_SOURCE([[
 double strtod ();
 int
 main()
@@ -1260,10 +1254,10 @@ main()
   }
   exit (0);
 }
-],
-            ac_cv_func_strtod=yes,
-            ac_cv_func_strtod=no,
-            ac_cv_func_strtod=no)])
+]])],
+               ac_cv_func_strtod=yes,
+               ac_cv_func_strtod=no,
+               ac_cv_func_strtod=no)])
 if test $ac_cv_func_strtod = no; then
   _AC_LIBOBJ_STRTOD
 fi
@@ -1272,9 +1266,7 @@ fi
 
 # AU::AM_FUNC_STRTOD
 # ------------------
-# FIXME: Because Automake macros are defined with their name unquoted,
-# we can't yet provide the Autoupdate glue.
-# AU_ALIAS([AM_FUNC_STRTOD], [AC_FUNC_STRTOD])
+AU_ALIAS([AM_FUNC_STRTOD], [AC_FUNC_STRTOD])
 
 
 # AC_FUNC_STRERROR_R
@@ -1283,24 +1275,16 @@ AC_DEFUN([AC_FUNC_STRERROR_R],
 [AC_CHECK_DECLS([strerror_r])
 AC_CHECK_FUNCS([strerror_r])
 if test $ac_cv_func_strerror_r = yes; then
-  AC_CHECK_HEADERS(string.h)
   AC_CACHE_CHECK([for working strerror_r],
                  ac_cv_func_strerror_r_works,
    [
-    AC_TRY_COMPILE(
-     [
-#       include <stdio.h>
-#       if HAVE_STRING_H
-#        include <string.h>
-#       endif
-     ],
-     [
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([AC_INCLUDES_DEFAULT],
+     [[
        char buf[100];
        char x = *strerror_r (0, buf, sizeof buf);
-     ],
-     ac_cv_func_strerror_r_works=yes,
-     ac_cv_func_strerror_r_works=no
-    )
+     ]])],
+                      ac_cv_func_strerror_r_works=yes,
+                      ac_cv_func_strerror_r_works=no)
     if test $ac_cv_func_strerror_r_works = no; then
       # strerror_r seems not to work, but now we have to choose between
       # systems that have relatively inaccessible declarations for the
@@ -1308,25 +1292,14 @@ if test $ac_cv_func_strerror_r = yes; then
       # former has a strerror_r that returns char*, while the latter
       # has a strerror_r that returns `int'.
       # This test should segfault on the DEC system.
-      AC_TRY_RUN(
-       [
-#       include <stdio.h>
-#       include <string.h>
-#       include <ctype.h>
-
-	extern char *strerror_r ();
-
-	int
-	main ()
-	{
-	  char buf[100];
+      AC_RUN_IFELSE([AC_LANG_PROGRAM([AC_INCLUDES_DEFAULT
+	extern char *strerror_r ();],
+	[[char buf[100];
 	  char x = *strerror_r (0, buf, sizeof buf);
-	  exit (!isalpha (x));
-	}
-       ],
-       ac_cv_func_strerror_r_works=yes,
-       ac_cv_func_strerror_r_works=no,
-       ac_cv_func_strerror_r_works=no)
+	  exit (!isalpha (x));]])],
+                    ac_cv_func_strerror_r_works=yes,
+                    ac_cv_func_strerror_r_works=no,
+                    ac_cv_func_strerror_r_works=no)
     fi
   ])
   if test $ac_cv_func_strerror_r_works = yes; then
@@ -1385,15 +1358,13 @@ AU_ALIAS([AC_SETVBUF_REVERSED], [AC_FUNC_SETVBUF_REVERSED])
 # ---------------
 AC_DEFUN([AC_FUNC_STRCOLL],
 [AC_CACHE_CHECK(for working strcoll, ac_cv_func_strcoll_works,
-[AC_TRY_RUN([#include <string.h>
-int
-main ()
-{
-  exit (strcoll ("abc", "def") >= 0 ||
-	strcoll ("ABC", "DEF") >= 0 ||
-	strcoll ("123", "456") >= 0);
-}], ac_cv_func_strcoll_works=yes, ac_cv_func_strcoll_works=no,
-ac_cv_func_strcoll_works=no)])
+[AC_RUN_IFELSE([AC_LANG_PROGRAM([AC_INCLUDES_DEFAULT],
+  [[exit (strcoll ("abc", "def") >= 0 ||
+	 strcoll ("ABC", "DEF") >= 0 ||
+	 strcoll ("123", "456") >= 0)]])],
+               ac_cv_func_strcoll_works=yes,
+               ac_cv_func_strcoll_works=no,
+               ac_cv_func_strcoll_works=no)])
 if test $ac_cv_func_strcoll_works = yes; then
   AC_DEFINE(HAVE_STRCOLL, 1,
             [Define if you have the `strcoll' function and it is properly
@@ -1413,20 +1384,16 @@ AC_DEFUN([AC_FUNC_UTIME_NULL],
 [AC_CACHE_CHECK(whether utime accepts a null argument, ac_cv_func_utime_null,
 [rm -f conftest.data; >conftest.data
 # Sequent interprets utime(file, 0) to mean use start of epoch.  Wrong.
-AC_TRY_RUN(
-[#include <sys/types.h>
-#include <sys/stat.h>
-int
-main ()
-{
-  struct stat s, t;
+AC_RUN_IFELSE([AC_LANG_PROGRAM([AC_INCLUDES_DEFAULT],
+[[struct stat s, t;
   exit (!(stat ("conftest.data", &s) == 0
           && utime ("conftest.data", (long *)0) == 0
           && stat ("conftest.data", &t) == 0
           && t.st_mtime >= s.st_mtime
-          && t.st_mtime - s.st_mtime < 120));
-}], ac_cv_func_utime_null=yes, ac_cv_func_utime_null=no,
-  ac_cv_func_utime_null=no)
+          && t.st_mtime - s.st_mtime < 120));]])],
+              ac_cv_func_utime_null=yes,
+              ac_cv_func_utime_null=no,
+              ac_cv_func_utime_null=no)
 rm -f core core.* *.core])
 if test $ac_cv_func_utime_null = yes; then
   AC_DEFINE(HAVE_UTIME_NULL, 1,
@@ -1442,12 +1409,74 @@ rm -f conftest.data
 AU_ALIAS([AC_UTIME_NULL], [AC_FUNC_UTIME_NULL])
 
 
-# AC_FUNC_VFORK
+# AC_FUNC_FORK
 # -------------
-AC_DEFUN([AC_FUNC_VFORK],
+AC_DEFUN([AC_FUNC_FORK],
 [AC_REQUIRE([AC_TYPE_PID_T])dnl
 AC_CHECK_HEADERS(unistd.h vfork.h)
-AC_CACHE_CHECK(for working vfork, ac_cv_func_vfork_works,
+AC_CHECK_FUNCS(fork vfork)
+ac_cv_func_fork_works=$ac_cv_func_fork
+if test "x$ac_cv_func_fork" = xyes; then
+  _AC_FUNC_FORK
+fi
+if test "x$ac_cv_func_fork_works" = xcross; then
+  case $host in
+    *-*-amigaos* | *-*-msdosdjgpp*)
+      # Override, as these systems have only a dummy fork() stub
+      ac_cv_func_fork_works=no
+      ;;
+    *)
+      ac_cv_func_fork_works=yes
+      ;;
+  esac
+  AC_MSG_WARN(CROSS: Result $ac_cv_func_fork_works guessed due to cross-compiling.)
+fi
+ac_cv_func_vfork_works=$ac_cv_func_vfork
+if test "x$ac_cv_func_vfork" = xyes; then
+  _AC_FUNC_VFORK
+fi;
+if test "x$ac_cv_func_fork_works" = xcross; then
+  ac_cv_func_vfork_works=ac_cv_func_vfork
+  AC_MSG_WARN(CROSS: Result $ac_cv_func_vfork_works guessed due to cross-compiling.)
+fi
+
+if test "x$ac_cv_func_vfork_works" = xyes; then
+  AC_DEFINE(HAVE_WORKING_VFORK, 1, [Define if `vfork' works.])
+else
+  AC_DEFINE(vfork, fork, [Define as `fork' if `vfork' does not work.])
+fi
+if test "x$ac_cv_func_fork_works" = xyes; then
+  AC_DEFINE(HAVE_WORKING_FORK, 1, [Define if `fork' works.])
+fi
+])# AC_FUNC_FORK
+
+
+# _AC_FUNC_FORK
+# -------------
+AC_DEFUN([_AC_FUNC_FORK],
+  [AC_CACHE_CHECK(for working fork, ac_cv_func_fork_works,
+    [AC_RUN_IFELSE([/* By Rüdiger Kuhlmann. */
+      #include <sys/types.h>
+      #if HAVE_UNISTD_H
+      # include <unistd.h>
+      #endif
+      /* Some systems only have a dummy stub for fork() */
+      int main ()
+      {
+        if (fork() < 0)
+          exit (1);
+        exit (0);
+      }],
+    [ac_cv_func_fork_works=yes],
+    [ac_cv_func_fork_works=no],
+    [ac_cv_func_fork_works=cross])])]
+)# _AC_FUNC_FORK
+
+
+# _AC_FUNC_VFORK
+# -------------
+AC_DEFUN([_AC_FUNC_VFORK],
+[AC_CACHE_CHECK(for working vfork, ac_cv_func_vfork_works,
 [AC_TRY_RUN([/* Thanks to Paul Eggert for this test.  */
 #include <stdio.h>
 #include <sys/types.h>
@@ -1543,17 +1572,17 @@ main ()
 }],
             [ac_cv_func_vfork_works=yes],
             [ac_cv_func_vfork_works=no],
-            [AC_CHECK_FUNC(vfork)
-ac_cv_func_vfork_works=$ac_cv_func_vfork])])
-if test "x$ac_cv_func_vfork_works" = xno; then
-  AC_DEFINE(vfork, fork, [Define as `fork' if `vfork' does not work.])
-fi
-])# AC_FUNC_VFORK
+            [ac_cv_func_vfork_works=cross])])
+])# _AC_FUNC_VFORK
 
+
+# AU::AC_FUNC_VFORK
+# ------------
+AU_ALIAS([AC_FUNC_VFORK], [AC_FUNC_FORK])
 
 # AU::AC_VFORK
 # ------------
-AU_ALIAS([AC_VFORK], [AC_FUNC_VFORK])
+AU_ALIAS([AC_VFORK], [AC_FUNC_FORK])
 
 
 # AC_FUNC_VPRINTF
@@ -1576,10 +1605,17 @@ AU_ALIAS([AC_VPRINTF], [AC_FUNC_VPRINTF])
 
 # AC_FUNC_WAIT3
 # -------------
+# Don't bother too hard maintaining this macro, as it's obsoleted.
+# We don't AU define it, since we don't have any alternative to propose,
+# any invocation should be removed, and the code adjusted.
 AC_DEFUN([AC_FUNC_WAIT3],
-[AC_CACHE_CHECK(for wait3 that fills in rusage, ac_cv_func_wait3_rusage,
-[AC_TRY_RUN(
-[#include <sys/types.h>
+[AC_DIAGNOSE([obsolete],
+[$0: `wait3' is being removed from the Open Group standards.
+Remove this `AC_FUNC_WAIT3' and adjust your code to use `waitpid' instead.])dnl
+AC_CACHE_CHECK([for wait3 that fills in rusage],
+               [ac_cv_func_wait3_rusage],
+[AC_RUN_IFELSE([AC_LANG_SOURCE(
+[[#include <sys/types.h>
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <stdio.h>
@@ -1602,8 +1638,10 @@ main ()
     case 0: /* Child.  */
       sleep(1); /* Give up the CPU.  */
       _exit(0);
+      break;
     case -1: /* What can we do?  */
       _exit(0);
+      break;
     default: /* Parent.  */
       wait3(&i, 0, &r);
       /* Avoid "text file busy" from rm on fast HP-UX machines.  */
@@ -1611,11 +1649,14 @@ main ()
       exit (r.ru_nvcsw == 0 && r.ru_majflt == 0 && r.ru_minflt == 0
 	    && r.ru_stime.tv_sec == 0 && r.ru_stime.tv_usec == 0);
     }
-}], ac_cv_func_wait3_rusage=yes, ac_cv_func_wait3_rusage=no,
-ac_cv_func_wait3_rusage=no)])
+}]])],
+               [ac_cv_func_wait3_rusage=yes],
+               [ac_cv_func_wait3_rusage=no],
+               [ac_cv_func_wait3_rusage=no])])
 if test $ac_cv_func_wait3_rusage = yes; then
   AC_DEFINE(HAVE_WAIT3, 1,
-            [Define if you have the `wait3' system call.])
+            [Define if you have the `wait3' system call.
+             Deprecated, you should no longer depend upon `wait3'.])
 fi
 ])# AC_FUNC_WAIT3
 

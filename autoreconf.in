@@ -1,4 +1,5 @@
 #! @SHELL@
+# -*- shell-script -*-
 # autoreconf - remake all Autoconf configure scripts in a directory tree
 # Copyright 1994, 1999, 2000 Free Software Foundation, Inc.
 
@@ -250,7 +251,7 @@ fi
 $debug ||
 {
   trap 'status=$?; rm -rf $tmp && exit $status' 0
-  trap '(exit $?); exit' 1 2 13 15
+  trap '(exit 1); exit 1' 1 2 13 15
 }
 
 # Create a (secure) tmp directory for tmp files.
@@ -265,7 +266,7 @@ $debug ||
 } ||
 {
    echo "$me: cannot create a temporary directory in $TMPDIR" >&2
-   (exit 1); exit
+   (exit 1); exit 1
 }
 
 # When debugging, it is convenient that all the related temporary

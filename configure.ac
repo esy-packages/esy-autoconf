@@ -1,8 +1,10 @@
+#                                                       -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
-AC_INIT(GNU Autoconf, 2.50, bug-autoconf@gnu.org)
+AC_INIT(GNU Autoconf, 2.52, bug-autoconf@gnu.org)
 AC_CONFIG_SRCDIR(acgeneral.m4)
-AM_INIT_AUTOMAKE(autoconf, 2.50)
+AC_CONFIG_AUX_DIR(config)
+AM_INIT_AUTOMAKE(autoconf, 2.52)
 
 # Initialize the test suite.
 AT_CONFIG(..)
@@ -20,11 +22,16 @@ fi
 # a AC-SUBST inside AC-PROG-GNU-M4.  Grmph!
 AC_SUBST(M4)
 
-# `autoconf' and `ifnames' use AWK.
+# `autoconf' and `ifnames' use AWK.  And we need decent RE support.
 AC_PROG_AWK
+# Some AWK fail
+if echo xfoo | $AWK '/foo|^bar$/ { print }' | grep xfoo >/dev/null; then :; else
+  AC_MSG_ERROR([the regex engine of $AWK is too broken to be used
+                you might want to install GNU AWK])
+fi
 
 # Generating man pages.
-AM_MISSING_PROG(HELP2MAN, help2man, $missing_dir)
+AM_MISSING_PROG(HELP2MAN, help2man)
 
 # We use a path for perl so the #! line in autoscan will work.
 AC_PATH_PROG(PERL, perl, no)
@@ -38,19 +45,16 @@ fi
 
 AC_PROG_INSTALL
 
-# Work with the GNU or Cygnus source tree layout.
-if test -f $srcdir/standards.texi; then
-  AC_SUBST(standards_texi, standards.texi)dnl
-fi
-
 # Automake can't see inner AC_SUBSTS (`aclocal' is bypassed), so we tag the
 # AC_SUBSTS here too.
 AC_SUBST(PACKAGE_NAME)
 AC_SUBST(PACKAGE)
 AC_SUBST(VERSION)
 
-AC_OUTPUT(Makefile m4/Makefile man/Makefile doc/Makefile
-          tests/Makefile tests/atconfig)
+AC_CONFIG_FILES(Makefile m4/Makefile man/Makefile doc/Makefile config/Makefile
+                tests/Makefile tests/atconfig)
+
+AC_OUTPUT
 
 # Report the state of this version of Autoconf if this is a beta.
 case AC_PACKAGE_VERSION in
