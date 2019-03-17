@@ -1,4 +1,126 @@
-* Major changes in Autoconf 2.52                       -*- outline -*-
+* Major changes in Autoconf 2.53                       -*- outline -*-
+
+** Requirements
+
+  Perl 5.005_03 or later is required: autom4te is written in Perl and is
+  needed by autoconf.  autoheader, autoreconf, ifnames, and autoscan are
+  rewritten in Perl.
+
+** Documentation
+
+- AC_INIT
+  Argument requirements, output variables, defined macros.
+- M4sugar, M4sh, Autotest
+  First sketch.
+- Double quoting macros
+  AC_TRY_CPP, AC_TRY_COMPILE, AC_TRY_LINK and AC_TRY_RUN.
+- Licensing
+  The Autoconf manual is now distributed under the terms of the GNU FDL.
+- Section `Hosts and Cross-Compilation'
+  Explains the rationale for the 2.5x changes in the cross-compilation
+  chain, and in the relationships between build, host, and target
+  types.
+  Emphasizes that `cross-compilation' == `--host is given'.
+  If you are working on compilers etc., be sure to read this section.
+- Section `AC_LIBOBJ vs. LIBOBJS'
+  Explains why assigning LIBOBJS directly is now an error.
+  Details how to update the code.
+
+** configure
+
+- $LINENO
+  Now used instead of hard coded line numbers.
+  This eases the comparison of `configure's, and diminishes the
+  pressure over control version archives.
+  Automatic replacement for shells that don't support this feature.
+- New output variables
+  @builddir@, @top_builddir@, @abs_srcdir@, @abs_top_srcdir@, @abs_builddir@,
+  @abs_top_builddir@.
+
+** Emacs
+
+  Autoconf and Autotest modes are provided.
+
+** Executables
+
+- autom4te
+  New, used by the Autoconf suite to cache and speed up most processing.
+- --force, -f
+  Supported by autom4te, autoconf and autoheader.
+- --include, -I
+  Replaces --autoconf-dir and --localdir in autoconf, autoheader,
+  autoupdate, and autoreconf.
+- autoreconf
+  No longer passes --cygnus, --foreign, --gnits, --gnu, --include-deps:
+  automake options are to be given via AUTOMAKE_OPTIONS.
+- autoreconf
+  Runs gettextize and libtoolize when appropriate.
+- autoreconf
+  --m4dir is no longer supported.
+- autoreconf
+  Now runs only in the specified directories, defaulting to `.',
+  but understands AC_CONFIG_SUBDIRS for dependent directories.
+  Before, it used to run on all the `configure.ac' found in the
+  current tree.
+  Independent packages are properly updated.
+
+** Bug fixes
+
+- The top level $prefix is propagated to the AC_CONFIG_SUBDIRS configures.
+- AC_TRY_RUN
+  Under the user pressure, $? is finally available.  Probably a mistake.
+- AC_F77_LIBRARY_LDFLAGS now supports the HP/UX f90 compiler.
+- Precious variables accumulation
+  config.status could stack several copies of the precious variables
+  assignments.
+- AC_PATH_PROG and family.
+  Works properly when given a literal path.
+- AC_FUNC_SETPGRP
+  Somewhere since 2.13, the result had been reversed.
+
+** C Macros
+
+- AC_C_BIGENDIAN supports the cross-compiling case.
+- AC_C_BIGENDIAN accepts ACTION-IF-TRUE, ACTION-IF-FALSE, and
+  ACTION-IF-UNKNOWN arguments.  All are facultative, and the default
+  for ACTION-IF-TRUE is to define WORDS_BIGENDIAN like AC_C_BIGENDIAN
+  always did.
+- AC_C_LONG_DOUBLE now succeeds only if `long double' has more range or
+  precision than `double'.
+
+** Generic macros
+
+- AC_INIT
+  It now defines the preprocessor symbols PACKAGE_NAME,
+  PACKAGE_TARNAME, PACKAGE_VERSION, PACKAGE_STRING, and
+  PACKAGE_BUGREPORT.
+
+- AC_INIT
+  Admits a fourth optional parameter: the tar name.
+
+- AC_CONFIG_COMMANDS, HEADERS, FILES, LINKS.
+  Provide the user with srcdir, ac_srcdir, ac_top_srcdir, ac_builddir,
+  ac_top_builddir, ac_abs_srcdir, ac_abs_top_srcdir, ac_abs_builddir,
+  ac_abs_top_builddir.
+
+- AC_CONFIG_COMMANDS, HEADERS, FILES, LINKS and AC_OUTPUT.
+  Are much less expensive when using long lists of files.
+
+- AC_PREFIX_PROGRAM
+  Works with shell variables, and non alphanumeric names.
+
+** Library macros
+
+- AC_FUNC_STRERROR_R now sets STRERROR_R_CHAR_P, not HAVE_WORKING_STRERROR_R,
+  because POSIX 1003.1-200x draft 7 says strerror_r returns int, not char *.
+
+- AC_FUNC_STRTOD substitutes POW_LIB.
+
+- AC_FUNC_STRNLEN
+  New.
+
+
+* Major changes in Autoconf 2.52
 ** Documentation
 - AC_ARG_VAR
 - Quadrigraphs
@@ -658,3 +780,25 @@ Added AC_STRCOLL macro.
 Made AC_GETLOADAVG check for more things.
 AC_OUTPUT argument is now optional.
 Various bug fixes.
+
+-----
+
+Copyright 1993, 1994, 1995, 1996, 1998, 1999, 2000, 2001 Free
+Software Foundation, Inc.
+
+This file is part of GNU Autoconf.
+
+GNU Autoconf is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2, or (at your option)
+any later version.
+
+GNU Autoconf is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with autoconf; see the file COPYING.  If not, write to
+the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+Boston, MA 02111-1307, USA.
