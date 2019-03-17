@@ -385,7 +385,7 @@ fi
 # On HP/UX there is a line like: "LPATH is: /foo:/bar:/baz" where
 # /foo, /bar, and /baz are search directories for the Fortran linker.
 # Here, we change these into -L/foo -L/bar -L/baz (and put it first):
-ac_f77_v_output="`echo $ac_f77_v_output | 
+ac_f77_v_output="`echo $ac_f77_v_output |
 	grep 'LPATH is:' |
 	sed 's,.*LPATH is\(: *[[^ ]]*\).*,\1,;s,: */, -L/,g'` $ac_f77_v_output"
 
@@ -615,7 +615,7 @@ AS_IF([test "$F77_DUMMY_MAIN" != unknown],
                       link to the Fortran 77 libraries.])
 fi])],
       [m4_default([$2],
-                [AC_MSG_ERROR([linking to Fortran libraries from C fails])])])
+            [AC_MSG_FAILURE([linking to Fortran libraries from C fails])])])
 ])# AC_F77_DUMMY_MAIN
 
 
@@ -690,8 +690,8 @@ AC_COMPILE_IFELSE(
   for ac_foobar in foobar FOOBAR; do
     for ac_underscore in "" "_"; do
       ac_func="$ac_foobar$ac_underscore"
-      AC_TRY_LINK_FUNC($ac_func,
-         [ac_success=yes; break 2])
+      AC_LINK_IFELSE([AC_LANG_CALL([], [$ac_func])],
+                     [ac_success=yes; break 2])
     done
   done
 
@@ -710,8 +710,8 @@ AC_COMPILE_IFELSE(
      ac_success_extra=no
      for ac_extra in "" "_"; do
         ac_func="$ac_foo_bar$ac_underscore$ac_extra"
-        AC_TRY_LINK_FUNC($ac_func,
-        [ac_success_extra=yes; break])
+        AC_LINK_IFELSE([AC_LANG_CALL([], [$ac_func])],
+                       [ac_success_extra=yes; break])
      done
 
      if test "$ac_success_extra" = "yes"; then
@@ -735,7 +735,8 @@ AC_COMPILE_IFELSE(
 
   LIBS=$ac_save_LIBS
   AC_LANG_POP(C)dnl
-  rm -f cf77_test* conftest*])
+  rm -f cf77_test* conftest*],
+  [AC_MSG_FAILURE([cannot compile a simple Fortran program])])
 AC_LANG_POP(Fortran 77)dnl
 ])
 ])# _AC_F77_NAME_MANGLING

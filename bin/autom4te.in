@@ -230,9 +230,8 @@ use File::Basename;
 use Autom4te::XFile;
 use strict;
 
-# Configuration file.
+# Data directory.
 my $datadir = $ENV{'AC_MACRODIR'} || '@datadir@';
-my $autom4te_cfg = $ENV{'AUTOM4TE_CFG'} || "$datadir/autom4te.cfg";
 
 # $LANGUAGE{LANGUAGE} -- Automatic options for LANGUAGE.
 my %language;
@@ -247,10 +246,10 @@ my $melt = 0;
 
 # Names of the cache directory, cache directory index, trace cache
 # prefix, and output cache prefix.
-my $cache = "autom4te.cache";
-my $icache = "$cache/requests";
-my $tcache = "$cache/traces.";
-my $ocache = "$cache/output.";
+my $cache;
+my $icache;
+my $tcache;
+my $ocache;
 
 # The macros to trace mapped to their format, as specified by the
 # user.
@@ -368,6 +367,8 @@ Operation modes:
   -f, --force              don\'t rely on cached values
   -W, --warnings=CATEGORY  report the warnings falling in CATEGORY
   -l, --language=LANG      specify the set of M4 macros to use
+  -C, --cache=DIRECTORY    preserve results for future runs in DIRECTORY
+      --no-cache           disable the cache
   -m, --mode=OCTAL         change the non trace output file mode (0666)
   -M, --melt               don\'t use M4 frozen files
 
@@ -419,14 +420,39 @@ EOF
 ## ---------- ##
 
 
-# load_configuration ()
-# ---------------------
-# Load the configuration file.
-sub load_configuration ()
+# $OPTION
+# files_to_options (@FILE)
+# ------------------------
+# Transform Autom4te conventions (e.g., using foo.m4f to designate a frozen
+# file) into a suitable command line for M4 (e.g., using --reload-state).
+sub files_to_options (@)
 {
+  my (@file) = @_;
+  my @res;
+  foreach my $file (@file)
+    {
+      if ($file =~ /\.m4f$/)
+	{
+	  push @res, "--reload-state=$file";
+	}
+      else
+	{
+	  push @res, $file;
+	}
+    }
+  return join ' ', @res;
+}
+
+
+# load_configuration ($FILE)
+# --------------------------
+# Load the configuration $FILE.
+sub load_configuration ($)
+{
+  my ($file) = @_;
   use Text::ParseWords;
 
-  my $cfg = new Autom4te::XFile ($autom4te_cfg);
+  my $cfg = new Autom4te::XFile ($file);
   my $lang;
   while ($_ = $cfg->getline)
     {
@@ -439,20 +465,25 @@ sub load_configuration ()
       my $type = shift @words;
       if ($type eq 'begin-language:')
 	{
+	  error "$file:$.: end-language missing for: $lang"
+	    if defined $lang;
 	  $lang = lc $words[0];
 	}
       elsif ($type eq 'end-language:')
 	{
-	  error "$autom4te_cfg:$.: end-language mismatch: $lang"
+	  error "$file:$.: end-language mismatch: $lang"
 	    if $lang ne lc $words[0];
+	  $lang = undef;
 	}
       elsif ($type eq 'args:')
 	{
+	  error "$file:$.: no current language"
+	    unless defined $lang;
 	  push @{$language{$lang}}, @words;
 	}
       else
 	{
-	  error "$autom4te_cfg:$.: unknown directive: $type";
+	  error "$file:$.: unknown directive: $type";
 	}
     }
 }
@@ -472,7 +503,7 @@ sub parse_args ()
   do {
     @language = ();
     use Getopt::Long;
-    Getopt::Long::Configure ("pass_through");
+    Getopt::Long::Configure ("pass_through", "permute");
     GetOptions ("l|language=s" => \@language);
 
     foreach (@language)
@@ -482,6 +513,16 @@ sub parse_args ()
 	unshift @ARGV, @{$language{lc $_}};
       }
   } while @language;
+
+  # --debug is useless: it is parsed below.
+  if (exists $ENV{'AUTOM4TE_DEBUG'})
+    {
+      print STDERR "$me: concrete arguments:\n";
+      foreach my $arg (@ARGV)
+	{
+	  print STDERR "| $arg\n";
+	}
+    }
 
   # Process the arguments for real this time.
   my @trace;
@@ -496,7 +537,7 @@ sub parse_args ()
 
      # Library directories:
      "B|prepend-include=s" => \@prepend_include,
-     "I|include=s" => \@include,
+     "I|include=s"         => \@include,
 
      # Tracing:
      # Using a hash for traces is seducing.  Unfortunately, upon `-t FOO',
@@ -507,7 +548,11 @@ sub parse_args ()
      "p|preselect=s" => \@preselect,
 
      # Freezing.
-     "F|freeze"  => \$freeze,
+     "F|freeze" => \$freeze,
+
+     # Caching.
+     "C|cache=s" => \$cache,
+     "no-cache"  => sub { $cache = undef; },
     );
 
   error "too few arguments
@@ -523,6 +568,16 @@ Try `$me --help' for more information."
     if $freeze && @trace;
   $melt = 1
     if $freeze;
+
+  # Names of the cache directory, cache directory index, trace cache
+  # prefix, and output cache prefix.  If the cache is not to be
+  # preserved, default to a temporary directory (automatically removed
+  # on exit).
+  $cache = $tmp
+    unless $cache;
+  $icache = "$cache/requests";
+  $tcache = "$cache/traces.";
+  $ocache = "$cache/output.";
 
   # Normalize the includes: the first occurrence is enough, several is
   # a pain since it introduces a useless difference in the path which
@@ -562,7 +617,7 @@ Try `$me --help' for more information."
 	  my $file = find_file ("$_?", @include);
 	  if (!$melt && $file)
 	    {
-	      @argv = ("--reload-state=$file");
+	      @argv = ($file);
 	    }
 	  else
 	    {
@@ -608,9 +663,10 @@ sub handle_m4 ($@)
 	   . join (' --include=', '', @include)
 	   . " --define=m4_warnings=$m4_warnings"
 	   . ' --debug=aflq'
+	   . (!exists $ENV{'AUTOM4TE_NO_FATAL'} ? ' --fatal-warning' : '')
 	   . " --error-output=$tcache" . $req->id . "t"
 	   . join (' --trace=',   '', sort @macro)
-	   . " @ARGV"
+	   . " " . files_to_options (@ARGV)
 	   . ' </dev/null'
 	   . " >$ocache" . $req->id . "t");
 
@@ -974,9 +1030,9 @@ EOF
   my $in = new Autom4te::XFile ("$m4 $tmp/traces.m4 |");
   my $out = new Autom4te::XFile (">$output");
 
-  # FIXME: Hm... This is dubious: should we really transform the
-  # quadrigraphs in traces?  It might break balanced [ ] etc. in the
-  # output.
+  # This is dubious: should we really transform the quadrigraphs in
+  # traces?  It might break balanced [ ] etc. in the output.  The
+  # consensus seeems to be that traces are more useful this way.
   while ($_ = $in->getline)
     {
       # It makes no sense to try to transform __oline__.
@@ -984,6 +1040,7 @@ EOF
       s/\@:>\@/]/g;
       s/\@\$\|\@/\$/g;
       s/\@%:\@/#/g;
+      s/\@&t\@//g;
       print $out $_;
     }
 }
@@ -1028,7 +1085,18 @@ sub up_to_date ($)
 		 ('include'    => '$1',
 		  'm4_include' => '$1'));
   my $deps = new Autom4te::XFile ("$tmp/dependencies");
-  push @dep, map { chomp; find_file ($_, @include) } $deps->getlines;
+  while ($_ = $deps->getline)
+    {
+      chomp;
+      my $file = find_file ("$_?", @include);
+      # If a file which used to be included is no longer there, then
+      # don't say it's missing (it might no longer be included).  But
+      # of course, that cause the output to be outdated (as if the
+      # time stamp of that missing file was newer).
+      return 0
+	if ! $file;
+      push @dep, $file;
+    }
 
   # If $FILE is younger than one of its dependencies, it is outdated.
   return up_to_date_p ($file, @dep);
@@ -1051,15 +1119,13 @@ sub freeze ($)
 		    . ' --fatal-warning'
 		    . join (' --include=', '', @include)
 		    . ' --define=divert'
-		    . " @ARGV"
+		    . " " . files_to_options (@ARGV)
 		    . ' </dev/null');
   $result =~ s/#.*\n//g;
   $result =~ s/^\n//mg;
-  if ($result)
-    {
-      print STDERR "$me: freezing produced output:\n$result";
-      exit 1;
-    }
+
+  error "freezing produced output:\n$result"
+    if $result;
 
   # If freezing produces output, something went wrong: a bad `divert',
   # or an improper paren etc.
@@ -1067,7 +1133,7 @@ sub freeze ($)
 	   . ' --fatal-warning'
 	   . join (' --include=', '', @include)
 	   . " --freeze-state=$output"
-	   . " @ARGV"
+	   . " " . files_to_options (@ARGV)
 	   . ' </dev/null');
 }
 
@@ -1075,8 +1141,12 @@ sub freeze ($)
 ## Main program.  ##
 ## -------------- ##
 
-mktmpdir ('t4');
-load_configuration;
+mktmpdir ('am4t');
+load_configuration ($ENV{'AUTOM4TE_CFG'} || "$datadir/autom4te.cfg");
+load_configuration ("$ENV{'HOME'}/.autom4te.cfg")
+  if -f "$ENV{'HOME'}/.autom4te.cfg";
+load_configuration (".autom4te.cfg")
+  if -f ".autom4te.cfg";
 parse_args;
 
 # Freezing does not involve the cache.
@@ -1104,16 +1174,13 @@ my $req = Request->request ('input' => \@ARGV,
 			    'path'  => \@include,
 			    'macro' => [keys %trace, @preselect]);
 
-# If $REQ's cache files are not up to date, declare it invalid.
+# If $REQ's cache files are not up to date, or simply if the user
+# discarded them (-f), declare it invalid.
 $req->valid (0)
-  if ! up_to_date ($req);
+  if $force || ! up_to_date ($req);
 
 # We now know whether we can trust the Request object.  Say it.
-if ($verbose)
-  {
-    print STDERR "$me: the trace request object is:\n";
-    print STDERR $req->marshall;
-  }
+verbose "$me: the trace request object is:\n" . $req->marshall;
 
 # We need to run M4 if (i) the users wants it (--force), (ii) $REQ is
 # invalid.

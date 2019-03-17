@@ -121,7 +121,11 @@ m4_define([_AC_LANG_ABBREV(C++)], [cxx])
 # #line $LINENO "$[0]"
 m4_define([AC_LANG_SOURCE(C)],
 [#line $LINENO "configure"
-#include "confdefs.h"
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
 $1])
 
 
@@ -161,6 +165,11 @@ char $2 ();])], [$2 ();])])
 # Don't include <ctype.h> because on OSF/1 3.0 it includes
 # <sys/types.h> which includes <sys/select.h> which contains a
 # prototype for select.  Similarly for bzero.
+#
+# This test used to assign f=$1 in main(), but that was optimized away by HP
+# unbundled cc A.05.36 for ia64 under +O3, presumably on the basis that
+# there's no need to do that store if the program is about to exit.
+#
 m4_define([AC_LANG_FUNC_LINK_TRY(C)],
 [AC_LANG_PROGRAM(
 [/* System header to define __stub macros and hopefully few prototypes,
@@ -169,19 +178,21 @@ m4_define([AC_LANG_FUNC_LINK_TRY(C)],
 /* Override any gcc2 internal prototype to avoid an error.  */
 #ifdef __cplusplus
 extern "C"
+{
 #endif
 /* We use char because int might match the return type of a gcc2
    builtin and then its argument prototype would still apply.  */
 char $1 ();
-char (*f) ();
-],
-[/* The GNU C library defines this for functions which it implements
+/* The GNU C library defines this for functions which it implements
     to always fail with ENOSYS.  Some functions are actually named
     something starting with __ and the normal name is an alias.  */
 #if defined (__stub_$1) || defined (__stub___$1)
 choke me
 #else
-f = $1;
+char (*f) () = $1;
+#endif
+#ifdef __cplusplus
+}
 #endif
 ])])
 
@@ -340,6 +351,8 @@ AS_IF([$ac_preproc_ok], [$1], [$2])])# _AC_PROG_PREPROC_WORKS_IFELSE
 # Find a working C preprocessor.
 # We shouldn't have to require AC_PROG_CC, but this is due to the concurrency
 # between the AC_LANG_COMPILER_REQUIRE family and that of AC_PROG_CC.
+AN_MAKEVAR([CPP], [AC_PROG_CPP])
+AN_PROGRAM([cpp], [AC_PROG_CPP])
 AC_DEFUN([AC_PROG_CPP],
 [AC_REQUIRE([AC_PROG_CC])dnl
 AC_ARG_VAR([CPP],      [C preprocessor])dnl
@@ -366,7 +379,7 @@ else
 fi
 AC_MSG_RESULT([$CPP])
 _AC_PROG_PREPROC_WORKS_IFELSE([],
-                    [AC_MSG_ERROR([C preprocessor "$CPP" fails sanity check])])
+                [AC_MSG_FAILURE([C preprocessor "$CPP" fails sanity check])])
 AC_SUBST(CPP)dnl
 AC_LANG_POP(C)dnl
 ])# AC_PROG_CPP
@@ -391,6 +404,9 @@ AU_DEFUN([ac_cv_prog_gcc],
 # COMPILER ... is a space separated list of C compilers to search for.
 # This just gives the user an opportunity to specify an alternative
 # search list for the C compiler.
+AN_MAKEVAR([CC],  [AC_PROG_CC])
+AN_PROGRAM([cc],  [AC_PROG_CC])
+AN_PROGRAM([gcc], [AC_PROG_CC])
 AC_DEFUN([AC_PROG_CC],
 [AC_LANG_PUSH(C)dnl
 AC_ARG_VAR([CC],     [C compiler command])dnl
@@ -411,7 +427,7 @@ if test -z "$CC"; then
 fi
 ])
 
-test -z "$CC" && AC_MSG_ERROR([no acceptable C compiler found in \$PATH])
+test -z "$CC" && AC_MSG_FAILURE([no acceptable C compiler found in \$PATH])
 
 # Provide some information about the compiler.
 echo "$as_me:$LINENO:" \
@@ -471,6 +487,7 @@ fi[]dnl
 
 # AC_PROG_GCC_TRADITIONAL
 # -----------------------
+AN_FUNCTION([ioctl],   [AC_PROG_GCC_TRADITIONAL])
 AC_DEFUN([AC_PROG_GCC_TRADITIONAL],
 [if test $ac_cv_c_compiler_gnu = yes; then
     AC_CACHE_CHECK(whether $CC needs -traditional,
@@ -582,7 +599,7 @@ else
 fi
 AC_MSG_RESULT([$CXXCPP])
 _AC_PROG_PREPROC_WORKS_IFELSE([],
-              [AC_MSG_ERROR([C++ preprocessor "$CXXCPP" fails sanity check])])
+          [AC_MSG_FAILURE([C++ preprocessor "$CXXCPP" fails sanity check])])
 AC_SUBST(CXXCPP)dnl
 AC_LANG_POP(C++)dnl
 ])# AC_PROG_CXXCPP
@@ -614,6 +631,10 @@ AU_DEFUN([ac_cv_prog_gxx],
 # RCC	Rational C++
 # xlC_r	AIX C Set++ (with support for reentrant code)
 # xlC	AIX C Set++
+AN_MAKEVAR([CXX],  [AC_PROG_CXX])
+AN_PROGRAM([CC],   [AC_PROG_CXX])
+AN_PROGRAM([c++],  [AC_PROG_CXX])
+AN_PROGRAM([g++],  [AC_PROG_CXX])
 AC_DEFUN([AC_PROG_CXX],
 [AC_LANG_PUSH(C++)dnl
 AC_ARG_VAR([CXX],      [C++ compiler command])dnl
@@ -882,8 +903,8 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([#include <sys/types.h>
 #endif
 ])], [ac_cv_c_bigendian=yes], [ac_cv_c_bigendian=no])],
 [# It does not; compile a test program.
-AC_TRY_RUN(
-[int
+AC_RUN_IFELSE(
+[AC_LANG_SOURCE([[int
 main ()
 {
   /* Are we little or big endian?  From Harbison&Steele.  */
@@ -894,7 +915,9 @@ main ()
   } u;
   u.l = 1;
   exit (u.c[sizeof (long) - 1] == 1);
-}], [ac_cv_c_bigendian=no], [ac_cv_c_bigendian=yes],
+}]])],
+              [ac_cv_c_bigendian=no],
+              [ac_cv_c_bigendian=yes],
 [# try to guess the endianness by grepping values into an object file
   ac_cv_c_bigendian=unknown
   AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
@@ -941,6 +964,7 @@ esac
 # HP C version B.11.11.04 doesn't allow a typedef as the return value for an
 # inline function, only builtin types.
 #
+AN_IDENTIFIER([inline], [AC_C_INLINE])
 AC_DEFUN([AC_C_INLINE],
 [AC_CACHE_CHECK([for inline], ac_cv_c_inline,
 [ac_cv_c_inline=no
@@ -967,6 +991,7 @@ esac
 
 # AC_C_CONST
 # ----------
+AN_IDENTIFIER([const],  [AC_C_CONST])
 AC_DEFUN([AC_C_CONST],
 [AC_CACHE_CHECK([for an ANSI C-conforming const], ac_cv_c_const,
 [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([],
@@ -1034,6 +1059,7 @@ fi
 # optimizations that could break the user's code.  So, do not #define
 # volatile away unless it is really necessary to allow the user's code
 # to compile cleanly.  Benign compiler failures should be tolerated.
+AN_IDENTIFIER([volatile], [AC_C_VOLATILE])
 AC_DEFUN([AC_C_VOLATILE],
 [AC_CACHE_CHECK([for working volatile], ac_cv_c_volatile,
 [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [

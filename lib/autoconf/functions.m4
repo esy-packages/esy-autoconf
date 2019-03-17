@@ -52,7 +52,8 @@
 # Table of contents
 #
 # 1. Generic tests for functions.
-# 2. Tests for specific functions.
+# 2. Functions to check with AC_CHECK_FUNCS
+# 3. Tests for specific functions.
 
 
 ## -------------------------------- ##
@@ -117,8 +118,116 @@ AU_ALIAS([AC_HAVE_FUNCS], [AC_CHECK_FUNCS])
 
 
 
+## ------------------------------------------- ##
+## 2. Functions to check with AC_CHECK_FUNCS.  ##
+## ------------------------------------------- ##
+
+AN_FUNCTION([__argz_count],            [AC_CHECK_FUNCS])
+AN_FUNCTION([__argz_next],             [AC_CHECK_FUNCS])
+AN_FUNCTION([__argz_stringify],        [AC_CHECK_FUNCS])
+AN_FUNCTION([__fpending],              [AC_CHECK_FUNCS])
+AN_FUNCTION([acl],                     [AC_CHECK_FUNCS])
+AN_FUNCTION([alarm],                   [AC_CHECK_FUNCS])
+AN_FUNCTION([atexit],                  [AC_CHECK_FUNCS])
+AN_FUNCTION([btowc],                   [AC_CHECK_FUNCS])
+AN_FUNCTION([bzero],                   [AC_CHECK_FUNCS])
+AN_FUNCTION([clock_gettime],           [AC_CHECK_FUNCS])
+AN_FUNCTION([doprnt],                  [AC_CHECK_FUNCS])
+AN_FUNCTION([dup2],                    [AC_CHECK_FUNCS])
+AN_FUNCTION([endgrent],                [AC_CHECK_FUNCS])
+AN_FUNCTION([endpwent],                [AC_CHECK_FUNCS])
+AN_FUNCTION([euidaccess],              [AC_CHECK_FUNCS])
+AN_FUNCTION([fchdir],                  [AC_CHECK_FUNCS])
+AN_FUNCTION([fdatasync],               [AC_CHECK_FUNCS])
+AN_FUNCTION([fesetround],              [AC_CHECK_FUNCS])
+AN_FUNCTION([floor],                   [AC_CHECK_FUNCS])
+AN_FUNCTION([fs_stat_dev],             [AC_CHECK_FUNCS])
+AN_FUNCTION([ftime],                   [AC_CHECK_FUNCS])
+AN_FUNCTION([ftruncate],               [AC_CHECK_FUNCS])
+AN_FUNCTION([getcwd],                  [AC_CHECK_FUNCS])
+AN_FUNCTION([getdelim],                [AC_CHECK_FUNCS])
+AN_FUNCTION([gethostbyaddr],           [AC_CHECK_FUNCS])
+AN_FUNCTION([gethostbyname],           [AC_CHECK_FUNCS])
+AN_FUNCTION([gethostname],             [AC_CHECK_FUNCS])
+AN_FUNCTION([gethrtime],               [AC_CHECK_FUNCS])
+AN_FUNCTION([getmntent],               [AC_CHECK_FUNCS])
+AN_FUNCTION([getmntinfo],              [AC_CHECK_FUNCS])
+AN_FUNCTION([getpagesize],             [AC_CHECK_FUNCS])
+AN_FUNCTION([getpass],                 [AC_CHECK_FUNCS])
+AN_FUNCTION([getspnam],                [AC_CHECK_FUNCS])
+AN_FUNCTION([gettimeofday],            [AC_CHECK_FUNCS])
+AN_FUNCTION([getusershell],            [AC_CHECK_FUNCS])
+AN_FUNCTION([hasmntopt],               [AC_CHECK_FUNCS])
+AN_FUNCTION([inet_ntoa],               [AC_CHECK_FUNCS])
+AN_FUNCTION([isascii],                 [AC_CHECK_FUNCS])
+AN_FUNCTION([iswprint],                [AC_CHECK_FUNCS])
+AN_FUNCTION([lchown],                  [AC_CHECK_FUNCS])
+AN_FUNCTION([listmntent],              [AC_CHECK_FUNCS])
+AN_FUNCTION([localeconv],              [AC_CHECK_FUNCS])
+AN_FUNCTION([localtime_r],             [AC_CHECK_FUNCS])
+AN_FUNCTION([mblen],                   [AC_CHECK_FUNCS])
+AN_FUNCTION([mbrlen],                  [AC_CHECK_FUNCS])
+AN_FUNCTION([memchr],                  [AC_CHECK_FUNCS])
+AN_FUNCTION([memmove],                 [AC_CHECK_FUNCS])
+AN_FUNCTION([mempcpy],                 [AC_CHECK_FUNCS])
+AN_FUNCTION([memset],                  [AC_CHECK_FUNCS])
+AN_FUNCTION([mkdir],                   [AC_CHECK_FUNCS])
+AN_FUNCTION([mkfifo],                  [AC_CHECK_FUNCS])
+AN_FUNCTION([modf],                    [AC_CHECK_FUNCS])
+AN_FUNCTION([munmap],                  [AC_CHECK_FUNCS])
+AN_FUNCTION([next_dev],                [AC_CHECK_FUNCS])
+AN_FUNCTION([nl_langinfo],             [AC_CHECK_FUNCS])
+AN_FUNCTION([pathconf],                [AC_CHECK_FUNCS])
+AN_FUNCTION([pow],                     [AC_CHECK_FUNCS])
+AN_FUNCTION([pstat_getdynamic],        [AC_CHECK_FUNCS])
+AN_FUNCTION([putenv],                  [AC_CHECK_FUNCS])
+AN_FUNCTION([re_comp],                 [AC_CHECK_FUNCS])
+AN_FUNCTION([realpath],                [AC_CHECK_FUNCS])
+AN_FUNCTION([regcmp],                  [AC_CHECK_FUNCS])
+AN_FUNCTION([regcomp],                 [AC_CHECK_FUNCS])
+AN_FUNCTION([resolvepath],             [AC_CHECK_FUNCS])
+AN_FUNCTION([rint],                    [AC_CHECK_FUNCS])
+AN_FUNCTION([rmdir],                   [AC_CHECK_FUNCS])
+AN_FUNCTION([rpmatch],                 [AC_CHECK_FUNCS])
+AN_FUNCTION([select],                  [AC_CHECK_FUNCS])
+AN_FUNCTION([setenv],                  [AC_CHECK_FUNCS])
+AN_FUNCTION([sethostname],             [AC_CHECK_FUNCS])
+AN_FUNCTION([setlocale],               [AC_CHECK_FUNCS])
+AN_FUNCTION([socket],                  [AC_CHECK_FUNCS])
+AN_FUNCTION([sqrt],                    [AC_CHECK_FUNCS])
+AN_FUNCTION([stime],                   [AC_CHECK_FUNCS])
+AN_FUNCTION([stpcpy],                  [AC_CHECK_FUNCS])
+AN_FUNCTION([strcasecmp],              [AC_CHECK_FUNCS])
+AN_FUNCTION([strchr],                  [AC_CHECK_FUNCS])
+AN_FUNCTION([strcspn],                 [AC_CHECK_FUNCS])
+AN_FUNCTION([strdup],                  [AC_CHECK_FUNCS])
+AN_FUNCTION([strerror],                [AC_CHECK_FUNCS])
+AN_FUNCTION([strncasecmp],             [AC_CHECK_FUNCS])
+AN_FUNCTION([strndup],                 [AC_CHECK_FUNCS])
+AN_FUNCTION([strpbrk],                 [AC_CHECK_FUNCS])
+AN_FUNCTION([strrchr],                 [AC_CHECK_FUNCS])
+AN_FUNCTION([strspn],                  [AC_CHECK_FUNCS])
+AN_FUNCTION([strstr],                  [AC_CHECK_FUNCS])
+AN_FUNCTION([strtol],                  [AC_CHECK_FUNCS])
+AN_FUNCTION([strtoul],                 [AC_CHECK_FUNCS])
+AN_FUNCTION([strtoull],                [AC_CHECK_FUNCS])
+AN_FUNCTION([strtoumax],               [AC_CHECK_FUNCS])
+AN_FUNCTION([strverscmp],              [AC_CHECK_FUNCS])
+AN_FUNCTION([sysinfo],                 [AC_CHECK_FUNCS])
+AN_FUNCTION([tzset],                   [AC_CHECK_FUNCS])
+AN_FUNCTION([uname],                   [AC_CHECK_FUNCS])
+AN_FUNCTION([utime],                   [AC_CHECK_FUNCS])
+AN_FUNCTION([utmpname],                [AC_CHECK_FUNCS])
+AN_FUNCTION([utmpxname],               [AC_CHECK_FUNCS])
+AN_FUNCTION([wcwidth],                 [AC_CHECK_FUNCS])
+
+
+AN_FUNCTION([dcgettext],    [AM_GNU_GETTEXT])
+AN_FUNCTION([getwd],        [warn: getwd is deprecated, use getcwd instead])
+
+
 ## --------------------------------- ##
-## 2. Tests for specific functions.  ##
+## 3. Tests for specific functions.  ##
 ## --------------------------------- ##
 
 
@@ -206,6 +315,8 @@ AC_DEFINE_UNQUOTED(STACK_DIRECTION, $ac_cv_c_stack_direction)
 
 # AC_FUNC_ALLOCA
 # --------------
+AN_FUNCTION([alloca], [AC_FUNC_ALLOCA])
+AN_HEADER([alloca.h], [AC_FUNC_ALLOCA])
 AC_DEFUN([AC_FUNC_ALLOCA],
 [# The Ultrix 4.2 mips builtin alloca declared by alloca.h only works
 # for constant arguments.  Useless!
@@ -264,6 +375,7 @@ AU_ALIAS([AC_ALLOCA], [AC_FUNC_ALLOCA])
 # AC_FUNC_CHOWN
 # -------------
 # Determine whether chown accepts arguments of -1 for uid and gid.
+AN_FUNCTION([chown], [AC_FUNC_CHOWN])
 AC_DEFUN([AC_FUNC_CHOWN],
 [AC_REQUIRE([AC_TYPE_UID_T])dnl
 AC_CHECK_HEADERS(unistd.h)
@@ -301,6 +413,7 @@ fi
 # ---------------------
 # Check whether closedir returns void, and #define CLOSEDIR_VOID in
 # that case.
+AN_FUNCTION([closedir], [AC_FUNC_CLOSEDIR_VOID])
 AC_DEFUN([AC_FUNC_CLOSEDIR_VOID],
 [AC_REQUIRE([AC_HEADER_DIRENT])dnl
 AC_CACHE_CHECK([whether closedir returns void],
@@ -325,6 +438,8 @@ fi
 
 # AC_FUNC_ERROR_AT_LINE
 # ---------------------
+AN_FUNCTION([error],         [AC_FUNC_ERROR_AT_LINE])
+AN_FUNCTION([error_at_line], [AC_FUNC_ERROR_AT_LINE])
 AC_DEFUN([AC_FUNC_ERROR_AT_LINE],
 [AC_LIBSOURCES([error.h, error.c])dnl
 AC_CACHE_CHECK([for error_at_line], ac_cv_lib_error_at_line,
@@ -411,6 +526,7 @@ AC_DEFINE(fnmatch, rpl_fnmatch,
 
 # AC_REPLACE_FNMATCH
 # ------------------
+AN_FUNCTION([fnmatch], [AC_REPLACE_FNMATCH])
 AC_DEFUN([AC_REPLACE_FNMATCH],
 [_AC_FUNC_FNMATCH_IF([POSIX], [ac_cv_func_fnmatch_works],
                      [rm -f $ac_config_libobj_dir/fnmatch.h],
@@ -437,6 +553,8 @@ AU_ALIAS([fp_FUNC_FNMATCH], [AC_FUNC_FNMATCH])
 
 # AC_FUNC_FSEEKO
 # --------------
+AN_FUNCTION([ftello], [AC_FUNC_FSEEKO])
+AN_FUNCTION([fseeko], [AC_FUNC_FSEEKO])
 AC_DEFUN([AC_FUNC_FSEEKO],
 [_AC_SYS_LARGEFILE_MACRO_VALUE(_LARGEFILE_SOURCE, 1,
    [ac_cv_sys_largefile_source],
@@ -462,6 +580,7 @@ fi
 # -----------------
 # Try to find `getgroups', and check that it works.
 # When cross-compiling, assume getgroups is broken.
+AN_FUNCTION([getgroups], [AC_FUNC_GETGROUPS])
 AC_DEFUN([AC_FUNC_GETGROUPS],
 [AC_REQUIRE([AC_TYPE_GETGROUPS])dnl
 AC_REQUIRE([AC_TYPE_SIZE_T])dnl
@@ -549,6 +668,7 @@ AC_CHECK_HEADERS(nlist.h,
 
 # AC_FUNC_GETLOADAVG
 # ------------------
+AN_FUNCTION([getloadavg], [AC_FUNC_GETLOADAVG])
 AC_DEFUN([AC_FUNC_GETLOADAVG],
 [ac_have_func=no # yes means we've found a way to get the load average.
 
@@ -647,6 +767,7 @@ AU_ALIAS([AC_GETLOADAVG], [AC_FUNC_GETLOADAVG])
 
 # AC_FUNC_GETMNTENT
 # -----------------
+AN_FUNCTION([getmntent], [AC_FUNC_GETMNTENT])
 AC_DEFUN([AC_FUNC_GETMNTENT],
 [# getmntent is in -lsun on Irix 4, -lseq on Dynix/PTX, -lgen on Unixware.
 AC_CHECK_LIB(sun, getmntent, LIBS="-lsun $LIBS",
@@ -659,6 +780,7 @@ AC_CHECK_FUNCS(getmntent)
 # AC_FUNC_GETPGRP
 # ---------------
 # Figure out whether getpgrp requires zero arguments.
+AN_FUNCTION([getpgrp], [AC_FUNC_GETPGRP])
 AC_DEFUN([AC_FUNC_GETPGRP],
 [AC_CACHE_CHECK(whether getpgrp requires zero arguments,
  ac_cv_func_getpgrp_void,
@@ -679,6 +801,7 @@ fi
 # When cross-compiling, be pessimistic so we will end up using the
 # replacement version of lstat that checks for trailing slashes and
 # calls lstat a second time when necessary.
+AN_FUNCTION([lstat], [AC_FUNC_LSTAT_FOLLOWS_SLASHED_SYMLINK])
 AC_DEFUN([AC_FUNC_LSTAT_FOLLOWS_SLASHED_SYMLINK],
 [AC_CACHE_CHECK(
        [whether lstat dereferences a symlink specified with a trailing slash],
@@ -720,7 +843,7 @@ fi
 AC_DEFUN([_AC_FUNC_MALLOC_IF],
 [AC_REQUIRE([AC_HEADER_STDC])dnl
 AC_CHECK_HEADERS(stdlib.h)
-AC_CACHE_CHECK([for working malloc], ac_cv_func_malloc_works,
+AC_CACHE_CHECK([for GNU libc compatible malloc], ac_cv_func_malloc_0_nonnull,
 [AC_RUN_IFELSE(
 [AC_LANG_PROGRAM(
 [[#if STDC_HEADERS || HAVE_STDLIB_H
@@ -730,10 +853,10 @@ char *malloc ();
 #endif
 ]],
                  [exit (malloc (0) ? 0 : 1);])],
-               [ac_cv_func_malloc_works=yes],
-               [ac_cv_func_malloc_works=no],
-               [ac_cv_func_malloc_works=no])])
-AS_IF([test $ac_cv_func_malloc_works = yes], [$1], [$2])
+               [ac_cv_func_malloc_0_nonnull=yes],
+               [ac_cv_func_malloc_0_nonnull=no],
+               [ac_cv_func_malloc_0_nonnull=no])])
+AS_IF([test $ac_cv_func_malloc_0_nonnull = yes], [$1], [$2])
 ])# AC_FUNC_MALLOC
 
 
@@ -741,11 +864,12 @@ AS_IF([test $ac_cv_func_malloc_works = yes], [$1], [$2])
 # --------------
 # Report whether `malloc (0)' properly handled, and replace malloc if
 # needed.
+AN_FUNCTION([malloc], [AC_FUNC_MALLOC])
 AC_DEFUN([AC_FUNC_MALLOC],
 [_AC_FUNC_MALLOC_IF(
   [AC_DEFINE([HAVE_MALLOC], 1,
-             [Define to 1 if your system has a working `malloc' function,
-              and to 0 otherwise.])],
+             [Define to 1 if your system has a GNU libc compatible `malloc'
+              function, and to 0 otherwise.])],
   [AC_DEFINE([HAVE_MALLOC], 0)
    AC_LIBOBJ(malloc)
    AC_DEFINE([malloc], [rpl_malloc],
@@ -753,8 +877,29 @@ AC_DEFUN([AC_FUNC_MALLOC],
 ])# AC_FUNC_MALLOC
 
 
+# AC_FUNC_MBRTOWC
+# ---------------
+AN_FUNCTION([mbrtowc], [AC_FUNC_MBRTOWC])
+AC_DEFUN([AC_FUNC_MBRTOWC],
+[
+  AC_CACHE_CHECK([whether mbrtowc and mbstate_t are properly declared],
+    ac_cv_func_mbrtowc,
+    [AC_LINK_IFELSE(
+       [AC_LANG_PROGRAM(
+            [[@%:@include <wchar.h>]],
+            [[mbstate_t state; return ! (sizeof state && mbrtowc);]])],
+       ac_cv_func_mbrtowc=yes,
+       ac_cv_func_mbrtowc=no)])
+  if test $ac_cv_func_mbrtowc = yes; then
+    AC_DEFINE([HAVE_MBRTOWC], 1,
+      [Define to 1 if mbrtowc and mbstate_t are properly declared.])
+  fi
+])
+
+
 # AC_FUNC_MEMCMP
 # --------------
+AN_FUNCTION([memcmp], [AC_FUNC_MEMCMP])
 AC_DEFUN([AC_FUNC_MEMCMP],
 [AC_CACHE_CHECK([for working memcmp], ac_cv_func_memcmp_working,
 [AC_RUN_IFELSE([AC_LANG_PROGRAM([], [[
@@ -791,6 +936,7 @@ test $ac_cv_func_memcmp_working = no && AC_LIBOBJ([memcmp])
 
 # AC_FUNC_MKTIME
 # --------------
+AN_FUNCTION([mktime], [AC_FUNC_MKTIME])
 AC_DEFUN([AC_FUNC_MKTIME],
 [AC_REQUIRE([AC_HEADER_TIME])dnl
 AC_CHECK_HEADERS(sys/time.h unistd.h)
@@ -958,6 +1104,7 @@ AU_ALIAS([AM_FUNC_MKTIME], [AC_FUNC_MKTIME])
 
 # AC_FUNC_MMAP
 # ------------
+AN_FUNCTION([mmap], [AC_FUNC_MMAP])
 AC_DEFUN([AC_FUNC_MMAP],
 [AC_CHECK_HEADERS(stdlib.h unistd.h)
 AC_CHECK_FUNCS(getpagesize)
@@ -1107,6 +1254,8 @@ AU_ALIAS([AC_MMAP], [AC_FUNC_MMAP])
 # AC_FUNC_OBSTACK
 # ---------------
 # Ensure obstack support.  Yeah, this is not exactly a `FUNC' check.
+AN_FUNCTION([obstack_init], [AC_FUNC_OBSTACK])
+AN_IDENTIFIER([obstack],    [AC_FUNC_OBSTACK])
 AC_DEFUN([AC_FUNC_OBSTACK],
 [AC_LIBSOURCES([obstack.h, obstack.c])dnl
 AC_CACHE_CHECK([for obstacks], ac_cv_func_obstack,
@@ -1135,7 +1284,7 @@ AU_ALIAS([AM_FUNC_OBSTACK], [AC_FUNC_OBSTACK])
 AC_DEFUN([_AC_FUNC_REALLOC_IF],
 [AC_REQUIRE([AC_HEADER_STDC])dnl
 AC_CHECK_HEADERS(stdlib.h)
-AC_CACHE_CHECK([for working realloc], ac_cv_func_realloc_works,
+AC_CACHE_CHECK([for GNU libc compatible realloc], ac_cv_func_realloc_0_nonnull,
 [AC_RUN_IFELSE(
 [AC_LANG_PROGRAM(
 [[#if STDC_HEADERS || HAVE_STDLIB_H
@@ -1145,10 +1294,10 @@ char *realloc ();
 #endif
 ]],
                  [exit (realloc (0, 0) ? 0 : 1);])],
-               [ac_cv_func_realloc_works=yes],
-               [ac_cv_func_realloc_works=no],
-               [ac_cv_func_realloc_works=no])])
-AS_IF([test $ac_cv_func_realloc_works = yes], [$1], [$2])
+               [ac_cv_func_realloc_0_nonnull=yes],
+               [ac_cv_func_realloc_0_nonnull=no],
+               [ac_cv_func_realloc_0_nonnull=no])])
+AS_IF([test $ac_cv_func_realloc_0_nonnull = yes], [$1], [$2])
 ])# AC_FUNC_REALLOC
 
 
@@ -1156,11 +1305,12 @@ AS_IF([test $ac_cv_func_realloc_works = yes], [$1], [$2])
 # ---------------
 # Report whether `realloc (0, 0)' properly handled, and replace realloc if
 # needed.
+AN_FUNCTION([realloc], [AC_FUNC_REALLOC])
 AC_DEFUN([AC_FUNC_REALLOC],
 [_AC_FUNC_REALLOC_IF(
   [AC_DEFINE([HAVE_REALLOC], 1,
-             [Define to 1 if your system has a working `realloc' function,
-              and to 0 otherwise.])],
+             [Define to 1 if your system has a GNU libc compatible `realloc'
+              function, and to 0 otherwise.])],
   [AC_DEFINE([HAVE_REALLOC], 0)
    AC_LIBOBJ([realloc])
    AC_DEFINE([realloc], [rpl_realloc],
@@ -1173,6 +1323,7 @@ AC_DEFUN([AC_FUNC_REALLOC],
 # Determine the correct type to be passed to each of the `select'
 # function's arguments, and define those types in `SELECT_TYPE_ARG1',
 # `SELECT_TYPE_ARG234', and `SELECT_TYPE_ARG5'.
+AN_FUNCTION([select], [AC_FUNC_SELECT_ARGTYPES])
 AC_DEFUN([AC_FUNC_SELECT_ARGTYPES],
 [AC_CHECK_HEADERS(sys/select.h sys/socket.h)
 AC_CACHE_CHECK([types of arguments for select],
@@ -1216,6 +1367,7 @@ rm -f conftest*
 
 # AC_FUNC_SETPGRP
 # ---------------
+AN_FUNCTION([setpgrp], [AC_FUNC_SETPGRP])
 AC_DEFUN([AC_FUNC_SETPGRP],
 [AC_CACHE_CHECK(whether setpgrp takes no argument, ac_cv_func_setpgrp_void,
 [AC_RUN_IFELSE(
@@ -1268,7 +1420,9 @@ fi
 
 # AC_FUNC_STAT & AC_FUNC_LSTAT
 # ----------------------------
+AN_FUNCTION([stat], [AC_FUNC_STAT])
 AC_DEFUN([AC_FUNC_STAT],  [_AC_FUNC_STAT(stat)])
+AN_FUNCTION([lstat], [AC_FUNC_LSTAT])
 AC_DEFUN([AC_FUNC_LSTAT], [_AC_FUNC_STAT(lstat)])
 
 
@@ -1287,6 +1441,7 @@ fi
 
 # AC_FUNC_STRTOD
 # --------------
+AN_FUNCTION([strtod], [AC_FUNC_STRTOD])
 AC_DEFUN([AC_FUNC_STRTOD],
 [AC_SUBST(POW_LIB)dnl
 AC_CACHE_CHECK(for working strtod, ac_cv_func_strtod,
@@ -1333,6 +1488,7 @@ AU_ALIAS([AM_FUNC_STRTOD], [AC_FUNC_STRTOD])
 
 # AC_FUNC_STRERROR_R
 # ------------------
+AN_FUNCTION([strerror_r], [AC_FUNC_STRERROR_R])
 AC_DEFUN([AC_FUNC_STRERROR_R],
 [AC_CHECK_DECLS([strerror_r])
 AC_CHECK_FUNCS([strerror_r])
@@ -1372,6 +1528,7 @@ fi
 
 # AC_FUNC_STRFTIME
 # ----------------
+AN_FUNCTION([strftime], [AC_FUNC_STRFTIME])
 AC_DEFUN([AC_FUNC_STRFTIME],
 [AC_CHECK_FUNCS(strftime, [],
 [# strftime is in -lintl on SCO UNIX.
@@ -1383,6 +1540,7 @@ LIBS="-lintl $LIBS"])])dnl
 
 # AC_FUNC_STRNLEN
 # --------------
+AN_FUNCTION([strnlen], [AC_FUNC_STRNLEN])
 AC_DEFUN([AC_FUNC_STRNLEN],
 [AC_CACHE_CHECK([for working strnlen], ac_cv_func_strnlen_working,
 [AC_RUN_IFELSE([AC_LANG_PROGRAM([], [[
@@ -1410,6 +1568,7 @@ test $ac_cv_func_strnlen_working = no && AC_LIBOBJ([strnlen])
 
 # AC_FUNC_SETVBUF_REVERSED
 # ------------------------
+AN_FUNCTION([setvbuf], [AC_FUNC_SETVBUF_REVERSED])
 AC_DEFUN([AC_FUNC_SETVBUF_REVERSED],
 [AC_REQUIRE([AC_C_PROTOTYPES])dnl
 AC_CACHE_CHECK(whether setvbuf arguments are reversed,
@@ -1463,6 +1622,7 @@ AU_ALIAS([AC_SETVBUF_REVERSED], [AC_FUNC_SETVBUF_REVERSED])
 
 # AC_FUNC_STRCOLL
 # ---------------
+AN_FUNCTION([strcoll], [AC_FUNC_STRCOLL])
 AC_DEFUN([AC_FUNC_STRCOLL],
 [AC_CACHE_CHECK(for working strcoll, ac_cv_func_strcoll_works,
 [AC_RUN_IFELSE([AC_LANG_PROGRAM([AC_INCLUDES_DEFAULT],
@@ -1487,6 +1647,7 @@ AU_ALIAS([AC_STRCOLL], [AC_FUNC_STRCOLL])
 
 # AC_FUNC_UTIME_NULL
 # ------------------
+AN_FUNCTION([utime], [AC_FUNC_UTIME_NULL])
 AC_DEFUN([AC_FUNC_UTIME_NULL],
 [AC_CACHE_CHECK(whether utime accepts a null argument, ac_cv_func_utime_null,
 [rm -f conftest.data; >conftest.data
@@ -1518,6 +1679,8 @@ AU_ALIAS([AC_UTIME_NULL], [AC_FUNC_UTIME_NULL])
 
 # AC_FUNC_FORK
 # -------------
+AN_FUNCTION([fork],  [AC_FUNC_FORK])
+AN_FUNCTION([vfork], [AC_FUNC_FORK])
 AC_DEFUN([AC_FUNC_FORK],
 [AC_REQUIRE([AC_TYPE_PID_T])dnl
 AC_CHECK_HEADERS(unistd.h vfork.h)
@@ -1585,10 +1748,12 @@ AC_DEFUN([_AC_FUNC_FORK],
 # -------------
 AC_DEFUN([_AC_FUNC_VFORK],
 [AC_CACHE_CHECK(for working vfork, ac_cv_func_vfork_works,
-[AC_TRY_RUN([/* Thanks to Paul Eggert for this test.  */
+[AC_RUN_IFELSE([AC_LANG_SOURCE([[/* Thanks to Paul Eggert for this test.  */
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 #if HAVE_UNISTD_H
 # include <unistd.h>
 #endif
@@ -1601,7 +1766,7 @@ AC_DEFUN([_AC_FUNC_VFORK],
    (e.g. gcc -O) don't grok <vfork.h>.  Test for this by using a
    static variable whose address is put into a register that is
    clobbered by the vfork.  */
-static
+static void
 #ifdef __cplusplus
 sparc_address_test (int arg)
 # else
@@ -1629,7 +1794,7 @@ main ()
   pid_t parent = getpid ();
   pid_t child;
 
-  sparc_address_test ();
+  sparc_address_test (0);
 
   child = vfork ();
 
@@ -1677,7 +1842,7 @@ main ()
 	 || fstat(fileno(stdout), &st) != 0
 	 );
   }
-}],
+}]])],
             [ac_cv_func_vfork_works=yes],
             [ac_cv_func_vfork_works=no],
             [ac_cv_func_vfork_works=cross])])
@@ -1697,6 +1862,10 @@ AU_ALIAS([AC_VFORK], [AC_FUNC_FORK])
 # ---------------
 # Why the heck is that _doprnt does not define HAVE__DOPRNT???
 # That the logical name!
+AN_FUNCTION([vfprintf], [AC_FUNC_VPRINTF])
+AN_FUNCTION([vprintf],  [AC_FUNC_VPRINTF])
+AN_FUNCTION([vsprintf], [AC_FUNC_VPRINTF])
+AN_FUNCTION([_doprnt],  [AC_FUNC_VPRINTF])
 AC_DEFUN([AC_FUNC_VPRINTF],
 [AC_CHECK_FUNCS(vprintf, []
 [AC_CHECK_FUNC(_doprnt,
@@ -1716,6 +1885,7 @@ AU_ALIAS([AC_VPRINTF], [AC_FUNC_VPRINTF])
 # Don't bother too hard maintaining this macro, as it's obsoleted.
 # We don't AU define it, since we don't have any alternative to propose,
 # any invocation should be removed, and the code adjusted.
+AN_FUNCTION([wait3], [AC_FUNC_WAIT3])
 AC_DEFUN([AC_FUNC_WAIT3],
 [AC_DIAGNOSE([obsolete],
 [$0: `wait3' is being removed from the Open Group standards.

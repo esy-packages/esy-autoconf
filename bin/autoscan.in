@@ -37,41 +37,45 @@ use strict;
 
 use vars qw(@cfiles @makefiles @shfiles %printed);
 
-# The list of C keywords.
-my %c_keywords = map { $_ => 1}
-  qw (int char float double struct union long short unsigned
-      auto extern register typedef static goto return sizeof break
-      continue if else for do while switch case default);
-
-# $USED{KIND}{ITEM} is set if ITEM is used in the program.
-# It is set to its list of locations.
-my %used = ();
-
-# $MACRO{KIND}{ITEM} is the list of macros to use to test ITEM.
-my %macro = ();
-
-# $NEEDED_MACROS{MACRO} is an array of locations requiring MACRO.
-my %needed_macros = ();
-
-my @kinds = qw (functions headers identifiers programs
-                makevars libraries);
+# The kind of the words we are looking for.
+my @kinds = qw (function header identifier program
+                makevar librarie);
 
 # For each kind, the default macro.
 my %generic_macro =
   (
-   'functions'   => 'AC_CHECK_FUNCS',
-   'headers'     => 'AC_CHECK_HEADERS',
-   'identifiers' => 'AC_CHECK_TYPES',
-   'programs'    => 'AC_CHECK_PROGS',
-   'libraries'   => 'AC_CHECK_LIB'
+   'function'   => 'AC_CHECK_FUNCS',
+   'header'     => 'AC_CHECK_HEADERS',
+   'identifier' => 'AC_CHECK_TYPES',
+   'program'    => 'AC_CHECK_PROGS',
+   'library'    => 'AC_CHECK_LIB'
   );
 
 my %kind_comment =
   (
-   'functions' => 'Checks for library functions.',
-   'headers' => 'Checks for header files.',
-   'identifiers' => 'Checks for typedefs, structures, and compiler characteristics.',
-   'programs' => 'Checks for programs.',
+   'function'   => 'Checks for library functions.',
+   'header'     => 'Checks for header files.',
+   'identifier' => 'Checks for typedefs, structures, and compiler characteristics.',
+   'program'    => 'Checks for programs.',
+  );
+
+# $USED{KIND}{ITEM} is the list of locations where the ITEM (of KIND) was used
+# in the user package.
+# For instance $USED{function}{alloca} is the list of `file:line' where
+# `alloca (...)' appears.
+my %used = ();
+
+# $MACRO{KIND}{ITEM} is the list of macros to use to test ITEM.
+# Initialized from lib/autoscan/*.  E.g., $MACRO{function}{alloca} contains
+# the singleton AC_FUNC_ALLOCA.  Some require several checks.
+my %macro = ();
+
+# $NEEDED_MACROS{MACRO} is an array of locations requiring MACRO.
+# E.g., $NEEDED_MACROS{AC_FUNC_ALLOC} the list of `file:line' containing
+# `alloca (...)'.
+my %needed_macros =
+  (
+   'AC_PREREQ' => [$me],
   );
 
 my $configure_scan = 'configure.scan';
@@ -97,6 +101,8 @@ preliminary `configure.ac' for that package.
   -V, --version       print version number, then exit
   -v, --verbose       verbosely report processing
   -d, --debug         don't remove temporary files
+
+Library directories:
   -B, --prepend-include=DIR  prepend directory DIR to search path
   -I, --include=DIR          append directory DIR to search path
 
@@ -123,7 +129,7 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n";
 # Process any command line arguments.
 sub parse_args ()
 {
-  getopt ('I|include|A|autoconf-dir|m|macrodir=s' => \@include,
+  getopt ('I|include=s' => \@include,
 	  'B|prepend-include=s' => \@prepend_include);
 
   die "$me: too many arguments
@@ -142,71 +148,79 @@ Try `$me --help' for more information.\n"
 # Put values in the tables of what to do with each token.
 sub init_tables ()
 {
-  # Initialize a table of C keywords (to ignore).
-  # Taken from K&R 1st edition p. 180.
-  # ANSI C, GNU C, and C++ keywords can introduce portability problems,
-  # so don't ignore them.
-
   # The data file format supports only one line of macros per function.
   # If more than that is required for a common portability problem,
   # a new Autoconf macro should probably be written for that case,
   # instead of duplicating the code in lots of configure.ac files.
+  my $file = find_file ("autoscan/autoscan.list",
+			reverse (@prepend_include), @include);
+  my $table = new Autom4te::XFile $file;
   my $tables_are_consistent = 1;
-  foreach my $kind (@kinds)
+
+  while ($_ = $table->getline)
     {
-      my $file = find_file ("autoscan/$kind",
-                            reverse(@prepend_include), @include);
-      my $table = new Autom4te::XFile $file;
-      while ($_ = $table->getline)
+      # Ignore blank lines and comments.
+      next
+	if /^\s*$/ || /^\s*\#/;
+
+      # '<kind>: <word> <macro invocation>' or...
+      # '<kind>: <word> warn: <message>'.
+      if (/^(\S+):\s+(\S+)\s+(\S.*)$/)
 	{
-	  # Ignore blank lines and comments.
-	  next
-	    if /^\s*$/ || /^\s*\#/;
-	  unless (/^(\S+)\s+(\S.*)$/ || /^(\S+)\s*$/)
-	    {
-	      error "cannot parse definition in $file:\n$_";
-	    }
-	  my $word = $1;
-	  my $macro = $2 || $generic_macro{$kind};
-	  # The default macro must be explicitly listed for words
-	  # which have a specific macros.  This allows to enforce
-	  # consistency checks.
-	  if (!defined $2 && exists $macro{$kind}{$word})
-	    {
-	      warn ("$file:$.: "
-		    . "ignoring implicit call to the generic macro for $word\n");
-	      $tables_are_consistent = 0;
-	    }
-	  else
-	    {
-	      push @{$macro{$kind}{$word}}, $macro;
-	    }
+	  my ($kind, $word, $macro) = ($1, $2, $3);
+	  error "$file:$.: invalid kind: $_"
+	    unless grep { $_ eq $kind } @kinds;
+	  push @{$macro{$kind}{$word}}, $macro;
 	}
-      $table->close;
+      else
+	{
+	  error "$file:$.: invalid definition: $_";
+	}
     }
 
-  error "some tables are inconsistent"
-    if !$tables_are_consistent;
+  if ($debug)
+    {
+      foreach my $kind (@kinds)
+	{
+	  foreach my $word (sort keys %{$macro{$kind}})
+	    {
+	      print "$kind: $word: @{$macro{$kind}{$word}}\n";
+	    }
+	}
+
+    }
 }
 
 
-# used($KIND, $WORD, [$WHERE])
-# ----------------------------
+# used ($KIND, $WORD, [$WHERE])
+# -----------------------------
 # $WORD is used as a $KIND.
 sub used ($$;$)
 {
   my ($kind, $word, $where) = @_;
   $where ||= "$File::Find::name:$.";
-  push (@{$used{$kind}{$word}}, $where);
+  if (
+      # Check for all the libraries.  But `-links' is certainly a
+      # `find' argument, and `-le', a `test' argument.
+      ($kind eq 'library' && $word !~ /^(e|inks)$/)
+      # Other than libraries are to be checked only if listed in
+      # the Autoscan library files.
+      || defined $macro{$kind}{$word}
+     )
+    {
+      push (@{$used{$kind}{$word}}, $where);
+    }
 }
+
+
 
 ## ----------------------- ##
 ## Scanning source files.  ##
 ## ----------------------- ##
 
 
-# scan_c_file($FILENAME)
-# ----------------------
+# scan_c_file ($FILENAME)
+# -----------------------
 sub scan_c_file ($)
 {
   my ($filename) = @_;
@@ -240,13 +254,13 @@ sub scan_c_file ($)
 	{
 	  if (/^include\s*<([^>]*)>/)
 	    {
-	      used ('headers', $1);
+	      used ('header', $1);
 	    }
 	  if (s/^(if|ifdef|ifndef|elif)\s+//)
 	    {
 	      foreach my $word (split (/\W+/))
 		{
-		  used ('identifiers', $word)
+		  used ('identifier', $word)
 		    unless $word eq 'defined' || $word !~ /^[a-zA-Z_]/;
 		}
 	    }
@@ -262,13 +276,11 @@ sub scan_c_file ($)
       # Maybe we should ignore function definitions (in column 0)?
       while (s/\b([a-zA-Z_]\w*)\s*\(/ /)
 	{
-	  used ('functions', $1)
-	    if !$c_keywords{$1};
+	  used ('function', $1);
 	}
       while (s/\b([a-zA-Z_]\w*)\b/ /)
 	{
-	  used ('identifiers', $1)
-	    if !$c_keywords{$1};
+	  used ('identifier', $1);
 	}
     }
 
@@ -293,7 +305,7 @@ sub scan_makefile ($)
       # Variable assignments.
       while (s/\b([a-zA-Z_]\w*)\s*=/ /)
 	{
-	  used ('makevars', $1);
+	  used ('makevar', $1);
 	}
       # Be sure to catch a whole word.  For instance `lex$U.$(OBJEXT)'
       # is a single token.  Otherwise we might believe `lex' is needed.
@@ -302,14 +314,14 @@ sub scan_makefile ($)
 	  # Libraries.
 	  if ($word =~ /^-l([a-zA-Z_]\w*)$/)
 	    {
-	      used ('libraries', $1);
+	      used ('library', $1);
 	    }
 	  # Tokens in the code.
 	  # We allow some additional characters, e.g., `+', since
 	  # autoscan/programs includes `c++'.
 	  if ($word =~ /^[a-zA-Z_][\w+]*$/)
 	    {
-	      used ('programs', $word);
+	      used ('program', $word);
 	    }
 	}
     }
@@ -337,7 +349,7 @@ sub scan_sh_file ($)
       # Tokens in the code.
       while (s/\b([a-zA-Z_]\w*)\b/ /)
 	{
-	  used ('programs', $1);
+	  used ('program', $1);
 	}
     }
 
@@ -356,22 +368,23 @@ sub scan_file ()
     if -f "$_.in";
 
   # Save $_ as Find::File requires it to be preserved.
-  my $underscore = $_;
+  local $_ = $_;
 
   # Strip a useless leading `./'.
   $File::Find::name =~ s,^\./,,;
 
   if (/\.[chlym](\.in)?$/)
     {
-      used 'programs', 'cc', $File::Find::name;
+      used 'program', 'cc', $File::Find::name;
       scan_c_file ($_);
     }
   elsif (/\.(cc|cpp|cxx|CC|C|hh|hpp|hxx|HH|H|yy|ypp|ll|lpp)(\.in)?$/)
     {
-      used 'programs', 'c++', $File::Find::name;
+      used 'program', 'c++', $File::Find::name;
       scan_c_file ($_);
     }
-  elsif (/^[Mm]akefile(\.in)?$/ || /^GNUmakefile(\.in)?$/)
+  elsif ((/^((?:GNUm|M|m)akefile)(\.in)?$/ && ! -f "$1.am")
+	 || /^(?:GNUm|M|m)akefile(\.am)?$/)
     {
       scan_makefile ($_);
     }
@@ -379,8 +392,6 @@ sub scan_file ()
     {
       scan_sh_file ($_);
     }
-
-  $_ = $underscore;
 }
 
 
@@ -427,16 +438,19 @@ sub output_kind ($$)
     if exists $kind_comment{$kind};
   foreach my $word (sort keys %{$used{$kind}})
     {
-      # Words that were caught, but not to be checked according to the
-      # autoscan library files.
-      next
-	if ! exists $macro{$kind}{$word};
-
       # Output the needed macro invocations in $configure_scan if not
       # already printed, and remember these macros are needed.
       foreach my $macro (@{$macro{$kind}{$word}})
 	{
-	  if (exists $generic_macro{$kind}
+	  if ($macro =~ /^warn:\s+(.*)/)
+	    {
+	      my $message = $1;
+	      foreach my $location (@{$used{$kind}{$word}})
+		{
+		  warn "$location: warning: $message\n";
+		}
+	    }
+	  elsif (exists $generic_macro{$kind}
 	      && $macro eq $generic_macro{$kind})
 	    {
 	      push (@have, $word);
@@ -467,7 +481,7 @@ sub output_libraries ($)
   my ($file) = @_;
 
   print $file "\n# Checks for libraries.\n";
-  foreach my $word (sort keys %{$used{'libraries'}})
+  foreach my $word (sort keys %{$used{'library'}})
     {
       print $file "# FIXME: Replace `main' with a function in `-l$word':\n";
       print $file "AC_CHECK_LIB([$word], [main])\n";
@@ -486,29 +500,36 @@ sub output ($)
   my $file = new Autom4te::XFile ">$configure_scan";
 
   print $file
-    ("# Process this file with autoconf to produce a configure script.\n"
-     . "AC_INIT(FULL-PACKAGE-NAME, VERSION, BUG-REPORT-ADDRESS)\n");
+    ("#                                               -*- Autoconf -*-\n" .
+     "# Process this file with autoconf to produce a configure script.\n" .
+     "\n" .
+     "AC_PREREQ(@VERSION@)\n" .
+     "AC_INIT(FULL-PACKAGE-NAME, VERSION, BUG-REPORT-ADDRESS)\n");
   if (defined $cfiles[0])
     {
       print $file "AC_CONFIG_SRCDIR([$cfiles[0]])\n";
       print $file "AC_CONFIG_HEADER([config.h])\n";
     }
 
-  output_kind ($file, 'programs');
-  output_kind ($file, 'makevars');
+  output_kind ($file, 'program');
+  output_kind ($file, 'makevar');
   output_libraries ($file);
-  output_kind ($file, 'headers');
-  output_kind ($file, 'identifiers');
-  output_kind ($file, 'functions');
+  output_kind ($file, 'header');
+  output_kind ($file, 'identifier');
+  output_kind ($file, 'function');
 
-  # Change DIR/Makefile.in to DIR/Makefile.
-  foreach my $m (@makefiles)
+  if (@makefiles)
     {
-      $m =~ s/\.in$//;
-      $unique_makefiles{$m}++;
+      # Change DIR/Makefile.in to DIR/Makefile.
+      foreach my $m (@makefiles)
+	{
+	  $m =~ s/\.(?:in|am)$//;
+	  $unique_makefiles{$m}++;
+	}
+      print $file ("\nAC_CONFIG_FILES([",
+		   join ("\n                 ",
+			 sort keys %unique_makefiles), "])\n");
     }
-  print $file "\nAC_CONFIG_FILES([",
-       join ("\n                 ", sort keys %unique_makefiles), "])\n";
   print $file "AC_OUTPUT\n";
 
   $file->close;
@@ -605,3 +626,20 @@ if ($configure_ac)
 # at END.  It results in a truncated file.
 $log->close;
 exit 0;
+
+### Setup "GNU" style for perl-mode and cperl-mode.
+## Local Variables:
+## perl-indent-level: 2
+## perl-continued-statement-offset: 2
+## perl-continued-brace-offset: 0
+## perl-brace-offset: 0
+## perl-brace-imaginary-offset: 0
+## perl-label-offset: -2
+## cperl-indent-level: 2
+## cperl-brace-offset: 0
+## cperl-continued-brace-offset: 0
+## cperl-label-offset: -2
+## cperl-extra-newline-before-brace: t
+## cperl-merge-trailing-else: nil
+## cperl-continued-statement-offset: 2
+## End:

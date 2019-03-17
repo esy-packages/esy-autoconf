@@ -162,7 +162,10 @@ PS2='> '
 PS4='+ '
 
 # NLS nuisances.
-for as_var in LANG LANGUAGE LC_ALL LC_COLLATE LC_CTYPE LC_NUMERIC LC_MESSAGES LC_TIME
+for as_var in \
+  LANG LANGUAGE LC_ADDRESS LC_ALL LC_COLLATE LC_CTYPE LC_IDENTIFICATION \
+  LC_MEASUREMENT LC_MESSAGES LC_MONETARY LC_NAME LC_NUMERIC LC_PAPER \
+  LC_TELEPHONE LC_TIME
 do
   if (set +x; test -n "`(eval $as_var=C; export $as_var) 2>&1`"); then
     eval $as_var=C; export $as_var
@@ -335,18 +338,15 @@ m4_define([_AS_ECHO_UNQUOTED],
 [echo "$1" >&m4_default([$2], [AS_MESSAGE_FD])])
 
 
-# _AS_QUOTE(STRING)
-# -----------------
+# _AS_QUOTE(STRING, [CHARS = `"])
+# -------------------------------
 # If there are quoted (via backslash) backquotes do nothing, else
 # backslash all the quotes.
-# FIXME: In a distant future (2.51 or +), this warning should be
-# classified as `syntax'.  It is classified as `obsolete' to ease
-# the transition (for Libtool for instance).
 m4_define([_AS_QUOTE],
 [_AS_QUOTE_IFELSE([$1],
-                  [AS_ESCAPE([$1], [`""])],
+                  [AS_ESCAPE([$1], m4_default([$2], [`""]))],
                   [m4_warn([obsolete],
-           [back quotes and double quotes should not be escaped in: $1])dnl
+           [back quotes and double quotes must not be escaped in: $1])dnl
 $1])])
 
 
@@ -633,15 +633,15 @@ rm -f conf$$ conf$$.exe conf$$.file
 m4_defun([_AS_PATH_SEPARATOR_PREPARE],
 [# The user is always right.
 if test "${PATH_SEPARATOR+set}" != set; then
-  echo "#! /bin/sh" >conftest.sh
-  echo  "exit 0"   >>conftest.sh
-  chmod +x conftest.sh
-  if (PATH="/nonexistent;."; conftest.sh) >/dev/null 2>&1; then
+  echo "#! /bin/sh" >conf$$.sh
+  echo  "exit 0"   >>conf$$.sh
+  chmod +x conf$$.sh
+  if (PATH="/nonexistent;."; conf$$.sh) >/dev/null 2>&1; then
     PATH_SEPARATOR=';'
   else
     PATH_SEPARATOR=:
   fi
-  rm -f conftest.sh
+  rm -f conf$$.sh
 fi
 ])# _AS_PATH_SEPARATOR_PREPARE
 
@@ -789,11 +789,11 @@ m4_define([AS_LITERAL_IF],
            [$3], [$2])])
 
 
-# AS_TMPDIR(PREFIX)
-# -----------------
-# Create as safely as possible a temporary directory which name is
-# inspired by PREFIX (should be 2-4 chars max), and set trap
-# mechanisms to remove it.
+# AS_TMPDIR(PREFIX, [DIRECTORY = $TMPDIR [= /tmp]])
+# -------------------------------------------------
+# Create as safely as possible a temporary directory in DIRECTORY
+# which name is inspired by PREFIX (should be 2-4 chars max), and set
+# trap mechanisms to remove it.
 m4_define([AS_TMPDIR],
 [# Create a temporary directory, and hook for its removal unless debugging.
 $debug ||
@@ -803,17 +803,17 @@ $debug ||
 }
 
 # Create a (secure) tmp directory for tmp files.
-: ${TMPDIR=/tmp}
+m4_if([$2], [], [: ${TMPDIR=/tmp}])
 {
-  tmp=`(umask 077 && mktemp -d -q "$TMPDIR/$1XXXXXX") 2>/dev/null` &&
+  tmp=`(umask 077 && mktemp -d -q "m4_default([$2], [$TMPDIR])/$1XXXXXX") 2>/dev/null` &&
   test -n "$tmp" && test -d "$tmp"
 }  ||
 {
-  tmp=$TMPDIR/$1$$-$RANDOM
+  tmp=m4_default([$2], [$TMPDIR])/$1$$-$RANDOM
   (umask 077 && mkdir $tmp)
 } ||
 {
-   echo "$me: cannot create a temporary directory in $TMPDIR" >&2
+   echo "$me: cannot create a temporary directory in m4_default([$2], [$TMPDIR])" >&2
    AS_EXIT
 }dnl
 ])# AS_TMPDIR

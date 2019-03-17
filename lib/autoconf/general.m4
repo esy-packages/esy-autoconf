@@ -1134,35 +1134,62 @@ m4_define([_AC_INIT_PREPARE],
 
 # Keep a trace of the command line.
 # Strip out --no-create and --no-recursion so they do not pile up.
+# Strip out --silent because we don't want to record it for future runs.
 # Also quote any args containing shell meta-characters.
+# Make two passes to allow for proper duplicate-argument suppression.
 ac_configure_args=
+ac_configure_args0=
+ac_configure_args1=
 ac_sep=
-for ac_arg
+ac_must_keep_next=false
+for ac_pass in 1 2
 do
-  case $ac_arg in
-  -no-create | --no-create | --no-creat | --no-crea | --no-cre \
-  | --no-cr | --no-c | -n ) continue ;;
-  -no-recursion | --no-recursion | --no-recursio | --no-recursi \
-  | --no-recurs | --no-recur | --no-recu | --no-rec | --no-re | --no-r)
-    continue ;;
+  for ac_arg
+  do
+    case $ac_arg in
+    -no-create | --no-c* | -n | -no-recursion | --no-r*) continue ;;
+    -q | -quiet | --quiet | --quie | --qui | --qu | --q \
+    | -silent | --silent | --silen | --sile | --sil)
+      continue ;;
 dnl If you change this globbing pattern, test it on an old shell --
 dnl it's sensitive.  Putting any kind of quote in it causes syntax errors.
-[  *" "*|*"	"*|*[\[\]\~\#\$\^\&\*\(\)\{\}\\\|\;\<\>\?\"\']*)]
-    ac_arg=`echo "$ac_arg" | sed "s/'/'\\\\\\\\''/g"` ;;
-  esac
+  [  *" "*|*"	"*|*[\[\]\~\#\$\^\&\*\(\)\{\}\\\|\;\<\>\?\"\']*)]
+      ac_arg=`echo "$ac_arg" | sed "s/'/'\\\\\\\\''/g"` ;;
+    esac
+    case $ac_pass in
+    1) ac_configure_args0="$ac_configure_args0 '$ac_arg'" ;;
+    2)
+      ac_configure_args1="$ac_configure_args1 '$ac_arg'"
 dnl If trying to remove duplicates, be sure to (i) keep the *last*
 dnl value (e.g. --prefix=1 --prefix=2 --prefix=1 might keep 2 only),
 dnl and (ii) not to strip long options (--prefix foo --prefix bar might
 dnl give --prefix foo bar).
-dnl   case " $ac_configure_args " in
-dnl     *" '$ac_arg' "*) ;; # Avoid dups.  Use of quotes ensures accuracy.
-dnl     *) ac_configure_args="$ac_configure_args$ac_sep'$ac_arg'"
-dnl        ac_sep=" " ;;
-dnl   esac
-  ac_configure_args="$ac_configure_args$ac_sep'$ac_arg'"
-  # Get rid of the leading space.
-  ac_sep=" "
+      if test $ac_must_keep_next = true; then
+        ac_must_keep_next=false # Got value, back to normal.
+      else
+        case $ac_arg in
+dnl Use broad patterns, as arguments that would have already made configure
+dnl exit don't matter.
+          *=* | --config-cache | -C | -disable-* | --disable-* \
+          | -enable-* | --enable-* | -gas | --g* | -nfp | --nf* \
+          | -q | -quiet | --q* | -silent | --sil* | -v | -verb* \
+          | -with-* | --with-* | -without-* | --without-* | --x)
+            case "$ac_configure_args0 " in
+              "$ac_configure_args1"*" '$ac_arg' "* ) continue ;;
+            esac
+            ;;
+          -* ) ac_must_keep_next=true ;;
+        esac
+      fi
+      ac_configure_args="$ac_configure_args$ac_sep'$ac_arg'"
+      # Get rid of the leading space.
+      ac_sep=" "
+      ;;
+    esac
+  done
 done
+AS_UNSET(ac_configure_args0)
+AS_UNSET(ac_configure_args1)
 
 # When interrupted or exit'd, cleanup temporary files, and complete
 # config.log.  We remove comments because anyway the quotes in there
@@ -1771,7 +1798,7 @@ _AC_CACHE_DUMP() |
      t end
      /^ac_cv_env/!s/^\([^=]*\)=\(.*\)$/\1=${\1=\2}/
      : end'] >>confcache
-if cmp -s $cache_file confcache; then :; else
+if diff $cache_file confcache >/dev/null 2>&1; then :; else
   if test -w $cache_file; then
     test "x$cache_file" != "x/dev/null" && echo "updating cache $cache_file"
     cat confcache >$cache_file
@@ -1834,7 +1861,7 @@ m4_define([AC_DEFINE_TRACE],
 # die.  The third argument is used by autoheader.
 m4_define([AC_DEFINE],
 [AC_DEFINE_TRACE([$1])dnl
-m4_ifval([$3], [_AH_TEMPLATE_OLD([$1], [$3])])dnl
+m4_ifval([$3], [AH_TEMPLATE([$1], [$3])])dnl
 cat >>confdefs.h <<\_ACEOF
 [@%:@define] $1 m4_if($#, 2, [$2], $#, 3, [$2], 1)
 _ACEOF
@@ -1846,7 +1873,7 @@ _ACEOF
 # Similar, but perform shell substitutions $ ` \ once on VALUE.
 m4_define([AC_DEFINE_UNQUOTED],
 [AC_DEFINE_TRACE([$1])dnl
-m4_ifval([$3], [_AH_TEMPLATE_OLD([$1], [$3])])dnl
+m4_ifval([$3], [AH_TEMPLATE([$1], [$3])])dnl
 cat >>confdefs.h <<_ACEOF
 [@%:@define] $1 m4_if($#, 2, [$2], $#, 3, [$2], 1)
 _ACEOF
@@ -1940,10 +1967,22 @@ _AS_ECHO_UNQUOTED([${ECHO_T}$1])[]dnl
 # AC_MSG_WARN(PROBLEM)
 # AC_MSG_NOTICE(STRING)
 # AC_MSG_ERROR(ERROR, [EXIT-STATUS = 1])
-# --------------------------------------
+# AC_MSG_FAILURE(ERROR, [EXIT-STATUS = 1])
+# ----------------------------------------
 m4_copy([AS_WARN],    [AC_MSG_WARN])
 m4_copy([AS_MESSAGE], [AC_MSG_NOTICE])
 m4_copy([AS_ERROR],   [AC_MSG_ERROR])
+m4_define([AC_MSG_FAILURE],
+[AC_MSG_ERROR([$1
+See `config.log' for more details.], [$2])])
+
+
+# _AC_MSG_LOG_CONFTEST
+# --------------------
+m4_define([_AC_MSG_LOG_CONFTEST],
+[echo "$as_me: failed program was:" >&AS_MESSAGE_LOG_FD
+sed 's/^/| /' conftest.$ac_ext >&AS_MESSAGE_LOG_FD
+])
 
 
 # AU::AC_CHECKING(FEATURE)
@@ -2064,8 +2103,7 @@ fi
 if test -z "$ac_cpp_err"; then
   m4_default([$2], :)
 else
-  echo "$as_me: failed program was:" >&AS_MESSAGE_LOG_FD
-  cat conftest.$ac_ext >&AS_MESSAGE_LOG_FD
+  _AC_MSG_LOG_CONFTEST
   $3
 fi
 rm -f conftest.err m4_ifval([$1], [conftest.$ac_ext])[]dnl
@@ -2088,7 +2126,7 @@ _AC_PREPROC_IFELSE($@)])
 # (But it actually tests whether INCLUDES produces no CPP errors.)
 #
 # INCLUDES are not defaulted and are double quoted.
-AC_DEFUN([AC_TRY_CPP],
+AU_DEFUN([AC_TRY_CPP],
 [AC_PREPROC_IFELSE([AC_LANG_SOURCE([[$1]])], [$2], [$3])])
 
 
@@ -2140,8 +2178,7 @@ rm -f conftest.$ac_objext
 AS_IF([AC_TRY_EVAL(ac_compile) &&
          AC_TRY_COMMAND([test -s conftest.$ac_objext])],
       [$2],
-      [echo "$as_me: failed program was:" >&AS_MESSAGE_LOG_FD
-cat conftest.$ac_ext >&AS_MESSAGE_LOG_FD
+      [_AC_MSG_LOG_CONFTEST
 m4_ifvaln([$3],[$3])dnl])dnl
 rm -f conftest.$ac_objext m4_ifval([$1], [conftest.$ac_ext])[]dnl
 ])# _AC_COMPILE_IFELSE
@@ -2160,7 +2197,7 @@ _AC_COMPILE_IFELSE($@)])
 # AC_TRY_COMPILE(INCLUDES, FUNCTION-BODY,
 #                [ACTION-IF-FOUND], [ACTION-IF-NOT-FOUND])
 # --------------------------------------------------------
-AC_DEFUN([AC_TRY_COMPILE],
+AU_DEFUN([AC_TRY_COMPILE],
 [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[$1]], [[$2]])], [$3], [$4])])
 
 
@@ -2180,8 +2217,7 @@ rm -f conftest.$ac_objext conftest$ac_exeext
 AS_IF([AC_TRY_EVAL(ac_link) &&
          AC_TRY_COMMAND([test -s conftest$ac_exeext])],
       [$2],
-      [echo "$as_me: failed program was:" >&AS_MESSAGE_LOG_FD
-cat conftest.$ac_ext >&AS_MESSAGE_LOG_FD
+      [_AC_MSG_LOG_CONFTEST
 m4_ifvaln([$3], [$3])dnl])[]dnl
 rm -f conftest.$ac_objext conftest$ac_exeext m4_ifval([$1], [conftest.$ac_ext])[]dnl
 ])# _AC_LINK_IFELSE
@@ -2200,14 +2236,8 @@ _AC_LINK_IFELSE($@)])
 # AC_TRY_LINK(INCLUDES, FUNCTION-BODY,
 #             [ACTION-IF-FOUND], [ACTION-IF-NOT-FOUND])
 # -----------------------------------------------------
-# Should the INCLUDES be defaulted here?
 # Contrarily to AC_LINK_IFELSE, this macro double quote its first two args.
-# FIXME: WARNING: The code to compile was different in the case of
-# Fortran between AC_TRY_COMPILE and AC_TRY_LINK, though they should
-# equivalent as far as I can tell from the semantics and the docs.  In
-# the former, $[2] is used as is, in the latter, it is `call' ed.
-# Remove these FIXME: once truth established.
-AC_DEFUN([AC_TRY_LINK],
+AU_DEFUN([AC_TRY_LINK],
 [AC_LINK_IFELSE([AC_LANG_PROGRAM([[$1]], [[$2]])], [$3], [$4])])
 
 
@@ -2240,8 +2270,7 @@ rm -f conftest$ac_exeext
 AS_IF([AC_TRY_EVAL(ac_link) && AC_TRY_COMMAND(./conftest$ac_exeext)],
       [$2],
       [echo "$as_me: program exited with status $ac_status" >&AS_MESSAGE_LOG_FD
-echo "$as_me: failed program was:" >&AS_MESSAGE_LOG_FD
-cat conftest.$ac_ext >&AS_MESSAGE_LOG_FD
+_AC_MSG_LOG_CONFTEST
 m4_ifvaln([$3],
           [( exit $ac_status )
 $3])dnl])[]dnl
@@ -2264,7 +2293,7 @@ m4_ifval([$4], [],
                      [$0 called without default to allow cross compiling])])dnl
 if test "$cross_compiling" = yes; then
   m4_default([$4],
-             [AC_MSG_ERROR([cannot run test program while cross compiling])])
+           [AC_MSG_FAILURE([cannot run test program while cross compiling])])
 else
   _AC_RUN_IFELSE($@)
 fi])
@@ -2274,7 +2303,7 @@ fi])
 #            [ACTION-IF-TRUE], [ACTION-IF-FALSE],
 #            [ACTION-IF-CROSS-COMPILING = RUNTIME-ERROR])
 # --------------------------------------------------------
-AC_DEFUN([AC_TRY_RUN],
+AU_DEFUN([AC_TRY_RUN],
 [AC_RUN_IFELSE([AC_LANG_SOURCE([[$1]])], [$2], [$3], [$4])])
 
 

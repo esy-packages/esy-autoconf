@@ -3,9 +3,9 @@ autoconf.texi.
 
 
 
-   This manual is for GNU Autoconf (version 2.54, 12 September 2002), a
+   This manual is for GNU Autoconf (version 2.55, 14 November 2002), a
 package for creating scripts to configure source code packages using
-templates and an `m4' macro package.
+templates and an M4 macro package.
 
    Copyright (C) 1992, 1993, 1994, 1995, 1996, 1998, 1999, 2000, 2001,
 2002 Free Software Foundation, Inc.
@@ -39,7 +39,7 @@ START-INFO-DIR-ENTRY
                                 Remaking multiple `configure' scripts
 * autoheader: (autoconf)autoheader Invocation.
                                 How to create configuration templates
-* autom4te: (autoconf)Invoking autom4te.
+* autom4te: (autoconf)autom4te Invocation.
                                 The Autoconf executables backbone
 * configure: (autoconf)configure Invocation.
                                 Configuring a package
@@ -59,9 +59,9 @@ Autoconf
 
 
 
-   This manual is for GNU Autoconf (version 2.54, 12 September 2002), a
+   This manual is for GNU Autoconf (version 2.55, 14 November 2002), a
 package for creating scripts to configure source code packages using
-templates and an `m4' macro package.
+templates and an M4 macro package.
 
    Copyright (C) 1992, 1993, 1994, 1995, 1996, 1998, 1999, 2000, 2001,
 2002 Free Software Foundation, Inc.
@@ -162,7 +162,7 @@ Existing Tests
 * Declarations::                Declarations that may be missing
 * Structures::                  Structures or members that might be missing
 * Types::                       Types that might be missing
-* Compilers and Preprocessors::  Checks for compiling programs
+* Compilers and Preprocessors::  Checking for compiling programs
 * System Services::             Operating system services
 * UNIX Variants::               Special kludges for specific UNIX variants
 
@@ -213,19 +213,20 @@ Compilers and Preprocessors
 
 Writing Tests
 
-* Examining Declarations::      Detecting header files and declarations
-* Examining Syntax::            Detecting language syntax features
-* Examining Libraries::         Detecting functions and global variables
+* Language Choice::             Selecting which language to use for testing
+* Writing Test Programs::       Forging source files for compilers
+* Running the Preprocessor::    Detecting preprocessor symbols
+* Running the Compiler::        Detecting language or header features
+* Running the Linker::          Detecting library features
 * Run Time::                    Testing for run-time features
 * Systemology::                 A zoology of operating systems
 * Multiple Cases::              Tests for several possible values
-* Language Choice::             Selecting which language to use for testing
 
-Checking Run-Time Behavior
+Writing Test Programs
 
-* Test Programs::               Running test programs
 * Guidelines::                  General rules for writing test programs
 * Test Functions::              Avoiding pitfalls in test programs
+* Generating Sources::          Source program boilerplate
 
 Results of Tests
 
@@ -243,18 +244,23 @@ Caching Results
 Programming in M4
 
 * M4 Quotation::                Protecting macros from unwanted expansion
-* Invoking autom4te::           The Autoconf executables backbone
+* Using autom4te::              The Autoconf executables backbone
 * Programming in M4sugar::      Convenient pure M4 macros
-* Programming in M4sh::         Common shell constructs
+* Programming in M4sh::         Common shell Constructs
 
 M4 Quotation
 
-* Active Characters::           Characters that change the behavior of m4
+* Active Characters::           Characters that change the behavior of M4
 * One Macro Call::              Quotation and one macro call
 * Quotation and Nested Macros::  Macros calling macros
 * Changequote is Evil::         Worse than INTERCAL: M4 + changequote
 * Quadrigraphs::                Another way to escape special characters
 * Quotation Rule Of Thumb::     One parenthesis, one quote
+
+Using `autom4te'
+
+* autom4te Invocation::         A GNU M4 wrapper
+* Customizing autom4te::        Customizing the Autoconf package
 
 Programming in M4sugar
 
@@ -345,6 +351,7 @@ Upgrading From Version 2.13
 * New Macros::                  Interaction with foreign macros
 * Hosts and Cross-Compilation::  Bugward compatibility kludges
 * AC_LIBOBJ vs LIBOBJS::        LIBOBJS is a forbidden token
+* AC_FOO_IFELSE vs AC_TRY_FOO::  A more generic scheme for testing sources
 
 Generating Test Suites with Autotest
 
@@ -365,6 +372,7 @@ Frequent Autoconf Questions, with answers
 * Bootstrapping::               Autoconf and GNU M4 require each other?
 * Why Not Imake::               Why GNU uses `configure' instead of Imake
 * Defining Directories::        Passing `datadir' to program
+* autom4te.cache::              What is it?  Can I remove it?
 
 History of Autoconf
 
@@ -603,13 +611,13 @@ Pointers
 ========
 
    Developers who are used to the simplicity of `make' for small
-projects on a single system might be daunted at the prospect of learning
-to use Automake and Autoconf.  As your software is distributed to more
-and more users, however, you will otherwise quickly find yourself
-putting lots of effort into reinventing the services that the GNU build
-tools provide, and making the same mistakes that they once made and
-overcame.  (Besides, since you're already learning Autoconf, Automake
-will be a piece of cake.)
+projects on a single system might be daunted at the prospect of
+learning to use Automake and Autoconf.  As your software is distributed
+to more and more users, however, you will otherwise quickly find
+yourself putting lots of effort into reinventing the services that the
+GNU build tools provide, and making the same mistakes that they once
+made and overcame.  (Besides, since you're already learning Autoconf,
+Automake will be a piece of cake.)
 
    There are a number of places that you can go to for more information
 on the GNU build tools.
@@ -624,7 +632,7 @@ on the GNU build tools.
 
    - Books
 
-     The book `GNU Autoconf, Automake and Libtool'(4) describes the
+     The book `GNU Autoconf, Automake and Libtool'(4)  describes the
      complete GNU build environment.  You can also find the entire book
      on-line at "The Goat Book" home page(5).
 
@@ -644,7 +652,7 @@ on the GNU build tools.
    (3) Libtool, <http://www.gnu.org/software/libtool/>.
 
    (4) `GNU Autoconf, Automake and Libtool', by G. V. Vaughan, B.
-Elliston, T. Tromey, and I. L. Taylor. New Riders, 2000, ISBN
+Elliston, T. Tromey, and I. L. Taylor.  New Riders, 2000, ISBN
 1578701902.
 
    (5) "The Goat Book" home page, <http://sources.redhat.com/autobook/>.
@@ -1040,7 +1048,7 @@ Using `autoconf' to Create `configure'
 
    To create `configure' from `configure.ac', run the `autoconf'
 program with no arguments.  `autoconf' processes `configure.ac' with
-the `m4' macro processor, using the Autoconf macros.  If you give
+the M4 macro processor, using the Autoconf macros.  If you give
 `autoconf' an argument, it reads that file instead of `configure.ac'
 and writes the configuration script to the standard output instead of
 to `configure'.  If you give `autoconf' the argument `-', it reads from
@@ -1114,40 +1122,16 @@ it reads overrides the earlier ones.
 
      Warnings about `syntax' are enabled by default, and the environment
      variable `WARNINGS', a comma separated list of categories, is
-     honored.  `autoconf -W CATEGORY' will actually behave as if you
-     had run:
+     honored.  Passing `-W CATEGORY' will actually behave as if you had
+     passed `--warnings=syntax,$WARNINGS,CATEGORY'.  If you want to
+     disable the defaults and `WARNINGS', but (for example) enable the
+     warnings about obsolete constructs, you would use `-W
+     none,obsolete'.
 
-          autoconf --warnings=syntax,$WARNINGS,CATEGORY
-
-     If you want to disable `autoconf''s defaults and `WARNINGS', but
-     (for example) enable the warnings about obsolete constructs, you
-     would use `-W none,obsolete'.
-
-     `autoconf' displays a back trace for errors, but not for warnings;
-     if you want them, just pass `-W error'.  For instance, on this
-     `configure.ac':
-
-          AC_DEFUN([INNER],
-          [AC_TRY_RUN([exit (0)])])
-          
-          AC_DEFUN([OUTER],
-          [INNER])
-          
-          AC_INIT
-          OUTER
-
-     you get:
-
-          $ autoconf -Wcross
-          configure.ac:8: warning: AC_TRY_RUN called without default \
-          to allow cross compiling
-          $ autoconf -Wcross,error
-          configure.ac:8: error: AC_TRY_RUN called without default \
-          to allow cross compiling
-          acgeneral.m4:3044: AC_TRY_RUN is expanded from...
-          configure.ac:2: INNER is expanded from...
-          configure.ac:5: OUTER is expanded from...
-          configure.ac:8: the top level
+     Because `autoconf' uses `autom4te' behind the scenes, it displays
+     a back trace for errors, but not for warnings; if you want them,
+     just pass `-W error'.  *Note autom4te Invocation::, for some
+     examples.
 
 `--trace=MACRO[:FORMAT]'
 `-t MACRO[:FORMAT]'
@@ -1159,7 +1143,7 @@ it reads overrides the earlier ones.
 
      The FORMAT is a regular string, with newlines if desired, and
      several special escape codes.  It defaults to `$f:$l:$n:$%'; see
-     below for details on the FORMAT.
+     *Note autom4te Invocation::, for details on the FORMAT.
 
 `--initialization'
 `-i'
@@ -1170,53 +1154,8 @@ it reads overrides the earlier ones.
 
    It is often necessary to check the content of a `configure.ac' file,
 but parsing it yourself is extremely fragile and error-prone.  It is
-suggested that you rely upon `--trace' to scan `configure.ac'.
-
-   The FORMAT of `--trace' can use the following special escapes:
-
-`$$'
-     The character `$'.
-
-`$f'
-     The filename from which MACRO is called.
-
-`$l'
-     The line number from which MACRO is called.
-
-`$d'
-     The depth of the MACRO call.  This is an M4 technical detail that
-     you probably don't want to know about.
-
-`$n'
-     The name of the MACRO.
-
-`$NUM'
-     The NUMth argument of the call to MACRO.
-
-`$@'
-`$SEP@'
-`${SEPARATOR}@'
-     All the arguments passed to MACRO, separated by the character SEP
-     or the string SEPARATOR (`,' by default).  Each argument is
-     quoted, i.e., enclosed in a pair of square brackets.
-
-`$*'
-`$SEP*'
-`${SEPARATOR}*'
-     As above, but the arguments are not quoted.
-
-`$%'
-`$SEP%'
-`${SEPARATOR}%'
-     As above, but the arguments are not quoted, all new line
-     characters in the arguments are smashed, and the default separator
-     is `:'.
-
-     The escape `$%' produces single-line trace outputs (unless you put
-     newlines in the `separator'), while `$@' and `$*' do not.
-
-   For instance, to find the list of variables that are substituted,
-use:
+suggested that you rely upon `--trace' to scan `configure.ac'.  For
+instance, to find the list of variables that are substituted, use:
 
      $ autoconf -t AC_SUBST
      configure.ac:2:AC_SUBST:ECHO_C
@@ -1310,12 +1249,22 @@ does not pass `--autoconf-dir=DIR' or `--localdir=DIR'.
 
 `--install'
 `-i'
-     Copy missing auxiliary files.  This option is similar to the option
-     `--add-missing' in `automake'.
+     Install the missing auxiliary files in the package.  By default,
+     files are copied; this can be changed with `--symlink'.
+
+     This option triggers calls to `automake --add-missing',
+     `libtoolize', `autopoint', etc.
 
 `--symlink'
 `-s'
-     Instead of copying missing auxiliary files, install symbolic links.
+     When used with `--install', install symbolic links to the missing
+     auxiliary files instead of copying them.
+
+`--make'
+`-m'
+     When the directories were configured, update the configuration by
+     running `./config.status --recheck && ./config.status', and then
+     run `make'.
 
 `--include=DIR'
 `-I DIR'
@@ -1325,6 +1274,43 @@ does not pass `--autoconf-dir=DIR' or `--localdir=DIR'.
 
 `-B DIR'
      Prepend DIR to the include path.  Multiple invocations accumulate.
+
+`--warnings=CATEGORY'
+`-W CATEGORY'
+     Report the warnings related to CATEGORY (which can actually be a
+     comma separated list).
+
+    `cross'
+          related to cross compilation issues.
+
+    `obsolete'
+          report the uses of obsolete constructs.
+
+    `portability'
+          portability issues
+
+    `syntax'
+          dubious syntactic constructs.
+
+    `all'
+          report all the warnings
+
+    `none'
+          report none
+
+    `error'
+          treats warnings as errors
+
+    `no-CATEGORY'
+          disable warnings falling into CATEGORY
+
+     Warnings about `syntax' are enabled by default, and the environment
+     variable `WARNINGS', a comma separated list of categories, is
+     honored.  Passing `-W CATEGORY' will actually behave as if you had
+     passed `--warnings=syntax,$WARNINGS,CATEGORY'.  If you want to
+     disable the defaults and `WARNINGS', but (for example) enable the
+     warnings about obsolete constructs, you would use `-W
+     none,obsolete'.
 
 
 File: autoconf.info,  Node: Setup,  Next: Existing Tests,  Prev: Making configure Scripts,  Up: Top
@@ -1413,7 +1399,7 @@ Using them is optional.
      than VERSION, print an error message to the standard error output
      and do not create `configure'.  For example:
 
-          AC_PREREQ(2.54)
+          AC_PREREQ(2.55)
 
      This macro is the only macro that may be used before `AC_INIT', but
      for consistency, you are invited not to do so.
@@ -1430,7 +1416,7 @@ Using them is optional.
      Copy revision stamp REVISION-INFO into the `configure' script,
      with any dollar signs or double-quotes removed.  This macro lets
      you put a revision stamp from `configure.ac' into `configure'
-     without RCS or `cvs' changing it when you check in `configure'.
+     without RCS or CVS changing it when you check in `configure'.
      That way, you can determine easily which revision of
      `configure.ac' a particular `configure' corresponds to.
 
@@ -1513,9 +1499,9 @@ not set this variable.  The following macro allows you to use it even
 with those versions.
 
  - Macro: AC_PROG_MAKE_SET
-     If `make' predefines the variable `MAKE', define output variable
-     `SET_MAKE' to be empty.  Otherwise, define `SET_MAKE' to contain
-     `MAKE=make'.  Calls `AC_SUBST' for `SET_MAKE'.
+     If `make' predefines the Make variable `MAKE', define output
+     variable `SET_MAKE' to be empty.  Otherwise, define `SET_MAKE' to
+     contain `MAKE=make'.  Calls `AC_SUBST' for `SET_MAKE'.
 
    If you use this macro, place a line like this in each `Makefile.in'
 that runs `MAKE' on other directories:
@@ -1934,14 +1920,19 @@ similar to:
              -e 's,@datadir\@,$(pkgdatadir),g' \
              -e 's,@prefix\@,$(prefix),g'
      
-     autoconf autoheader: Makefile
-     .in:
-             rm -f $@ $@.tmp
-             $(edit) $< >$@.tmp
-             chmod +x $@.tmp
-             mv $@.tmp $@
+     autoconf: Makefile $(srcdir)/autoconf.in
+             rm -f autoconf autoconf.tmp
+             $(edit) $(srcdir)/autoconf.in >autoconf.tmp
+             chmod +x autoconf.tmp
+             mv autoconf.tmp autoconf
+     
+     autoheader: Makefile $(srcdir)/autoheader.in
+             rm -f autoheader autoheader.tmp
+             $(edit) $(srcdir)/autoconf.in >autoheader.tmp
+             chmod +x autoheader.tmp
+             mv autoheader.tmp autoheader
 
-   Five details are noteworthy:
+   Some details are noteworthy:
 
 `@datadir\@'
      The backslash prevents `configure' from replacing `@datadir@' in
@@ -1960,13 +1951,22 @@ similar to:
      values (`prefix' etc.) and not only on `VERSION' and so forth, the
      output depends on `Makefile', not `configure.ac'.
 
-`Separated dependency'
-     Don't write
+`Separated dependencies and Single Suffix Rules'
+     You can't use them!  The above snippet cannot be (portably)
+     rewritten as:
 
-          .in: Makefile
-                  ...
+          autoconf autoheader: Makefile
+          .in:
+                  rm -f $@ $@.tmp
+                  $(edit) $< >$@.tmp
+                  chmod +x $@.tmp
+                  mv $@.tmp $@
 
-     unless you really mean to create the file `.in' from `Makefile'.
+     *Note Limitations of Make::, for details.
+
+``$(srcdir)''
+     Be sure to specify the path to the sources, otherwise the package
+     won't support separated builds.
 
 
 File: autoconf.info,  Node: Build Directories,  Next: Automatic Remaking,  Prev: Installation Directory Variables,  Up: Makefile Substitutions
@@ -2073,13 +2073,13 @@ Configuration Header Files
 
    When a package contains more than a few tests that define C
 preprocessor symbols, the command lines to pass `-D' options to the
-compiler can get quite long.  This causes two problems.  One is that
-the `make' output is hard to visually scan for errors.  More seriously,
-the command lines can exceed the length limits of some operating
-systems.  As an alternative to passing `-D' options to the compiler,
-`configure' scripts can create a C header file containing `#define'
-directives.  The `AC_CONFIG_HEADERS' macro selects this kind of output.
-It should be called right after `AC_INIT'.
+compiler can get quite long.  This causes two problems.  One is that the
+`make' output is hard to visually scan for errors.  More seriously, the
+command lines can exceed the length limits of some operating systems.
+As an alternative to passing `-D' options to the compiler, `configure'
+scripts can create a C header file containing `#define' directives.
+The `AC_CONFIG_HEADERS' macro selects this kind of output.  It should
+be called right after `AC_INIT'.
 
    The package should `#include' the configuration header file before
 any other header files, to prevent inconsistencies in declarations (for
@@ -2100,9 +2100,8 @@ finding the `config.h' from the source directory.
 
      If HEADER already exists and its contents are identical to what
      `AC_OUTPUT' would put in it, it is left alone.  Doing this allows
-     making some changes in the configuration without needlessly
-     causing object files that depend on the header file to be
-     recompiled.
+     making some changes in the configuration without needlessly causing
+     object files that depend on the header file to be recompiled.
 
      Usually the input file is named `HEADER.in'; however, you can
      override the input file name by appending to HEADER a
@@ -2144,8 +2143,9 @@ system predefines that symbol).
      /* Define as 1 if you have unistd.h.  */
      #undef HAVE_UNISTD_H
 
-   You can then decode the configuration header using the preprocessor
-directives:
+   Pay attention that `#undef' is in the first column, and there is
+nothing behind `HAVE_UNISTD_H', not even white spaces.  You can then
+decode the configuration header using the preprocessor directives:
 
      #include <conf.h>
      
@@ -2156,7 +2156,9 @@ directives:
      #endif
 
    The use of old form templates, with `#define' instead of `#undef' is
-strongly discouraged.
+strongly discouraged.  Similarly with old templates with comments on
+the same line as the `#undef'.  Anyway, putting comments in
+preprocessor macros has never been a good idea.
 
    Since it is a tedious task to keep a template header up to date, you
 may use `autoheader' to generate it, see *Note autoheader Invocation::.
@@ -2302,8 +2304,8 @@ Symbols::.  You may also use one of the following macros.
      justified.
 
           /* Define to one of _getb67, GETB67, getb67 for Cray-2 and
-             Cray-YMP systems. This function is required for alloca.c
-             support on those systems. */
+             Cray-YMP systems.  This function is required for alloca.c
+             support on those systems.  */
           #undef CRAY_STACKSEG_END
 
  - Macro: AH_TOP (TEXT)
@@ -2423,7 +2425,7 @@ to run `configure' scripts for other packages in subdirectories.
      `configure'.  This is for packages that might use a non-Autoconf
      script `Configure', which can't be called through a wrapper
      `configure' since it would be the same file on case-insensitive
-     filesystems.  Likewise, if a DIR contains `configure.ac' but no
+     filesystems.  Likewise, if a DIR contains `configure.in' but no
      `configure', the Cygnus `configure' script found by
      `AC_CONFIG_AUX_DIR' is used.
 
@@ -2665,7 +2667,7 @@ in some cases whether they support certain features.
      variable `FGREP' to the first one that is found.
 
  - Macro: AC_PROG_INSTALL
-     Set output variable `INSTALL' to the path of a BSD compatible
+     Set output variable `INSTALL' to the path of a BSD-compatible
      `install' program, if one is found in the current `PATH'.
      Otherwise, set `INSTALL' to `DIR/install-sh -c', checking the
      directories specified to `AC_CONFIG_AUX_DIR' (or its default
@@ -2884,7 +2886,7 @@ Fortran 77 library archive files.
      with the library succeeds; ACTION-IF-NOT-FOUND is a list of shell
      commands to run if the link fails.  If ACTION-IF-FOUND is not
      specified, the default action will prepend `-lLIBRARY' to `LIBS'
-     and define `HAVE_LIBLIBRARY' (in all capitals). This macro is
+     and define `HAVE_LIBLIBRARY' (in all capitals).  This macro is
      intended to support building `LIBS' in a right-to-left
      (least-dependent to most-dependent) fashion such that library
      dependencies are satisfied as a natural side-effect of consecutive
@@ -2904,8 +2906,9 @@ Fortran 77 library archive files.
  - Macro: AC_SEARCH_LIBS (FUNCTION, SEARCH-LIBS, [ACTION-IF-FOUND],
           [ACTION-IF-NOT-FOUND], [OTHER-LIBRARIES])
      Search for a library defining FUNCTION if it's not already
-     available.  This equates to calling `AC_TRY_LINK_FUNC' first with
-     no libraries, then for each library listed in SEARCH-LIBS.
+     available.  This equates to calling
+     `AC_LINK_IFELSE([AC_LANG_CALL([], [FUNCTION])])' first with no
+     libraries, then for each library listed in SEARCH-LIBS.
 
      Add `-lLIBRARY' to `LIBS' for the first library found to contain
      FUNCTION, and run ACTION-IF-FOUND.  If the function is not found,
@@ -2952,15 +2955,15 @@ require additions.  Please help us keeping it as complete as possible.
      tradition of it returning `int'.
 
 `snprintf'
-     The ISO C99 standard says that if the output array isn't big
-     enough and if no other errors occur, `snprintf' and `vsnprintf'
-     truncate the output and return the number of bytes that ought to
-     have been produced.  Some older systems return the truncated
-     length (e.g., GNU C Library 2.0.x or IRIX 6.5), some a negative
-     value (e.g., earlier GNU C Library versions), and some the buffer
-     length without truncation (e.g., 32-bit Solaris 7).  Also, some
-     buggy older systems ignore the length and overrun the buffer
-     (e.g., 64-bit Solaris 7).
+     The ISO C99 standard says that if the output array isn't big enough
+     and if no other errors occur, `snprintf' and `vsnprintf' truncate
+     the output and return the number of bytes that ought to have been
+     produced.  Some older systems return the truncated length (e.g.,
+     GNU C Library 2.0.x or IRIX 6.5), some a negative value (e.g.,
+     earlier GNU C Library versions), and some the buffer length
+     without truncation (e.g., 32-bit Solaris 7).  Also, some buggy
+     older systems ignore the length and overrun the buffer (e.g.,
+     64-bit Solaris 7).
 
 `sprintf'
      The ISO C standard says `sprintf' and `vsprintf' return the number
@@ -3168,13 +3171,13 @@ and in some cases how they respond when given certain arguments.
 
  - Macro: AC_FUNC_GETMNTENT
      Check for `getmntent' in the `sun', `seq', and `gen' libraries,
-     for Irix 4, PTX, and Unixware, respectively.  Then, if `getmntent'
+     for IRIX 4, PTX, and Unixware, respectively.  Then, if `getmntent'
      is available, define `HAVE_GETMNTENT'.
 
  - Macro: AC_FUNC_GETPGRP
      Define `GETPGRP_VOID' if it is an error to pass 0 to `getpgrp';
-     this is the POSIX.1 behavior.  On older BSD systems, you must pass
-     0 to `getpgrp', as it takes an argument and behaves like POSIX.1's
+     this is the POSIX behavior.  On older BSD systems, you must pass 0
+     to `getpgrp', as it takes an argument and behaves like POSIX's
      `getpgid'.
 
           #if GETPGRP_VOID
@@ -3201,11 +3204,12 @@ and in some cases how they respond when given certain arguments.
      replacement of `lstat'.
 
  - Macro: AC_FUNC_MALLOC
-     If the `malloc' function works correctly (`malloc (0)' returns a
-     valid pointer), define `HAVE_MALLOC' to 1.  Otherwise define
-     `HAVE_MALLOC' to 0, ask for an `AC_LIBOBJ' replacement for
-     `malloc', and define `malloc' to `rpl_malloc' so that the native
-     `malloc' is not used in the main project.
+     If the `malloc' function is compatible with the GNU C library
+     `malloc' (i.e., `malloc (0)' returns a valid pointer), define
+     `HAVE_MALLOC' to 1.  Otherwise define `HAVE_MALLOC' to 0, ask for
+     an `AC_LIBOBJ' replacement for `malloc', and define `malloc' to
+     `rpl_malloc' so that the native `malloc' is not used in the main
+     project.
 
      Typically, the replacement file `malloc.c' should look like (note
      the `#undef malloc'):
@@ -3218,12 +3222,12 @@ and in some cases how they respond when given certain arguments.
      
      #include <sys/types.h>
      
-     char *malloc ();
+     void *malloc ();
      
      /* Allocate an N-byte block of memory from the heap.
         If N is zero, allocate a 1-byte block.  */
      
-     char *
+     void *
      rpl_malloc (size_t n)
      {
        if (n == 0)
@@ -3237,6 +3241,10 @@ and in some cases how they respond when given certain arguments.
      16 bytes or more and with at least one buffer not starting on a
      4-byte boundary (such as the one on NeXT x86 OpenStep), require an
      `AC_LIBOBJ' replacement for `memcmp'.
+
+ - Macro: AC_FUNC_MBRTOWC
+     Define `HAVE_MBRTOWC' to 1 if the function `mbrtowc' and the type
+     `mbstate_t' are properly declared.
 
  - Macro: AC_FUNC_MKTIME
      If the `mktime' function is not available, or does not work
@@ -3252,12 +3260,12 @@ and in some cases how they respond when given certain arguments.
      `AC_LIBOBJ' replacement for `obstack'.
 
  - Macro: AC_FUNC_REALLOC
-     If the `realloc' function works correctly (`realloc (0, 0)'
-     returns a valid pointer), define `HAVE_REALLOC' to 1.  Otherwise
-     define `HAVE_REALLOC' to 0, ask for an `AC_LIBOBJ' replacement for
-     `realloc', and define `realloc' to `rpl_realloc' so that the
-     native `realloc' is not used in the main project.  See
-     `AC_FUNC_MALLOC' for details.
+     If the `realloc' function is compatible with the GNU C library
+     `realloc' (i.e., `realloc (0, 0)' returns a valid pointer), define
+     `HAVE_REALLOC' to 1.  Otherwise define `HAVE_REALLOC' to 0, ask
+     for an `AC_LIBOBJ' replacement for `realloc', and define `realloc'
+     to `rpl_realloc' so that the native `realloc' is not used in the
+     main project.  See `AC_FUNC_MALLOC' for details.
 
  - Macro: AC_FUNC_SELECT_ARGTYPES
      Determines the correct type to be passed for each of the `select'
@@ -3268,7 +3276,7 @@ and in some cases how they respond when given certain arguments.
      defaults to `struct timeval *'.
 
  - Macro: AC_FUNC_SETPGRP
-     If `setpgrp' takes no argument (the POSIX.1 version), define
+     If `setpgrp' takes no argument (the POSIX version), define
      `SETPGRP_VOID'.  Otherwise, it is the BSD version, which takes two
      process IDs as arguments.  This macro does not check whether
      `setpgrp' exists at all; if you need to work in that situation,
@@ -3305,8 +3313,8 @@ and in some cases how they respond when given certain arguments.
      If `strerror_r' is available, define `HAVE_STRERROR_R', and if it
      is declared, define `HAVE_DECL_STRERROR_R'.  If it returns a `char
      *' message, define `STRERROR_R_CHAR_P'; otherwise it returns an
-     `int' error number.  The Thread-Safe Functions option of
-     POSIX-200X requires `strerror_r' to return `int', but many systems
+     `int' error number.  The Thread-Safe Functions option of POSIX
+     requires `strerror_r' to return `int', but many systems
      (including, for example, version 2.2.4 of the GNU C Library)
      return a `char *' value that is not necessarily equal to the
      buffer argument.
@@ -3537,6 +3545,29 @@ exist, and in some cases whether they declare certain symbols.
      `STAT_MACROS_BROKEN'.  This is the case on Tektronix UTekV, Amdahl
      UTS and Motorola System V/88.
 
+ - Macro: AC_HEADER_STDBOOL
+     If `stdbool.h' exists and is conformant to C99, define
+     `HAVE_STDBOOL_H' to 1; if the type `_Bool' is defined, define
+     `HAVE__BOOL' to 1.  To fulfill the C99 requirements, your
+     `system.h' should contain the following code:
+
+
+     #if HAVE_STDBOOL_H
+     # include <stdbool.h>
+     #else
+     # if ! HAVE__BOOL
+     #  ifdef __cplusplus
+     typedef bool _Bool;
+     #  else
+     typedef unsigned char _Bool;
+     #  endif
+     # endif
+     # define bool _Bool
+     # define false 0
+     # define true 1
+     # define __bool_true_false_are_defined 1
+     #endif
+
  - Macro: AC_HEADER_STDC
      Define `STDC_HEADERS' if the system has ANSI C header files.
      Specifically, this macro checks for `stdlib.h', `stdarg.h',
@@ -3593,12 +3624,12 @@ exist, and in some cases whether they declare certain symbols.
      `AC_REPLACE_FUNCS(memchr)'.
 
  - Macro: AC_HEADER_SYS_WAIT
-     If `sys/wait.h' exists and is compatible with POSIX.1, define
+     If `sys/wait.h' exists and is compatible with POSIX, define
      `HAVE_SYS_WAIT_H'.  Incompatibility can occur if `sys/wait.h' does
      not exist, or if it uses the old BSD `union wait' instead of `int'
-     to store a status value.  If `sys/wait.h' is not POSIX.1
-     compatible, then instead of including it, define the POSIX.1
-     macros with their usual interpretations.  Here is an example:
+     to store a status value.  If `sys/wait.h' is not POSIX compatible,
+     then instead of including it, define the POSIX macros with their
+     usual interpretations.  Here is an example:
 
           #include <sys/types.h>
           #if HAVE_SYS_WAIT_H
@@ -3611,11 +3642,11 @@ exist, and in some cases whether they declare certain symbols.
           # define WIFEXITED(stat_val) (((stat_val) & 255) == 0)
           #endif
 
-   `_POSIX_VERSION' is defined when `unistd.h' is included on POSIX.1
-systems.  If there is no `unistd.h', it is definitely not a POSIX.1
-system.  However, some non-POSIX.1 systems do have `unistd.h'.
+   `_POSIX_VERSION' is defined when `unistd.h' is included on POSIX
+systems.  If there is no `unistd.h', it is definitely not a POSIX
+system.  However, some non-POSIX systems do have `unistd.h'.
 
-   The way to check if the system supports POSIX.1 is:
+   The way to check if the system supports POSIX is:
 
      #if HAVE_UNISTD_H
      # include <sys/types.h>
@@ -3623,7 +3654,7 @@ system.  However, some non-POSIX.1 systems do have `unistd.h'.
      #endif
      
      #ifdef _POSIX_VERSION
-     /* Code for POSIX.1 systems.  */
+     /* Code for POSIX systems.  */
      #endif
 
  - Macro: AC_HEADER_TIME
@@ -3632,9 +3663,9 @@ system.  However, some non-POSIX.1 systems do have `unistd.h'.
      includes `time.h', but `time.h' is not protected against multiple
      inclusion, so programs should not explicitly include both files.
      This macro is useful in programs that use, for example, `struct
-     timeval' or `struct timezone' as well as `struct tm'.  It is best
-     used in conjunction with `HAVE_SYS_TIME_H', which can be checked
-     for using `AC_CHECK_HEADERS(sys/time.h)'.
+     timeval' as well as `struct tm'.  It is best used in conjunction
+     with `HAVE_SYS_TIME_H', which can be checked for using
+     `AC_CHECK_HEADERS(sys/time.h)'.
 
           #if TIME_WITH_SYS_TIME
           # include <sys/time.h>
@@ -3675,33 +3706,13 @@ test for it (*note Writing Tests::).
 
  - Macro: AC_CHECK_HEADER (HEADER-FILE, [ACTION-IF-FOUND],
           [ACTION-IF-NOT-FOUND], [INCLUDES = `default-includes'])
-     If the system header file HEADER-FILE is usable, execute shell
+     If the system header file HEADER-FILE is compilable, execute shell
      commands ACTION-IF-FOUND, otherwise execute ACTION-IF-NOT-FOUND.
      If you just want to define a symbol if the header file is
      available, consider using `AC_CHECK_HEADERS' instead.
 
-     The meaning of "usable" depends upon the content of INCLUDES:
-
-    if INCLUDES is empty
-          check whether
-
-               HEADER-FILE
-
-          can be _preprocessed_ without error.
-
-    if INCLUDE is set
-          Check whether
-
-               INCLUDES
-               #include <HEADER-FILE>
-
-          can be _compiled_ without error.  You may use
-          `AC_CHECK_HEADER' (and `AC_CHECK_HEADERS') to check whether
-          two headers are compatible.
-
-     You may pass any kind of dummy content for INCLUDES, such as a
-     single space or a comment, to check whether HEADER-FILE compiles
-     with success.
+     For compatibility issues with older versions of Autoconf, please
+     read below.
 
  - Macro: AC_CHECK_HEADERS (HEADER-FILE..., [ACTION-IF-FOUND],
           [ACTION-IF-NOT-FOUND], [INCLUDES = `default-includes'])
@@ -3713,8 +3724,30 @@ test for it (*note Writing Tests::).
      break out of the loop on the first match.  If ACTION-IF-NOT-FOUND
      is given, it is executed when one of the header files is not found.
 
-     Be sure to read the documentation of `AC_CHECK_HEADER' to
-     understand the influence of INCLUDES.
+     For compatibility issues with older versions of Autoconf, please
+     read below.
+
+   Previous versions of Autoconf merely checked whether the header was
+accepted by the preprocessor.  This was changed because the old test was
+inappropriate for typical uses.  Headers are typically used to compile,
+not merely to preprocess, and the old behavior sometimes accepted
+headers that clashed at compile-time.  If you need to check whether a
+header is preprocessable, you can use `AC_PREPROC_IFELSE' (*note
+Running the Preprocessor::).
+
+   This scheme, which improves the robustness of the test, also requires
+that you make sure that headers that must be included before the
+HEADER-FILE be part of the INCLUDES, (*note Default Includes::).  If
+looking for `bar.h', which requires that `foo.h' be included before if
+it exists, we suggest the following scheme:
+
+
+AC_CHECK_HEADERS([foo.h])
+AC_CHECK_HEADERS([bar.h], [], [],
+[#if HAVE_FOO_H
+# include <foo.h>
+# endif
+])
 
 
 File: autoconf.info,  Node: Declarations,  Next: Structures,  Prev: Header Files,  Up: Existing Tests
@@ -3726,7 +3759,7 @@ Declarations
 functions.  If there is no macro specifically defined to check for a
 symbol you need, then you can use the general macros (*note Generic
 Declarations::) or, for more complex tests, you may use
-`AC_TRY_COMPILE' (*note Examining Syntax::).
+`AC_COMPILE_IFELSE' (*note Running the Compiler::).
 
 * Menu:
 
@@ -3739,11 +3772,7 @@ File: autoconf.info,  Node: Particular Declarations,  Next: Generic Declarations
 Particular Declaration Checks
 -----------------------------
 
-   The following macros check for certain declarations.
-
- - Macro: AC_DECL_SYS_SIGLIST
-     Define `SYS_SIGLIST_DECLARED' if the variable `sys_siglist' is
-     declared in a system header file, either `signal.h' or `unistd.h'.
+   There are no specific macros for declarations.
 
 
 File: autoconf.info,  Node: Generic Declarations,  Prev: Particular Declarations,  Up: Declarations
@@ -3794,7 +3823,7 @@ Generic Declaration Checks
      conflicts with the system's one, you should use:
 
           #if defined HAVE_DECL_MALLOC && !HAVE_DECL_MALLOC
-          char *malloc (size_t *s);
+          void *malloc (size_t *s);
           #endif
 
      You fall into the second category only in extreme situations:
@@ -3812,7 +3841,7 @@ Structures
 structures.  If there is no macro specifically defined to check for a
 member you need, then you can use the general structure-member macros
 (*note Generic Structures::) or, for more complex tests, you may use
-`AC_TRY_COMPILE' (*note Examining Syntax::).
+`AC_COMPILE_IFELSE' (*note Running the Compiler::).
 
 * Menu:
 
@@ -4081,6 +4110,47 @@ File: autoconf.info,  Node: C Compiler,  Next: C++ Compiler,  Prev: Generic Comp
 C Compiler Characteristics
 --------------------------
 
+   The following macros provide ways to find and exercise a C Compiler.
+There are a few constructs that ought to be avoided, but do not deserve
+being checked for, since they can easily be worked around.
+
+Don't use lines containing solitary backslashes
+     They tickle a bug in the HP-UX C compiler (checked on HP-UX 10.20,
+     11.00, and 11i).  Running the compiler on the following source,
+
+          #ifdef __STDC__
+          /\
+          * A comment with backslash-newlines in it. %{ %} *\
+          \
+          /
+          char str[] = "\\
+          " A string with backslash-newlines in it %{ %} \\
+          "";
+          char apostrophe = '\\
+          \
+          '\
+          ';
+          #endif
+
+     yields
+
+          error-->cpp: "foo.c", line 13: error 4048: Non-terminating comment at end of file.
+          error-->cpp: "foo.c", line 13: error 4033: Missing #endif at end of file.
+
+     Removing the lines with solitary backslashes solves the problem.
+
+Don't compile several files at once if output matters to you
+     Some compilers, such as the HP's, reports the name of the file it
+     is compiling _when_ they are several.  For instance:
+
+          $ cc a.c b.c
+          a.c:
+          b.c:
+
+     This can cause problems if you observe the output of the compiler
+     to detect failures.  Invoking `cc -c a.c -o a.o; cc -c b.c -o b.o;
+     cc a.o b.o -o c' solves the issue.
+
  - Macro: AC_PROG_CC ([COMPILER-SEARCH-LIST])
      Determine a C compiler to use.  If `CC' is not already set in the
      environment, check for `gcc' and `cc', then for other C compilers.
@@ -4126,11 +4196,6 @@ C Compiler Characteristics
      preprocessor.  If `$CC -E' doesn't work, `/lib/cpp' is used.  It
      is only portable to run `CPP' on files with a `.c' extension.
 
-     If the current language is C (*note Language Choice::), many of the
-     specific test macros use the value of `CPP' indirectly by calling
-     `AC_TRY_CPP', `AC_CHECK_HEADER', `AC_EGREP_HEADER', or
-     `AC_EGREP_CPP'.
-
      Some preprocessors don't indicate missing include files by the
      error status.  For such preprocessors an internal variable is set
      that causes other macros to check the standard error from the
@@ -4139,8 +4204,8 @@ C Compiler Characteristics
 
    The following macros check for C compiler or machine architecture
 features.  To check for characteristics not listed here, use
-`AC_TRY_COMPILE' (*note Examining Syntax::) or `AC_TRY_RUN' (*note Run
-Time::)
+`AC_COMPILE_IFELSE' (*note Running the Compiler::) or `AC_RUN_IFELSE'
+(*note Run Time::).
 
  - Macro: AC_C_BACKSLASH_A
      Define `HAVE_C_BACKSLASH_A' to 1 if the C compiler understands
@@ -4294,11 +4359,6 @@ C++ Compiler Characteristics
      is only portable to run `CXXCPP' on files with a `.c', `.C', or
      `.cc' extension.
 
-     If the current language is C++ (*note Language Choice::), many of
-     the specific test macros use the value of `CXXCPP' indirectly by
-     calling `AC_TRY_CPP', `AC_CHECK_HEADER', `AC_EGREP_HEADER', or
-     `AC_EGREP_CPP'.
-
      Some preprocessors don't indicate missing include files by the
      error status.  For such preprocessors an internal variable is set
      that causes other macros to check the standard error from the
@@ -4339,10 +4399,10 @@ Fortran 77 Compiler Characteristics
      simultaneously, and define `F77_NO_MINUS_C_MINUS_O' if it does not.
 
    The following macros check for Fortran 77 compiler characteristics.
-To check for characteristics not listed here, use `AC_TRY_COMPILE'
-(*note Examining Syntax::) or `AC_TRY_RUN' (*note Run Time::), making
-sure to first set the current language to Fortran 77 `AC_LANG(Fortran
-77)' (*note Language Choice::).
+To check for characteristics not listed here, use `AC_COMPILE_IFELSE'
+(*note Running the Compiler::) or `AC_RUN_IFELSE' (*note Run Time::),
+making sure to first set the current language to Fortran 77
+`AC_LANG(Fortran 77)' (*note Language Choice::).
 
  - Macro: AC_F77_LIBRARY_LDFLAGS
      Determine the linker flags (e.g., `-L' and `-l') for the "Fortran
@@ -4378,8 +4438,8 @@ sure to first set the current language to Fortran 77 `AC_LANG(Fortran
      user's program.  The `AC_F77_DUMMY_MAIN' or `AC_F77_MAIN' macro
      figures out how to deal with this interaction.
 
-     When using Fortran for purely numerical functions (no I/O, etc.
-     often prefer to provide their own `main' and skip the Fortran
+     When using Fortran for purely numerical functions (no I/O, etc.)
+     often one prefers to provide one's own `main' and skip the Fortran
      library initializations.  In this case, however, one may still
      need to provide a dummy `MAIN__' routine in order to prevent
      linking errors on some systems.  `AC_F77_DUMMY_MAIN' detects
@@ -4614,13 +4674,14 @@ If something goes wrong in one or more of the Autoconf tests, this
 information can help you understand the assumptions behind them, which
 might help you figure out how to best solve the problem.
 
-   These macros check the output of the C compiler system.  They do not
-cache the results of their tests for future use (*note Caching
-Results::), because they don't know enough about the information they
-are checking for to generate a cache variable name.  They also do not
-print any messages, for the same reason.  The checks for particular
-kinds of C features call these macros and do cache their results and
-print messages about what they're checking for.
+   These macros check the output of the compiler system of the current
+language (*note Language Choice::).  They do not cache the results of
+their tests for future use (*note Caching Results::), because they don't
+know enough about the information they are checking for to generate a
+cache variable name.  They also do not print any messages, for the same
+reason.  The checks for particular kinds of features call these macros
+and do cache their results and print messages about what they're
+checking for.
 
    When you write a feature test that could be applicable to more than
 one software package, the best thing to do is encapsulate it in a new
@@ -4628,247 +4689,108 @@ macro.  *Note Writing Autoconf Macros::, for how to do that.
 
 * Menu:
 
-* Examining Declarations::      Detecting header files and declarations
-* Examining Syntax::            Detecting language syntax features
-* Examining Libraries::         Detecting functions and global variables
+* Language Choice::             Selecting which language to use for testing
+* Writing Test Programs::       Forging source files for compilers
+* Running the Preprocessor::    Detecting preprocessor symbols
+* Running the Compiler::        Detecting language or header features
+* Running the Linker::          Detecting library features
 * Run Time::                    Testing for run-time features
 * Systemology::                 A zoology of operating systems
 * Multiple Cases::              Tests for several possible values
-* Language Choice::             Selecting which language to use for testing
 
 
-File: autoconf.info,  Node: Examining Declarations,  Next: Examining Syntax,  Up: Writing Tests
+File: autoconf.info,  Node: Language Choice,  Next: Writing Test Programs,  Up: Writing Tests
 
-Examining Declarations
-======================
+Language Choice
+===============
 
-   The macro `AC_TRY_CPP' is used to check whether particular header
-files exist.  You can check for one at a time, or more than one if you
-need several header files to all exist for some purpose.
+   Autoconf-generated `configure' scripts check for the C compiler and
+its features by default.  Packages that use other programming languages
+(maybe more than one, e.g., C and C++) need to test features of the
+compilers for the respective languages.  The following macros determine
+which programming language is used in the subsequent tests in
+`configure.ac'.
 
- - Macro: AC_TRY_CPP (INPUT, [ACTION-IF-TRUE], [ACTION-IF-FALSE])
-     If the preprocessor produces no error messages while processing the
-     INPUT (typically includes), run shell commands ACTION-IF-TRUE.
-     Otherwise run shell commands ACTION-IF-FALSE.  Beware that INPUT
-     is double quoted.  Shell variable, back quote, and backslash
-     substitutions are performed on INPUT.
+ - Macro: AC_LANG (LANGUAGE)
+     Do compilation tests using the compiler, preprocessor, and file
+     extensions for the specified LANGUAGE.
 
-     This macro uses `CPPFLAGS', but not `CFLAGS', because `-g', `-O',
-     etc. are not valid options to many C preprocessors.
+     Supported languages are:
 
-   Here is how to find out whether a header file contains a particular
-declaration, such as a typedef, a structure, a structure member, or a
-function.  Use `AC_EGREP_HEADER' instead of running `grep' directly on
-the header file; on some systems the symbol might be defined in another
-header file that the file you are checking `#include's.
+    `C'
+          Do compilation tests using `CC' and `CPP' and use extension
+          `.c' for test programs.
 
- - Macro: AC_EGREP_HEADER (PATTERN, HEADER-FILE, ACTION-IF-FOUND,
-          [ACTION-IF-NOT-FOUND])
-     If the output of running the preprocessor on the system header file
-     HEADER-FILE matches the extended regular expression PATTERN,
-     execute shell commands ACTION-IF-FOUND, otherwise execute
-     ACTION-IF-NOT-FOUND.
+    `C++'
+          Do compilation tests using `CXX' and `CXXCPP' and use
+          extension `.C' for test programs.
 
-   To check for C preprocessor symbols, either defined by header files
-or predefined by the C preprocessor, use `AC_EGREP_CPP'.  Here is an
-example of the latter:
+    `Fortran 77'
+          Do compilation tests using `F77' and use extension `.f' for
+          test programs.
 
-     AC_EGREP_CPP(yes,
-     [#ifdef _AIX
-       yes
-     #endif
-     ], is_aix=yes, is_aix=no)
+ - Macro: AC_LANG_PUSH (LANGUAGE)
+     Remember the current language (as set by `AC_LANG') on a stack, and
+     then select the LANGUAGE.  Use this macro and `AC_LANG_POP' in
+     macros that need to temporarily switch to a particular language.
 
- - Macro: AC_EGREP_CPP (PATTERN, PROGRAM, [ACTION-IF-FOUND],
-          [ACTION-IF-NOT-FOUND])
-     PROGRAM is the text of a C or C++ program, on which shell
-     variable, back quote, and backslash substitutions are performed.
-     If the output of running the preprocessor on PROGRAM matches the
-     extended regular expression PATTERN, execute shell commands
-     ACTION-IF-FOUND, otherwise execute ACTION-IF-NOT-FOUND.
+ - Macro: AC_LANG_POP ([LANGUAGE])
+     Select the language that is saved on the top of the stack, as set
+     by `AC_LANG_PUSH', and remove it from the stack.
 
-     This macro calls `AC_PROG_CPP' or `AC_PROG_CXXCPP' (depending on
-     which language is current, *note Language Choice::), if it hasn't
-     been called already.
+     If given, LANGUAGE specifies the language we just _quit_.  It is a
+     good idea to specify it when it's known (which should be the
+     case...), since Autoconf will detect inconsistencies.
 
-
-File: autoconf.info,  Node: Examining Syntax,  Next: Examining Libraries,  Prev: Examining Declarations,  Up: Writing Tests
+          AC_LANG_PUSH(Fortran 77)
+          # Perform some tests on Fortran 77.
+          # ...
+          AC_LANG_POP(Fortran 77)
 
-Examining Syntax
-================
-
-   To check for a syntax feature of the C, C++, or Fortran 77 compiler,
-such as whether it recognizes a certain keyword, use `AC_TRY_COMPILE' to
-try to compile a small program that uses that feature.  You can also use
-it to check for structures and structure members that are not present on
-all systems.
-
- - Macro: AC_TRY_COMPILE (INCLUDES, FUNCTION-BODY, [ACTION-IF-FOUND],
-          [ACTION-IF-NOT-FOUND])
-     Create a test program in the current language (*note Language
-     Choice::) to see whether a function whose body consists of
-     FUNCTION-BODY can be compiled.  If the file compiles successfully,
-     run shell commands ACTION-IF-FOUND, otherwise run
-     ACTION-IF-NOT-FOUND.
-
-     This macro double quotes both INCLUDES and FUNCTION-BODY.
-
-     For C and C++, INCLUDES is any `#include' statements needed by the
-     code in FUNCTION-BODY (INCLUDES will be ignored if the currently
-     selected language is Fortran 77).  This macro also uses `CFLAGS'
-     or `CXXFLAGS' if either C or C++ is the currently selected
-     language, as well as `CPPFLAGS', when compiling.  If Fortran 77 is
-     the currently selected language then `FFLAGS' will be used when
-     compiling.
-
-     This macro does not try to link; use `AC_TRY_LINK' if you need to
-     do that (*note Examining Libraries::).
+ - Macro: AC_REQUIRE_CPP
+     Ensure that whichever preprocessor would currently be used for
+     tests has been found.  Calls `AC_REQUIRE' (*note Prerequisite
+     Macros::) with an argument of either `AC_PROG_CPP' or
+     `AC_PROG_CXXCPP', depending on which language is current.
 
 
-File: autoconf.info,  Node: Examining Libraries,  Next: Run Time,  Prev: Examining Syntax,  Up: Writing Tests
+File: autoconf.info,  Node: Writing Test Programs,  Next: Running the Preprocessor,  Prev: Language Choice,  Up: Writing Tests
 
-Examining Libraries
-===================
+Writing Test Programs
+=====================
 
-   To check for a library, a function, or a global variable, Autoconf
-`configure' scripts try to compile and link a small program that uses
-it.  This is unlike Metaconfig, which by default uses `nm' or `ar' on
-the C library to try to figure out which functions are available.
-Trying to link with the function is usually a more reliable approach
-because it avoids dealing with the variations in the options and output
-formats of `nm' and `ar' and in the location of the standard libraries.
-It also allows configuring for cross-compilation or checking a
-function's run-time behavior if needed.  On the other hand, it can be
-slower than scanning the libraries once.
-
-   A few systems have linkers that do not return a failure exit status
-when there are unresolved functions in the link.  This bug makes the
-configuration scripts produced by Autoconf unusable on those systems.
-However, some of them can be given options that make the exit status
-correct.  This is a problem that Autoconf does not currently handle
-automatically.  If users encounter this problem, they might be able to
-solve it by setting `LDFLAGS' in the environment to pass whatever
-options the linker needs (for example, `-Wl,-dn' on MIPS RISC/OS).
-
-   `AC_TRY_LINK' is used to compile test programs to test for functions
-and global variables.  It is also used by `AC_CHECK_LIB' to check for
-libraries (*note Libraries::), by adding the library being checked for
-to `LIBS' temporarily and trying to link a small program.
-
- - Macro: AC_TRY_LINK (INCLUDES, FUNCTION-BODY, [ACTION-IF-FOUND],
-          [ACTION-IF-NOT-FOUND])
-     Depending on the current language (*note Language Choice::),
-     create a test program to see whether a function whose body
-     consists of FUNCTION-BODY can be compiled and linked.  If the file
-     compiles and links successfully, run shell commands
-     ACTION-IF-FOUND, otherwise run ACTION-IF-NOT-FOUND.
-
-     This macro double quotes both INCLUDES and FUNCTION-BODY.
-
-     For C and C++, INCLUDES is any `#include' statements needed by the
-     code in FUNCTION-BODY (INCLUDES will be ignored if the currently
-     selected language is Fortran 77).  This macro also uses `CFLAGS'
-     or `CXXFLAGS' if either C or C++ is the currently selected
-     language, as well as `CPPFLAGS', when compiling.  If Fortran 77 is
-     the currently selected language then `FFLAGS' will be used when
-     compiling.  However, both `LDFLAGS' and `LIBS' will be used during
-     linking in all cases.
-
- - Macro: AC_TRY_LINK_FUNC (FUNCTION, [ACTION-IF-FOUND],
-          [ACTION-IF-NOT-FOUND])
-     Depending on the current language (*note Language Choice::),
-     create a test program to see whether a program whose body consists
-     of a prototype of and a call to FUNCTION can be compiled and
-     linked.
-
-     If the file compiles and links successfully, run shell commands
-     ACTION-IF-FOUND, otherwise run ACTION-IF-NOT-FOUND.
-
-
-File: autoconf.info,  Node: Run Time,  Next: Systemology,  Prev: Examining Libraries,  Up: Writing Tests
-
-Checking Run Time Behavior
-==========================
-
-   Sometimes you need to find out how a system performs at run time,
-such as whether a given function has a certain capability or bug.  If
-you can, make such checks when your program runs instead of when it is
-configured.  You can check for things like the machine's endianness when
-your program initializes itself.
-
-   If you really need to test for a run-time behavior while configuring,
-you can write a test program to determine the result, and compile and
-run it using `AC_TRY_RUN'.  Avoid running test programs if possible,
-because this prevents people from configuring your package for
-cross-compiling.
+   Autoconf tests follow is common scheme: feeding some program with
+some input, and most of the time, feeding a compiler with some source
+file.  This section is dedicated to these source samples.
 
 * Menu:
 
-* Test Programs::               Running test programs
 * Guidelines::                  General rules for writing test programs
 * Test Functions::              Avoiding pitfalls in test programs
+* Generating Sources::          Source program boilerplate
 
 
-File: autoconf.info,  Node: Test Programs,  Next: Guidelines,  Up: Run Time
-
-Running Test Programs
----------------------
-
-   Use the following macro if you need to test run-time behavior of the
-system while configuring.
-
- - Macro: AC_TRY_RUN (PROGRAM, [ACTION-IF-TRUE], [ACTION-IF-FALSE],
-          [ACTION-IF-CROSS-COMPILING])
-     If PROGRAM compiles and links successfully and returns an exit
-     status of 0 when executed, run shell commands ACTION-IF-TRUE.
-     Otherwise, run shell commands ACTION-IF-FALSE.
-
-     This macro double quotes PROGRAM, the text of a program in the
-     current language (*note Language Choice::), on which shell
-     variable and back quote substitutions are performed.  This macro
-     uses `CFLAGS' or `CXXFLAGS', `CPPFLAGS', `LDFLAGS', and `LIBS'
-     when compiling.
-
-     If the C compiler being used does not produce executables that run
-     on the system where `configure' is being run, then the test
-     program is not run.  If the optional shell commands
-     ACTION-IF-CROSS-COMPILING are given, they are run instead.
-     Otherwise, `configure' prints an error message and exits.
-
-     In the ACTION-IF-FALSE section, the exit status of the program is
-     available in the shell variable `$?', but be very careful to limit
-     yourself to positive values smaller than 127; bigger values should
-     be saved into a file by the PROGRAM.  Note also that you have
-     simply no guarantee that this exit status is issued by the
-     PROGRAM, or by the failure of its compilation.  In other words,
-     use this feature if sadist only, it was reestablished because the
-     Autoconf maintainers grew tired of receiving "bug reports".
-
-   Try to provide a pessimistic default value to use when
-cross-compiling makes run-time tests impossible.  You do this by
-passing the optional last argument to `AC_TRY_RUN'.  `autoconf' prints
-a warning message when creating `configure' each time it encounters a
-call to `AC_TRY_RUN' with no ACTION-IF-CROSS-COMPILING argument given.
-You may ignore the warning, though users will not be able to configure
-your package for cross-compiling.  A few of the macros distributed with
-Autoconf produce this warning message.
-
-   To configure for cross-compiling you can also choose a value for
-those parameters based on the canonical system name (*note Manual
-Configuration::).  Alternatively, set up a test results cache file with
-the correct values for the host system (*note Caching Results::).
-
-   To provide a default for calls of `AC_TRY_RUN' that are embedded in
-other macros, including a few of the ones that come with Autoconf, you
-can call `AC_PROG_CC' before running them.  Then, if the shell variable
-`cross_compiling' is set to `yes', use an alternate method to get the
-results instead of calling the macros.
-
-
-File: autoconf.info,  Node: Guidelines,  Next: Test Functions,  Prev: Test Programs,  Up: Run Time
+File: autoconf.info,  Node: Guidelines,  Next: Test Functions,  Up: Writing Test Programs
 
 Guidelines for Test Programs
 ----------------------------
+
+   The most important rule to follow when writing testing samples is:
+
+                          _Look for realism._
+ This motto means that testing samples must be
+written with the same strictness as real programs are written.  In
+particular, you should avoid "shortcuts" and simplifications.
+
+   Don't just play with the preprocessor if you want to prepare a
+compilation.  For instance, using `cpp' to check if a header is
+functional might let your `configure' accept a header which will cause
+some _compiler_ error.  Do not hesitate checking header with other
+headers included before, especially required headers.
+
+   Make sure the symbols you use are properly defined, i.e., refrain for
+simply declaring a function yourself instead of including the proper
+header.
 
    Test programs should not write anything to the standard output.  They
 should return 0 if the test succeeds, nonzero otherwise, so that success
@@ -4894,7 +4816,7 @@ script cleans up by running `rm -rf conftest*' after running test
 programs and if the script is interrupted.
 
 
-File: autoconf.info,  Node: Test Functions,  Prev: Guidelines,  Up: Run Time
+File: autoconf.info,  Node: Test Functions,  Next: Generating Sources,  Prev: Guidelines,  Up: Writing Test Programs
 
 Test Functions
 --------------
@@ -4916,7 +4838,7 @@ include any header files containing clashing prototypes.
      #ifdef __cplusplus
      extern "C" void *malloc (size_t);
      #else
-     char *malloc ();
+     void *malloc ();
      #endif
 
    If a test program calls a function with invalid parameters (just to
@@ -4933,6 +4855,322 @@ has internal prototypes for several functions that it automatically
 inlines; for example, `memcpy'.  To avoid errors when checking for
 them, either pass them the correct number of arguments or redeclare them
 with a different return type (such as `char').
+
+
+File: autoconf.info,  Node: Generating Sources,  Prev: Test Functions,  Up: Writing Test Programs
+
+Generating Sources
+------------------
+
+   Autoconf provides a set of macros that can be used to generate test
+source files.  They are written to be language generic, i.e., they
+actually depend on the current language (*note Language Choice::) to
+"format" the output properly.
+
+ - Macro: AC_LANG_CONFTEST (SOURCE)
+     Save the SOURCE text in the current test source file:
+     `conftest.EXTENSION' where the EXTENSION depends on the current
+     language.
+
+     Note that the SOURCE is evaluated exactly once, like regular
+     Autoconf macro arguments, and therefore (i) you may pass a macro
+     invocation, (ii) if not, be sure to double quote if needed.
+
+ - Macro: AC_LANG_SOURCE (SOURCE)
+     Expands into the SOURCE, with proper definition of the current
+     location (e.g., `#line 1234 "configure"' in C), and definition of
+     all the `AC_DEFINE' performed so far.
+
+   For instance executing (observe the double quotation!):
+
+     AC_INIT(Autoconf Documentation, 2.55, bug-autoconf@gnu.org)
+     AC_DEFINE([HELLO_WORLD], ["Hello, World\n"])
+     AC_LANG_CONFTEST(
+        [AC_LANG_SOURCE([[const char hw[] = "Hello, World\n";]])])
+     gcc -E -dD conftest.c -o -
+
+results in:
+
+     # 1 "conftest.c"
+     # 1169 "configure"
+     
+     # 1 "confdefs.h" 1
+     
+     #define PACKAGE_NAME "Autoconf Documentation"
+     #define PACKAGE_TARNAME "autoconf-documentation"
+     #define PACKAGE_VERSION "2.55"
+     #define PACKAGE_STRING "Autoconf Documentation 2.55"
+     #define PACKAGE_BUGREPORT "bug-autoconf@gnu.org"
+     #define HELLO_WORLD "Hello, World\n"
+     # 1170 "configure" 2
+     
+     const char hw[] = "Hello, World\n";
+
+ - Macro: AC_LANG_PROGRAM (PROLOGUE, BODY)
+     Expands into a source file which consists of the PROLOGUE, and
+     then BODY as body of the main function (e.g., `main' in C).  Since
+     it uses `AC_LANG_SOURCE', the feature of the latter are available.
+
+   For instance:
+
+     AC_INIT(Autoconf Documentation, 2.55, bug-autoconf@gnu.org)
+     AC_DEFINE([HELLO_WORLD], ["Hello, World\n"])
+     AC_LANG_CONFTEST(
+     [AC_LANG_PROGRAM([[const char hw[] = "Hello, World\n";]],
+                      [[fputs (hw, stdout);]])])
+     gcc -E -dD conftest.c -o -
+
+results in:
+
+     # 1 "conftest.c"
+     # 1169 "configure"
+     
+     # 1 "confdefs.h" 1
+     
+     #define PACKAGE_NAME "Autoconf Documentation"
+     #define PACKAGE_TARNAME "autoconf-documentation"
+     #define PACKAGE_VERSION "2.55"
+     #define PACKAGE_STRING "Autoconf Documentation 2.55"
+     #define PACKAGE_BUGREPORT "bug-autoconf@gnu.org"
+     #define HELLO_WORLD "Hello, World\n"
+     # 1170 "configure" 2
+     
+     const char hw[] = "Hello, World\n";
+     int
+     main ()
+     {
+     fputs (hw, stdout);
+       ;
+       return 0;
+     }
+
+ - Macro: AC_LANG_CALL (PROLOGUE, FUNCTION)
+     Expands into a source file which consists of the PROLOGUE, and
+     then a call to the FUNCTION as body of the main function (e.g.,
+     `main' in C).  Since it uses `AC_LANG_PROGRAMS', the feature of
+     the latter are available.
+
+     This function will probably be replaced in the feature by a version
+     which would enable specifying the arguments.  The use of this
+     macro is not encouraged, as it violates strongly the typing system.
+
+ - Macro: AC_LANG_FUNC_LINK_TRY (FUNCTION)
+     Expands into a source file which consists of a pseudo use of the
+     FUNCTION as body of the main function (e.g., `main' in C): a
+     simple (function pointer) assignment.  Since it uses
+     `AC_LANG_PROGRAMS', the feature of the latter are available.
+
+     As `AC_LANG_CALL', this macro is documented only for completeness.
+     It is considered to be severely broken, and in the future will be
+     removed in favor of actual function calls (with properly typed
+     arguments).
+
+
+File: autoconf.info,  Node: Running the Preprocessor,  Next: Running the Compiler,  Prev: Writing Test Programs,  Up: Writing Tests
+
+Running the Preprocessor
+========================
+
+   Sometimes one might need to run the preprocessor on some source file.
+_Usually it is a bad idea_, as you typically need to _compile_ your
+project, not merely run the preprocessor on it; therefore you certainly
+want to run the compiler, not the preprocessor.  Resist to the
+temptation of following the easiest path.
+
+   Nevertheless, if you need to run the preprocessor, then use
+`AC_PREPROC_IFELSE'.
+
+ - Macro: AC_PREPROC_IFELSE (INPUT, [ACTION-IF-TRUE], [ACTION-IF-FALSE])
+     Run the preprocessor of the current language (*note Language
+     Choice::) on the INPUT, run the shell commands ACTION-IF-TRUE on
+     success, ACTION-IF-FALSE otherwise.  The INPUT can be made by
+     `AC_LANG_PROGRAM' and friends.
+
+     This macro uses `CPPFLAGS', but not `CFLAGS', because `-g', `-O',
+     etc. are not valid options to many C preprocessors.
+
+     It is customary to report unexpected failures with
+     `AC_MSG_FAILURE'.
+
+   For instance:
+
+     AC_INIT(Autoconf Documentation, 2.55, bug-autoconf@gnu.org)
+     AC_DEFINE([HELLO_WORLD], ["Hello, World\n"])
+     AC_PREPROC_IFELSE(
+        [AC_LANG_PROGRAM([[const char hw[] = "Hello, World\n";]],
+                         [[fputs (hw, stdout);]])],
+        [AC_MSG_RESULT([OK])],
+        [AC_MSG_FAILURE([unexpected preprocessor failure])])
+
+results in:
+
+     checking for gcc... gcc
+     checking for C compiler default output... a.out
+     checking whether the C compiler works... yes
+     checking whether we are cross compiling... no
+     checking for suffix of executables...
+     checking for suffix of object files... o
+     checking whether we are using the GNU C compiler... yes
+     checking whether gcc accepts -g... yes
+     checking for gcc option to accept ANSI C... none needed
+     checking how to run the C preprocessor... gcc -E
+     OK
+
+
+   The macro `AC_TRY_CPP' (*note Obsolete Macros::) used to play the
+role of `AC_PREPROC_IFELSE', but double quotes its argument, making it
+impossible to use it to ellaborate sources.  You are encouraged to get
+rid of your old use of the macro `AC_TRY_CPP' in favor of
+`AC_PREPROC_IFELSE', but, in the first place, are you sure you need to
+run the _preprocessor_ and not the compiler?
+
+ - Macro: AC_EGREP_HEADER (PATTERN, HEADER-FILE, ACTION-IF-FOUND,
+          [ACTION-IF-NOT-FOUND])
+     If the output of running the preprocessor on the system header file
+     HEADER-FILE matches the extended regular expression PATTERN,
+     execute shell commands ACTION-IF-FOUND, otherwise execute
+     ACTION-IF-NOT-FOUND.
+
+ - Macro: AC_EGREP_CPP (PATTERN, PROGRAM, [ACTION-IF-FOUND],
+          [ACTION-IF-NOT-FOUND])
+     PROGRAM is the text of a C or C++ program, on which shell
+     variable, back quote, and backslash substitutions are performed.
+     If the output of running the preprocessor on PROGRAM matches the
+     extended regular expression PATTERN, execute shell commands
+     ACTION-IF-FOUND, otherwise execute ACTION-IF-NOT-FOUND.
+
+
+File: autoconf.info,  Node: Running the Compiler,  Next: Running the Linker,  Prev: Running the Preprocessor,  Up: Writing Tests
+
+Running the Compiler
+====================
+
+   To check for a syntax feature of the (C, C++, or Fortran 77)
+compiler, such as whether it recognizes a certain keyword, or simply to
+try some library feature, use `AC_COMPILE_IFELSE' to try to compile a
+small program that uses that feature.
+
+ - Macro: AC_COMPILE_IFELSE (INPUT, [ACTION-IF-FOUND],
+          [ACTION-IF-NOT-FOUND])
+     Run the compiler of the current language (*note Language Choice::)
+     on the INPUT, run the shell commands ACTION-IF-TRUE on success,
+     ACTION-IF-FALSE otherwise.  The INPUT can be made by
+     `AC_LANG_PROGRAM' and friends.
+
+     This macro uses `CFLAGS' or `CXXFLAGS' if either C or C++ is the
+     currently selected language, as well as `CPPFLAGS', when
+     compiling.  If Fortran 77 is the currently selected language then
+     `FFLAGS' will be used when compiling.
+
+     It is customary to report unexpected failures with
+     `AC_MSG_FAILURE'.  This macro does not try to link; use
+     `AC_LINK_IFELSE' if you need to do that (*note Running the
+     Linker::).
+
+
+File: autoconf.info,  Node: Running the Linker,  Next: Run Time,  Prev: Running the Compiler,  Up: Writing Tests
+
+Running the Linker
+==================
+
+   To check for a library, a function, or a global variable, Autoconf
+`configure' scripts try to compile and link a small program that uses
+it.  This is unlike Metaconfig, which by default uses `nm' or `ar' on
+the C library to try to figure out which functions are available.
+Trying to link with the function is usually a more reliable approach
+because it avoids dealing with the variations in the options and output
+formats of `nm' and `ar' and in the location of the standard libraries.
+It also allows configuring for cross-compilation or checking a
+function's run-time behavior if needed.  On the other hand, it can be
+slower than scanning the libraries once, but accuracy is more important
+than speed.
+
+   `AC_LINK_IFELSE' is used to compile test programs to test for
+functions and global variables.  It is also used by `AC_CHECK_LIB' to
+check for libraries (*note Libraries::), by adding the library being
+checked for to `LIBS' temporarily and trying to link a small program.
+
+ - Macro: AC_LINK_IFELSE (INPUT, [ACTION-IF-FOUND],
+          [ACTION-IF-NOT-FOUND])
+     Run the compiler and the linker of the current language (*note
+     Language Choice::) on the INPUT, run the shell commands
+     ACTION-IF-TRUE on success, ACTION-IF-FALSE otherwise.  The INPUT
+     can be made by `AC_LANG_PROGRAM' and friends.
+
+     This macro uses `CFLAGS' or `CXXFLAGS' if either C or C++ is the
+     currently selected language, as well as `CPPFLAGS', when
+     compiling.  If Fortran 77 is the currently selected language then
+     `FFLAGS' will be used when compiling.
+
+     It is customary to report unexpected failures with
+     `AC_MSG_FAILURE'.  This macro does not try to execute the program;
+     use `AC_RUN_IFELSE' if you need to do that (*note Run Time::).
+
+
+File: autoconf.info,  Node: Run Time,  Next: Systemology,  Prev: Running the Linker,  Up: Writing Tests
+
+Checking Run Time Behavior
+==========================
+
+   Sometimes you need to find out how a system performs at run time,
+such as whether a given function has a certain capability or bug.  If
+you can, make such checks when your program runs instead of when it is
+configured.  You can check for things like the machine's endianness when
+your program initializes itself.
+
+   If you really need to test for a run-time behavior while configuring,
+you can write a test program to determine the result, and compile and
+run it using `AC_RUN_IFELSE'.  Avoid running test programs if possible,
+because this prevents people from configuring your package for
+cross-compiling.
+
+ - Macro: AC_RUN_IFELSE (INPUT, [ACTION-IF-FOUND],
+          [ACTION-IF-NOT-FOUND], [ACTION-IF-CROSS-COMPILING])
+     If PROGRAM compiles and links successfully and returns an exit
+     status of 0 when executed, run shell commands ACTION-IF-TRUE.
+     Otherwise, run shell commands ACTION-IF-FALSE.
+
+     The INPUT can be made by `AC_LANG_PROGRAM' and friends.  This
+     macro uses `CFLAGS' or `CXXFLAGS', `CPPFLAGS', `LDFLAGS', and
+     `LIBS'
+
+     If the compiler being used does not produce executables that run
+     on the system where `configure' is being run, then the test
+     program is not run.  If the optional shell commands
+     ACTION-IF-CROSS-COMPILING are given, they are run instead.
+     Otherwise, `configure' prints an error message and exits.
+
+     In the ACTION-IF-FALSE section, the exit status of the program is
+     available in the shell variable `$?', but be very careful to limit
+     yourself to positive values smaller than 127; bigger values should
+     be saved into a file by the PROGRAM.  Note also that you have
+     simply no guarantee that this exit status is issued by the
+     PROGRAM, or by the failure of its compilation.  In other words,
+     use this feature if sadist only, it was reestablished because the
+     Autoconf maintainers grew tired of receiving "bug reports".
+
+     It is customary to report unexpected failures with
+     `AC_MSG_FAILURE'.
+
+   Try to provide a pessimistic default value to use when
+cross-compiling makes run-time tests impossible.  You do this by
+passing the optional last argument to `AC_RUN_IFELSE'.  `autoconf'
+prints a warning message when creating `configure' each time it
+encounters a call to `AC_RUN_IFELSE' with no ACTION-IF-CROSS-COMPILING
+argument given.  You may ignore the warning, though users will not be
+able to configure your package for cross-compiling.  A few of the
+macros distributed with Autoconf produce this warning message.
+
+   To configure for cross-compiling you can also choose a value for
+those parameters based on the canonical system name (*note Manual
+Configuration::).  Alternatively, set up a test results cache file with
+the correct values for the host system (*note Caching Results::).
+
+   To provide a default for calls of `AC_RUN_IFELSE' that are embedded
+in other macros, including a few of the ones that come with Autoconf,
+you can test whether the shell variable `cross_compiling' is set to
+`yes', and then use an alternate method to get the results instead of
+calling the macros.
 
 
 File: autoconf.info,  Node: Systemology,  Next: Multiple Cases,  Prev: Run Time,  Up: Writing Tests
@@ -4989,7 +5227,7 @@ Unix version 7
    (5) V7 Manual, <http://plan9.bell-labs.com/7thEdMan/index.html>.
 
 
-File: autoconf.info,  Node: Multiple Cases,  Next: Language Choice,  Prev: Systemology,  Up: Writing Tests
+File: autoconf.info,  Node: Multiple Cases,  Prev: Systemology,  Up: Writing Tests
 
 Multiple Cases
 ==============
@@ -5006,76 +5244,21 @@ track of whether the remaining cases need to be checked.
      AC_MSG_CHECKING([how to get file system type])
      fstype=no
      # The order of these tests is important.
-     AC_TRY_CPP([#include <sys/statvfs.h>
-     #include <sys/fstyp.h>],
-                [AC_DEFINE(FSTYPE_STATVFS) fstype=SVR4])
+     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/statvfs.h>
+     #include <sys/fstyp.h>]])],
+                       [AC_DEFINE(FSTYPE_STATVFS) fstype=SVR4])
      if test $fstype = no; then
-       AC_TRY_CPP([#include <sys/statfs.h>
-     #include <sys/fstyp.h>],
-                  [AC_DEFINE(FSTYPE_USG_STATFS) fstype=SVR3])
+       AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/statfs.h>
+     #include <sys/fstyp.h>]])],
+                       [AC_DEFINE(FSTYPE_USG_STATFS) fstype=SVR3])
      fi
      if test $fstype = no; then
-       AC_TRY_CPP([#include <sys/statfs.h>
-     #include <sys/vmount.h>],
-                  [AC_DEFINE(FSTYPE_AIX_STATFS) fstype=AIX])
+       AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/statfs.h>
+     #include <sys/vmount.h>]])]),
+                       [AC_DEFINE(FSTYPE_AIX_STATFS) fstype=AIX])
      fi
      # (more cases omitted here)
      AC_MSG_RESULT([$fstype])
-
-
-File: autoconf.info,  Node: Language Choice,  Prev: Multiple Cases,  Up: Writing Tests
-
-Language Choice
-===============
-
-   Autoconf-generated `configure' scripts check for the C compiler and
-its features by default.  Packages that use other programming languages
-(maybe more than one, e.g., C and C++) need to test features of the
-compilers for the respective languages.  The following macros determine
-which programming language is used in the subsequent tests in
-`configure.ac'.
-
- - Macro: AC_LANG (LANGUAGE)
-     Do compilation tests using the compiler, preprocessor, and file
-     extensions for the specified LANGUAGE.
-
-     Supported languages are:
-
-    `C'
-          Do compilation tests using `CC' and `CPP' and use extension
-          `.c' for test programs.
-
-    `C++'
-          Do compilation tests using `CXX' and `CXXCPP' and use
-          extension `.C' for test programs.
-
-    `Fortran 77'
-          Do compilation tests using `F77' and use extension `.f' for
-          test programs.
-
- - Macro: AC_LANG_PUSH (LANGUAGE)
-     Remember the current language (as set by `AC_LANG') on a stack, and
-     then select the LANGUAGE.  Use this macro and `AC_LANG_POP' in
-     macros that need to temporarily switch to a particular language.
-
- - Macro: AC_LANG_POP ([LANGUAGE])
-     Select the language that is saved on the top of the stack, as set
-     by `AC_LANG_PUSH', and remove it from the stack.
-
-     If given, LANGUAGE specifies the language we just _quit_.  It is a
-     good idea to specify it when it's known (which should be the
-     case...), since Autoconf will detect inconsistencies.
-
-          AC_LANG_PUSH(Fortran 77)
-          # Perform some tests on Fortran 77.
-          # ...
-          AC_LANG_POP(Fortran 77)
-
- - Macro: AC_REQUIRE_CPP
-     Ensure that whichever preprocessor would currently be used for
-     tests has been found.  Calls `AC_REQUIRE' (*note Prerequisite
-     Macros::) with an argument of either `AC_PROG_CPP' or
-     `AC_PROG_CXXCPP', depending on which language is current.
 
 
 File: autoconf.info,  Node: Results,  Next: Programming in M4,  Prev: Writing Tests,  Up: Top
@@ -5544,6 +5727,12 @@ Reporting Messages::.
      The ERROR-DESCRIPTION should start with a lower-case letter, and
      "cannot" is preferred to "can't".
 
+ - Macro: AC_MSG_FAILURE (ERROR-DESCRIPTION, [EXIT-STATUS])
+     This `AC_MSG_ERROR' wrapper notifies the user of an error that
+     prevents `configure' from completing _and_ that additional details
+     are provided in `config.log'.  This is typically used when
+     abnormal results are found during a compilation.
+
  - Macro: AC_MSG_WARN (PROBLEM-DESCRIPTION)
      Notify the `configure' user of a possible problem.  This macro
      prints the message to the standard error output; `configure'
@@ -5569,12 +5758,12 @@ matter of fact, _anything that is not documented must not be used_.
 * Menu:
 
 * M4 Quotation::                Protecting macros from unwanted expansion
-* Invoking autom4te::           The Autoconf executables backbone
+* Using autom4te::              The Autoconf executables backbone
 * Programming in M4sugar::      Convenient pure M4 macros
 * Programming in M4sh::         Common shell Constructs
 
 
-File: autoconf.info,  Node: M4 Quotation,  Next: Invoking autom4te,  Up: Programming in M4
+File: autoconf.info,  Node: M4 Quotation,  Next: Using autom4te,  Up: Programming in M4
 
 M4 Quotation
 ============
@@ -5604,11 +5793,11 @@ Active Characters
 need to know what the special characters are in Autoconf: `#' introduces
 a comment inside which no macro expansion is performed, `,' separates
 arguments, `[' and `]' are the quotes themselves, and finally `(' and
-`)' (which `m4' tries to match by pairs).
+`)' (which M4 tries to match by pairs).
 
    In order to understand the delicate case of macro calls, we first
 have to present some obvious failures.  Below they are "obvious-ified",
-btu when you find them in real life, they are usually in disguise.
+but when you find them in real life, they are usually in disguise.
 
    Comments, introduced by a hash and running up to the newline, are
 opaque tokens to the top level: active characters are turned off, and
@@ -5725,8 +5914,8 @@ interesting quotations:
      =>active
 
    In the first case, the top level looks for the arguments of `car',
-and finds `active'.  Because `m4' evaluates its arguments before
-applying the macro, `active' is expanded, which results in:
+and finds `active'.  Because M4 evaluates its arguments before applying
+the macro, `active' is expanded, which results in:
 
      car(ACT, IVE)
      =>ACT
@@ -5755,7 +5944,7 @@ exactly as we already saw above.
      =>int tab[10];
 
 Huh?  The first case is easily understood, but why is the second wrong,
-and the third right?  To understand that, you must know that after `m4'
+and the third right?  To understand that, you must know that after M4
 expands a macro, the resulting text is immediately subjected to macro
 expansion and quote removal.  This means that the quote removal occurs
 twice--first before the argument is passed to the `car' macro, and
@@ -5796,7 +5985,7 @@ Worse yet: she wants to use a macro that produces a set of `cpp' macros:
 
    This macro, `qar', because it double quotes its arguments, forces
 its users to leave their macro calls unquoted, which is dangerous.
-Commas and other active symbols are interpreted by `m4' before they are
+Commas and other active symbols are interpreted by M4 before they are
 given to the macro, often not in the way the users expect.  Also,
 because `qar' behaves differently from the other macros, it's an
 exception that should be avoided in Autoconf.
@@ -5957,7 +6146,7 @@ quoting, so you just need:
                  [ac_cv_var_tzname=no])
 
 The M4-fluent reader will note that these two examples are rigorously
-equivalent, since `m4' swallows both the `changequote(<<, >>)' and `<<'
+equivalent, since M4 swallows both the `changequote(<<, >>)' and `<<'
 `>>' when it "collects" the arguments: these quotes are not part of the
 arguments!
 
@@ -5988,7 +6177,7 @@ where quoting does not suffice.
 
    When you create a `configure' script using newly written macros,
 examine it carefully to check whether you need to add more quotes in
-your macros.  If one or more words have disappeared in the `m4' output,
+your macros.  If one or more words have disappeared in the M4 output,
 you need more quotes.  When in doubt, quote.
 
    However, it's also possible to put on too many layers of quotes.  If
@@ -5997,10 +6186,10 @@ macros.  The `autoconf' program checks for this problem by doing `grep
 AC_ configure'.
 
 
-File: autoconf.info,  Node: Invoking autom4te,  Next: Programming in M4sugar,  Prev: M4 Quotation,  Up: Programming in M4
+File: autoconf.info,  Node: Using autom4te,  Next: Programming in M4sugar,  Prev: M4 Quotation,  Up: Programming in M4
 
-Invoking `autom4te'
-===================
+Using `autom4te'
+================
 
    The Autoconf suite, including M4sugar, M4sh, and Autotest, in
 addition to Autoconf per se, heavily rely on M4.  All these different
@@ -6008,8 +6197,24 @@ uses revealed common needs factored into a layer over `m4':
 `autom4te'(1).
 
    `autom4te' should basically considered as a replacement of `m4'
-itself.  In particular, its handling of command line arguments is
-modeled after M4's:
+itself.
+
+* Menu:
+
+* autom4te Invocation::         A GNU M4 wrapper
+* Customizing autom4te::        Customizing the Autoconf package
+
+   ---------- Footnotes ----------
+
+   (1) Yet another great name from Lars J. Aas.
+
+
+File: autoconf.info,  Node: autom4te Invocation,  Next: Customizing autom4te,  Up: Using autom4te
+
+Invoking `autom4te'
+-------------------
+
+   The command line arguments are modeled after M4's:
 
      autom4te OPTIONS FILES
 
@@ -6092,7 +6297,7 @@ output.  It supports an extended syntax for the FILES:
      `configure.ac':
 
           AC_DEFUN([INNER],
-          [AC_TRY_RUN([exit (0)])])
+          [AC_RUN_IFELSE([AC_LANG_PROGRAM([exit (0)])])])
           
           AC_DEFUN([OUTER],
           [INNER])
@@ -6103,12 +6308,12 @@ output.  It supports an extended syntax for the FILES:
      you get:
 
           $ autom4te -l autoconf -Wcross
-          configure.ac:8: warning: AC_TRY_RUN called without default \
+          configure.ac:8: warning: AC_RUN_IFELSE called without default \
           to allow cross compiling
-          $ autom4te -l autoconf -Wcross,error
-          configure.ac:8: error: AC_TRY_RUN called without default \
+          $ autom4te -l autoconf -Wcross,error -f
+          configure.ac:8: error: AC_RUN_IFELSE called without default \
           to allow cross compiling
-          acgeneral.m4:3044: AC_TRY_RUN is expanded from...
+          acgeneral.m4:3044: AC_RUN_IFELSE is expanded from...
           configure.ac:2: INNER is expanded from...
           configure.ac:5: OUTER is expanded from...
           configure.ac:8: the top level
@@ -6162,12 +6367,22 @@ determine what GNU Build System components are used, `automake' to
 "parse" `configure.ac' etc.  To save the long runs of `m4', traces are
 cached while performing regular expansion, and conversely.  This cache
 is (actually, the caches are) stored in the directory `autom4te.cache'.
-_It can safely be removed_ at any moment (especially if for some reason
-`autom4te' considers it is trashed).
+_It can safely be removed_ at any moment (especially if for some
+reason `autom4te' considers it is trashed).
+
+`--cache=DIRECTORY'
+`-C DIRECTORY'
+     Specify the name of the directory where the result should be
+     cached.  Passing an empty value disables caching.  Be sure to pass
+     a relative path name, as for the time being, global caches are not
+     supported.
+
+`--no-cache'
+     Don't cache the results.
 
 `--force'
 `-f'
-     Do not consider the cache (but update it anyway).
+     If a cache is used, consider it obsolete (but update it anyway).
 
 
    Because traces are so important to the GNU Build System, `autom4te'
@@ -6268,19 +6483,49 @@ combined command line arguments:
    As an example, if Autoconf is installed in its default location,
 `/usr/local', running `autom4te -l m4sugar foo.m4' is strictly
 equivalent to running `autom4te --prepend-include
-/usr/local/share/autoconf m4sugar/m4sugar.m4f --warning syntax foo.m4'.
+/usr/local/share/autoconf m4sugar/m4sugar.m4f --warnings syntax foo.m4'.
 Recursive expansion applies: running `autom4te -l m4sh foo.m4' is the
 same as `autom4te --language M4sugar m4sugar/m4sh.m4f foo.m4', i.e.,
 `autom4te --prepend-include /usr/local/share/autoconf
 m4sugar/m4sugar.m4f m4sugar/m4sh.m4f --mode 777 foo.m4'.  The definition
 of the languages is stored in `autom4te.cfg'.
 
-   ---------- Footnotes ----------
+
+File: autoconf.info,  Node: Customizing autom4te,  Prev: autom4te Invocation,  Up: Using autom4te
 
-   (1) Yet another great name from Lars J. Aas.
+Customizing `autom4te'
+----------------------
+
+   One can customize `autom4te' via `~/.autom4te.cfg' (i.e., as found
+in the user home directory), and `./.autom4te.cfg' (i.e., as found in
+the directory from which `autom4te' is run).  The order is first
+reading `autom4te.cfg', then `~/.autom4te.cfg', then `./.autom4te.cfg',
+and finally the command line arguments.
+
+   In these text files, comments are introduced with `#', and empty
+lines are ignored.  Customization is performed on a per-language basis,
+wrapped in between a `begin-language: "LANGUAGE"', `end-language:
+"LANGUAGE"' pair.
+
+   Customizing a language stands for appending options (*note autom4te
+Invocation::) to the current definition of the language.  Options, and
+more generally arguments, are introduced by `args: ARGUMENTS'.  You may
+use the traditional shell syntax to quote the ARGUMENTS.
+
+   As an example, to disable Autoconf caches (`autom4te.cache')
+globally, include the following lines in `~/.autom4te.cfg':
+
+
+## ------------------ ##
+## User Preferences.  ##
+## ------------------ ##
+
+begin-language: "Autoconf"
+args: --no-cache
+end-language: "Autoconf"
 
 
-File: autoconf.info,  Node: Programming in M4sugar,  Next: Programming in M4sh,  Prev: Invoking autom4te,  Up: Programming in M4
+File: autoconf.info,  Node: Programming in M4sugar,  Next: Programming in M4sh,  Prev: Using autom4te,  Up: Programming in M4
 
 Programming in M4sugar
 ======================
@@ -6519,7 +6764,7 @@ other comments will make their way into `configure', so just keep using
 
    If you have some very special comments about pure M4 code, comments
 that make no sense in `configure' and in the header comment, then use
-the builtin `dnl': it causes `m4' to discard the text through the next
+the builtin `dnl': it causes M4 to discard the text through the next
 newline.
 
    Keep in mind that `dnl' is rarely needed to introduce comments;
@@ -6764,7 +7009,7 @@ This warns the user if a call to `AC_PROG_CPP' has already occurred
 when `AC_PROG_CC' is called.
 
  - Macro: AC_BEFORE (THIS-MACRO-NAME, CALLED-MACRO-NAME)
-     Make `m4' print a warning message to the standard error output if
+     Make M4 print a warning message to the standard error output if
      CALLED-MACRO-NAME has already been called.  THIS-MACRO-NAME should
      be the name of the macro that is calling `AC_BEFORE'.  The macro
      CALLED-MACRO-NAME must have been defined using `AC_DEFUN' or else
@@ -6871,7 +7116,7 @@ or even
                                        [ac_cv_emxos2=yes],
                                        [ac_cv_emxos2=no])])
 
-   When using `AC_TRY_RUN' or any macro that cannot work when
+   When using `AC_RUN_IFELSE' or any macro that cannot work when
 cross-compiling, provide a pessimistic value (typically `no').
 
    Feel free to use various tricks to prevent auxiliary tools, such as
@@ -7309,7 +7554,7 @@ No multiple dots (SFN)
 
      This is perfectly OK on Unices:
 
-          AC_CONFIG_HEADER(config.h)
+          AC_CONFIG_HEADERS([config.h])
           AC_CONFIG_FILES([source.c foo.bar])
           AC_OUTPUT
 
@@ -7317,7 +7562,7 @@ No multiple dots (SFN)
      `source.c.in' and `foo.bar.in'.  To make your package more portable
      to DOS-based environments, you should use this instead:
 
-          AC_CONFIG_HEADER(config.h:config.hin)
+          AC_CONFIG_HEADERS([config.h:config.hin])
           AC_CONFIG_FILES([source.c:source.cin foo.bar:foobar.in])
           AC_OUTPUT
 
@@ -7648,19 +7893,31 @@ needed.  We list these values below.
 `LC_COLLATE'
 `LC_CTYPE'
 `LC_MESSAGES'
+`LC_MONETARY'
 `LC_NUMERIC'
 `LC_TIME'
      Autoconf-generated scripts normally set all these variables to `C'
      because so much configuration code assumes the C locale and POSIX
-     requires that `LC_ALL' be set to `C' if the C locale is desired.
-     However, some older, nonstandard systems (notably SCO) break if
-     `LC_ALL' is set to `C', so when running on these systems
-     Autoconf-generated scripts unset the variables instead.
+     requires that locale environment variables be set to `C' if the C
+     locale is desired.  However, some older, nonstandard systems
+     (notably SCO) break if locale environment variables are set to
+     `C', so when running on these systems Autoconf-generated scripts
+     unset the variables instead.
 
 `LANGUAGE'
      `LANGUAGE' is not specified by POSIX, but it is a GNU extension
      that overrides `LC_ALL' in some cases, so Autoconf-generated
      scripts set it too.
+
+`LC_ADDRESS'
+`LC_IDENTIFICATION'
+`LC_MEASUREMENT'
+`LC_NAME'
+`LC_PAPER'
+`LC_TELEPHONE'
+     These locale environment variables are GNU extensions.  They are
+     treated like their POSIX brethren (`LC_COLLATE', etc.) as
+     described above.
 
 `LINENO'
      Most modern shells provide the current line number in `LINENO'.
@@ -7790,9 +8047,9 @@ needed.  We list these values below.
 
 `RANDOM'
      Many shells provide `RANDOM', a variable that returns a different
-     integer each time it is used.  Most of the time, its value does
-     not change when it is not used, but on IRIX 6.5 the value changes
-     all the time.  This can be observed by using `set'.
+     integer each time it is used.  Most of the time, its value does not
+     change when it is not used, but on IRIX 6.5 the value changes all
+     the time.  This can be observed by using `set'.
 
 
 File: autoconf.info,  Node: Limitations of Builtins,  Next: Limitations of Usual Tools,  Prev: Special Shell Variables,  Up: Portable Shell
@@ -7933,8 +8190,8 @@ the `x' into account later in the pipe.
      shell variable marked as exported.
 
      Alas, many shells, such as Solaris 2.5, IRIX 6.3, IRIX 5.2, AIX
-     4.1.5, and DU 4.0, forget to `export' the environment variables
-     they receive.  As a result, two variables are coexisting: the
+     4.1.5, and Digital UNIX 4.0, forget to `export' the environment
+     variables they receive.  As a result, two variables coexist: the
      environment variable and the shell variable.  The following code
      demonstrates this failure:
 
@@ -8128,10 +8385,10 @@ the `x' into account later in the pipe.
           esac
 
      Alas, negated character classes are probably not portable,
-     although no shell is known to not support the POSIX.2 syntax
-     `[!...]' (when in interactive mode, `zsh' is confused by the
-     `[!...]' syntax and looks for an event in its history because of
-     `!').  Many shells do not support the alternative syntax `[^...]'
+     although no shell is known to not support the POSIX syntax `[!...]'
+     (when in interactive mode, `zsh' is confused by the `[!...]'
+     syntax and looks for an event in its history because of `!').
+     Many shells do not support the alternative syntax `[^...]'
      (Solaris, Digital Unix, etc.).
 
      One solution can be:
@@ -8283,6 +8540,8 @@ still include some limitations you should be aware of.
 
         * `a.out' -- usual Unix convention.
 
+        * `b.out' -- i960 compilers (including `gcc').
+
         * `a.exe' -- DJGPP port of `gcc'.
 
         * `a_out.exe' -- GNV `cc' wrapper for DEC C on OpenVMS.
@@ -8400,32 +8659,31 @@ still include some limitations you should be aware of.
           expr '' \| ''
 
      GNU/Linux and POSIX.2-1992 return the empty string for this case,
-     but traditional Unix returns `0' (Solaris is one such example).
-     In the latest POSIX draft, the specification has been changed to
-     match traditional Unix's behavior (which is bizarre, but it's too
-     late to fix this).  Please note that the same problem does arise
-     when the empty string results from a computation, as in:
+     but traditional UNIX returns `0' (Solaris is one such example).
+     In POSIX.1-2001, the specification has been changed to match
+     traditional UNIX's behavior (which is bizarre, but it's too late
+     to fix this).  Please note that the same problem does arise when
+     the empty string results from a computation, as in:
 
           expr bar : foo \| foo : bar
 
      Avoid this portability problem by avoiding the empty string.
 
 `expr' (`:')
-     Don't use `\?', `\+' and `\|' in patterns, they are not supported
-     on Solaris.
+     Don't use `\?', `\+' and `\|' in patterns, as they are not
+     supported on Solaris.
 
-     The POSIX.2-1992 standard is ambiguous as to whether `expr a : b'
-     (and `expr 'a' : '\(b\)'') output `0' or the empty string.  In
-     practice, it outputs the empty string on most platforms, but
-     portable scripts should not assume this.  For instance, the QNX
-     4.25 native `expr' returns `0'.
+     The POSIX standard is ambiguous as to whether `expr 'a' : '\(b\)''
+     outputs `0' or the empty string.  In practice, it outputs the
+     empty string on most platforms, but portable scripts should not
+     assume this.  For instance, the QNX 4.25 native `expr' returns `0'.
 
-     You may believe that one means to get a uniform behavior would be
-     to use the empty string as a default value:
+     One might think that a way to get a uniform behavior would be to
+     use the empty string as a default value:
 
-          expr a : b \| ''
+          expr a : '\(b\)' \| ''
 
-     unfortunately this behaves exactly as the original expression, see
+     Unfortunately this behaves exactly as the original expression; see
      the ``expr' (`:')' entry for more information.
 
      Older `expr' implementations (e.g., SunOS 4 `expr' and Solaris 8
@@ -8490,6 +8748,8 @@ still include some limitations you should be aware of.
      Stardent Vistra SVR4 `grep' lacks `-e'...  Instead, use extended
      regular expressions and alternation.
 
+     Don't rely on `-w', as Irix 6.5.16m's `grep' does not support it.
+
 `ln'
      Don't rely on `ln' having a `-f' option.  Symbolic links are not
      available on old systems; use `$(LN_S)' as a portable substitute.
@@ -8527,6 +8787,27 @@ still include some limitations you should be aware of.
      there's a critical section where neither the old nor the new
      version of `existing' actually exists.
 
+     Be aware that moving files from `/tmp' can sometimes cause
+     undesirable (but perfectly valid) warnings, even if you created
+     these files.  On some systems, creating the file in `/tmp' is
+     setting a guid `wheel' which you may not be part of.  So the file
+     is copied, and then the `chgrp' fails:
+
+          $ touch /tmp/foo
+          $ mv /tmp/foo .
+          error-->mv: ./foo: set owner/group (was: 3830/0): Operation not permitted
+          $ echo $?
+          0
+          $ ls foo
+          foo
+
+     This behavior conforms to POSIX:
+
+          If the duplication of the file characteristics fails for any
+          reason, mv shall write a diagnostic message to standard
+          error, but this failure shall not cause mv to modify its exit
+          status."
+
      Moving directories across mount points is not portable, use `cp'
      and `rm'.
 
@@ -8558,7 +8839,7 @@ still include some limitations you should be aware of.
      Input should have reasonably long lines, since some `sed' have an
      input buffer limited to 4000 bytes.
 
-     Alternation, `\|', is common but POSIX.2 does not require its
+     Alternation, `\|', is common but POSIX does not require its
      support, so it should be avoided in portable scripts.  Solaris 8
      `sed' does not support alternation; e.g., `sed '/a\|b/d'' deletes
      only lines that contain the literal string `a|b'.
@@ -9149,6 +9430,53 @@ The `obj/' subdirectory.
                % rm bar.y
                % pmake       # BSD make
                cp ../bar.x bar.y
+
+Single Suffix Rules and Separated Dependencies
+     A "Single Suffix Rule" is basically a usual suffix (inference) rule
+     (`.from.to:'), but which _destination_ suffix is empty (`.from:').
+
+     "Separated dependencies" simply refers to listing the prerequisite
+     of a target, without defining a rule.  Usually one can list on the
+     one hand side, the rules, and on the other hand side, the
+     dependencies.
+
+     Solaris `make' does not support separated dependencies for targets
+     defined by single suffix rules:
+
+          $ cat Makefile
+          .SUFFIXES: .in
+          foo: foo.in
+          .in:
+                  cp $< $ $ touch foo.in
+          $ make
+          $ ls
+          Makefile  foo.in
+
+     while GNU Make does:
+
+          $ gmake
+          cp foo.in foo
+          $ ls
+          Makefile  foo       foo.in
+
+     Note it works without the `foo: foo.in' dependency.
+
+          $ cat Makefile
+          .SUFFIXES: .in
+          .in:
+                  cp $< $ $ make foo
+          cp foo.in foo
+
+     and it works with double suffix inference rules:
+
+          $ cat Makefile
+          foo.out: foo.in
+          .SUFFIXES: .in .out
+          .in.out:
+                  cp $< $ $ make
+          cp foo.in foo.out
+
+     As a result, in such a case, you have to write target rules.
 
 
 File: autoconf.info,  Node: Manual Configuration,  Next: Site Configuration,  Prev: Portable Shell,  Up: Top
@@ -10051,6 +10379,11 @@ not
 `-V'
      Print the version number of Autoconf and exit.
 
+`--silent'
+`--quiet'
+`-q'
+     Do not print progress messages.
+
 `--debug'
 `-d'
      Don't remove the temporary files.
@@ -10374,11 +10707,12 @@ and the description.
 
  - Macro: AC_COMPILE_CHECK (ECHO-TEXT, INCLUDES, FUNCTION-BODY,
           ACTION-IF-FOUND, [ACTION-IF-NOT-FOUND])
-     This is an obsolete version of `AC_TRY_LINK' (*note Examining
-     Libraries::), with the addition that it prints `checking for
-     ECHO-TEXT' to the standard output first, if ECHO-TEXT is
-     non-empty.  Use `AC_MSG_CHECKING' and `AC_MSG_RESULT' instead to
-     print messages (*note Printing Messages::).
+     This is an obsolete version of `AC_TRY_COMPILE' itself replaced by
+     `AC_COMPILE_IFELSE' (*note Running the Compiler::), with the
+     addition that it prints `checking for ECHO-TEXT' to the standard
+     output first, if ECHO-TEXT is non-empty.  Use `AC_MSG_CHECKING'
+     and `AC_MSG_RESULT' instead to print messages (*note Printing
+     Messages::).
 
  - Macro: AC_CONST
      `AC_C_CONST'
@@ -10402,6 +10736,9 @@ and the description.
      Beware that the variable `CYGWIN' has a very special meaning when
      running CygWin32, and should not be changed.  That's yet another
      reason not to use this macro.
+
+ - Macro: AC_DECL_SYS_SIGLIST
+     Same as `AC_CHECK_DECLS([sys_siglist])'.
 
  - Macro: AC_DECL_YYTEXT
      Does nothing, now integrated in `AC_PROG_LEX'.
@@ -10587,7 +10924,7 @@ and the description.
      this automatically.
 
  - Macro: AC_OBSOLETE (THIS-MACRO-NAME, [SUGGESTION])
-     Make `m4' print a message to the standard error output warning that
+     Make M4 print a message to the standard error output warning that
      THIS-MACRO-NAME is obsolete, and giving the file and line number
      where it was called.  THIS-MACRO-NAME should be the name of the
      macro that is calling `AC_OBSOLETE'.  If SUGGESTION is given, it
@@ -10708,13 +11045,13 @@ and the description.
      `AC_FUNC_STRCOLL'
 
  - Macro: AC_ST_BLKSIZE
-     `AC_STRUCT_ST_BLKSIZE'
+     `AC_CHECK_MEMBERS'
 
  - Macro: AC_ST_BLOCKS
      `AC_STRUCT_ST_BLOCKS'
 
  - Macro: AC_ST_RDEV
-     `AC_STRUCT_ST_RDEV'
+     `AC_CHECK_MEMBERS'
 
  - Macro: AC_SYS_RESTARTABLE_SYSCALLS
      If the system automatically restarts a system call that is
@@ -10735,16 +11072,76 @@ and the description.
      `AC_DECL_SYS_SIGLIST'
 
  - Macro: AC_TEST_CPP
-     `AC_TRY_CPP'
+     `AC_TRY_CPP', replaced with `AC_PREPROC_IFELSE'.
 
  - Macro: AC_TEST_PROGRAM
-     `AC_TRY_RUN'
+     `AC_TRY_RUN', replaced with `AC_RUN_IFELSE'.
 
  - Macro: AC_TIMEZONE
      `AC_STRUCT_TIMEZONE'
 
  - Macro: AC_TIME_WITH_SYS_TIME
      `AC_HEADER_TIME'
+
+ - Macro: AC_TRY_COMPILE (INCLUDES, FUNCTION-BODY, [ACTION-IF-FOUND],
+          [ACTION-IF-NOT-FOUND])
+     Same as `AC_COMPILE_IFELSE([AC_LANG_SOURCE([[INCLUDES]],
+     [[FUNCTION-BODY]])], [ACTION-IF-TRUE], [ACTION-IF-FALSE])' (*note
+     Running the Compiler::).
+
+     This macro double quotes both INCLUDES and FUNCTION-BODY.
+
+     For C and C++, INCLUDES is any `#include' statements needed by the
+     code in FUNCTION-BODY (INCLUDES will be ignored if the currently
+     selected language is Fortran 77).  This macro also uses `CFLAGS'
+     or `CXXFLAGS' if either C or C++ is the currently selected
+     language, as well as `CPPFLAGS', when compiling.  If Fortran 77 is
+     the currently selected language then `FFLAGS' will be used when
+     compiling.
+
+ - Macro: AC_TRY_CPP (INPUT, [ACTION-IF-TRUE], [ACTION-IF-FALSE])
+     Same as `AC_PREPROC_IFELSE([AC_LANG_SOURCE([[INPUT]])],
+     [ACTION-IF-TRUE], [ACTION-IF-FALSE])' (*note Running the
+     Preprocessor::).
+
+     This macro double quotes the INPUT.
+
+ - Macro: AC_TRY_LINK (INCLUDES, FUNCTION-BODY, [ACTION-IF-FOUND],
+          [ACTION-IF-NOT-FOUND])
+     Same as `AC_LINK_IFELSE([AC_LANG_SOURCE([[INCLUDES]],
+     [[FUNCTION-BODY]])], [ACTION-IF-TRUE], [ACTION-IF-FALSE])' (*note
+     Running the Compiler::).
+
+     This macro double quotes both INCLUDES and FUNCTION-BODY.
+
+     Depending on the current language (*note Language Choice::),
+     create a test program to see whether a function whose body
+     consists of FUNCTION-BODY can be compiled and linked.  If the file
+     compiles and links successfully, run shell commands
+     ACTION-IF-FOUND, otherwise run ACTION-IF-NOT-FOUND.
+
+     This macro double quotes both INCLUDES and FUNCTION-BODY.
+
+     For C and C++, INCLUDES is any `#include' statements needed by the
+     code in FUNCTION-BODY (INCLUDES will be ignored if the currently
+     selected language is Fortran 77).  This macro also uses `CFLAGS'
+     or `CXXFLAGS' if either C or C++ is the currently selected
+     language, as well as `CPPFLAGS', when compiling.  If Fortran 77 is
+     the currently selected language then `FFLAGS' will be used when
+     compiling.  However, both `LDFLAGS' and `LIBS' will be used during
+     linking in all cases.
+
+ - Macro: AC_TRY_LINK_FUNC (FUNCTION, [ACTION-IF-FOUND],
+          [ACTION-IF-NOT-FOUND])
+     This macro is equivalent to
+     `AC_LINK_IFELSE([AC_LANG_CALL([[INCLUDES]], [[FUNCTION-BODY]])],
+     [ACTION-IF-TRUE], [ACTION-IF-FALSE])'.
+
+ - Macro: AC_TRY_RUN (PROGRAM, [ACTION-IF-TRUE], [ACTION-IF-FALSE],
+          [ACTION-IF-CROSS-COMPILING])
+     Same as `AC_RUN_IFELSE([AC_LANG_SOURCE([[PROGRAM]],
+     [ACTION-IF-TRUE], [ACTION-IF-FALSE], [ACTION-IF-CROSS-COMPILING])'
+     (*note Run Time::).
 
  - Macro: AC_UID_T
      `AC_TYPE_UID_T'
@@ -11012,6 +11409,7 @@ perfectly suits this section....
 * New Macros::                  Interaction with foreign macros
 * Hosts and Cross-Compilation::  Bugward compatibility kludges
 * AC_LIBOBJ vs LIBOBJS::        LIBOBJS is a forbidden token
+* AC_FOO_IFELSE vs AC_TRY_FOO::  A more generic scheme for testing sources
 
 
 File: autoconf.info,  Node: Changed Quotation,  Next: New Macros,  Up: Autoconf 2.13
@@ -11167,8 +11565,9 @@ to specify `--build' too.
    For backward compatibility, `configure' will accept a system type as
 an option by itself.  Such an option will override the defaults for
 build, host, and target system types.  The following configure
-statement will configure a cross toolchain that will run on NetBSD/alpha
-but generate code for GNU Hurd/sparc, which is also the build platform.
+statement will configure a cross toolchain that will run on
+NetBSD/alpha but generate code for GNU Hurd/sparc, which is also the
+build platform.
 
      ./configure --host=alpha-netbsd sparc-gnu
 
@@ -11223,7 +11622,7 @@ as follows:
      ./configure CC=m68k-coff-gcc
 
 
-File: autoconf.info,  Node: AC_LIBOBJ vs LIBOBJS,  Prev: Hosts and Cross-Compilation,  Up: Autoconf 2.13
+File: autoconf.info,  Node: AC_LIBOBJ vs LIBOBJS,  Next: AC_FOO_IFELSE vs AC_TRY_FOO,  Prev: Hosts and Cross-Compilation,  Up: Autoconf 2.13
 
 `AC_LIBOBJ' vs. `LIBOBJS'
 -------------------------
@@ -11293,6 +11692,59 @@ this is not a macro).
 discouraged.
 
 
+File: autoconf.info,  Node: AC_FOO_IFELSE vs AC_TRY_FOO,  Prev: AC_LIBOBJ vs LIBOBJS,  Up: Autoconf 2.13
+
+`AC_FOO_IFELSE' vs. `AC_TRY_FOO'
+--------------------------------
+
+   Since Autoconf 2.50, internal codes uses `AC_PREPROC_IFELSE',
+`AC_COMPILE_IFELSE', `AC_LINK_IFELSE', and `AC_RUN_IFELSE' on the other
+one hand and `AC_LANG_SOURCES', and `AC_LANG_PROGRAM' on the other hand
+instead of the deprecated `AC_TRY_CPP', `AC_TRY_COMPILE',
+`AC_TRY_LINK', and `AC_TRY_RUN'.  The motivations where:
+   - a more consistent interface: `AC_TRY_COMPILE' etc. were double
+     quoting their arguments;
+
+   - the combinatoric explosion is solved by decomposing on the one
+     hand the generation of sources, and on the other hand executing
+     the program;
+
+   - this scheme helps supporting more languages than plain C and C++.
+
+   In addition to the change of syntax, the philosphy has changed too:
+while emphasis was put on speed at the expense of accuracy, today's
+Autoconf promotes accuracy of the testing framework at, ahem..., the
+expense of speed.
+
+   As a perfect example of what is _not_ to be done, here is how to
+find out whether a header file contains a particular declaration, such
+as a typedef, a structure, a structure member, or a function.  Use
+`AC_EGREP_HEADER' instead of running `grep' directly on the header
+file; on some systems the symbol might be defined in another header
+file that the file you are checking `#include's.
+
+   As a (bad) example, here is how you should not check for C
+preprocessor symbols, either defined by header files or predefined by
+the C preprocessor: using `AC_EGREP_CPP':
+
+     AC_EGREP_CPP(yes,
+     [#ifdef _AIX
+       yes
+     #endif
+     ], is_aix=yes, is_aix=no)
+
+   The above example, properly written would (i) use `AC_LANG_PROGRAM',
+and (ii) run the compiler:
+
+     AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
+     [[#if !defined _AIX
+     # error _AIX not defined
+     #endif
+     ]])],
+                        [is_aix=yes],
+                        [is_aix=no])
+
+
 File: autoconf.info,  Node: Using Autotest,  Next: FAQ,  Prev: Obsolete Constructs,  Up: Top
 
 Generating Test Suites with Autotest
@@ -11306,11 +11758,11 @@ Generating Test Suites with Autotest
 
    It is paradoxical that portable projects depend on nonportable tools
 to run their test suite.  Autoconf by itself is the paragon of this
-problem: although it aims at perfectly portability, up to 2.13, its test
-suite was using DejaGNU, a rich and complex testing framework, but which
-is far from being standard on Unix systems.  Worse yet, it was likely to
-be missing on the most fragile platforms, the very platforms that are
-most likely to torture Autoconf and exhibit deficiencies.
+problem: although it aims at perfectly portability, up to 2.13, its
+test suite was using DejaGNU, a rich and complex testing framework, but
+which is far from being standard on Unix systems.  Worse yet, it was
+likely to be missing on the most fragile platforms, the very platforms
+that are most likely to torture Autoconf and exhibit deficiencies.
 
    To circumvent this problem many package maintainers have developed
 their own testing framework, based on simple shell scripts whose sole
@@ -11360,9 +11812,9 @@ File: autoconf.info,  Node: testsuite Scripts,  Next: Autotest Logs,  Up: Using 
 
    Generating testing or validation suites using Autotest is rather
 easy.  The whole validation suite is held in a file to be processed
-through `autom4te', itself using GNU `m4' under the scene, to produce a
+through `autom4te', itself using GNU M4 under the scene, to produce a
 stand-alone Bourne shell script which then gets distributed.  Neither
-`autom4te' nor GNU `m4' are not needed anymore at the installer end.
+`autom4te' nor GNU M4 are not needed anymore at the installer end.
 
    Each test of the validation suite should be part of some test group.
 A "test group" is a sequence of interwoven tests that ought to be
@@ -11552,7 +12004,7 @@ diagnostics.
  - Macro: AT_DATA (FILE, CONTENTS)
      Initialize an input data FILE with given CONTENTS.  Of course, the
      CONTENTS have to be properly quoted between square brackets to
-     protect against included commas or spurious `m4' expansion.  The
+     protect against included commas or spurious M4 expansion.  The
      contents ought to end with an end of line.
 
  - Macro: AT_CHECK (COMMANDS, [STATUS = ``0''], [STDOUT], [STDERR])
@@ -11758,6 +12210,7 @@ them are addressed.
 * Bootstrapping::               Autoconf and GNU M4 require each other?
 * Why Not Imake::               Why GNU uses `configure' instead of Imake
 * Defining Directories::        Passing `datadir' to program
+* autom4te.cache::              What is it?  Can I remove it?
 
 
 File: autoconf.info,  Node: Distributing,  Next: Why GNU m4,  Up: FAQ
@@ -11900,7 +12353,7 @@ adaptations of their explanations here.
      `make' and the installer's C preprocessor.  The fundamental problem
      here is that the C preprocessor was designed to preprocess C
      programs, not `Makefile's.  This is much less of a problem with
-     Autoconf, which uses the general-purpose preprocessor `m4', and
+     Autoconf, which uses the general-purpose preprocessor M4, and
      where the package's author (rather than the installer) does the
      preprocessing in a standard way.
 
@@ -11925,7 +12378,7 @@ adaptations of their explanations here.
      duplicated, even though they normally are in `configure' setups.
 
 
-File: autoconf.info,  Node: Defining Directories,  Prev: Why Not Imake,  Up: FAQ
+File: autoconf.info,  Node: Defining Directories,  Next: autom4te.cache,  Prev: Why Not Imake,  Up: FAQ
 
 How Do I `#define' Installation Directories?
 ============================================
@@ -11942,7 +12395,7 @@ How Do I `#define' Installation Directories?
 
    As already explained, this behavior is on purpose, mandated by the
 GNU Coding Standards, see *Note Installation Directory Variables::.
-There are several means to acheive a similar goal:
+There are several means to achieve a similar goal:
 
    - Do not use `AC_DEFINE' but use your `Makefile' to pass the actual
      value of `datadir' via compilation flags, see *Note Installation
@@ -11982,6 +12435,45 @@ There are several means to acheive a similar goal:
 
    (2) Autoconf Macro Archive,
 <http://www.gnu.org/software/ac-archive/>.
+
+
+File: autoconf.info,  Node: autom4te.cache,  Prev: Defining Directories,  Up: FAQ
+
+What is `autom4te.cache'?
+=========================
+
+     What is this directory `autom4te.cache'?  Can I safely remove it?
+
+   In the GNU Build System, `configure.ac' plays a central role and is
+read by many tools: `autoconf' to create `configure', `autoheader' to
+create `config.h.in', `automake' to create `Makefile.in', `autoscan' to
+check the completeness of `configure.ac', `autoreconf' to check the GNU
+Build System components that are used.  To "read `configure.ac'"
+actually means to compile it with M4, which can be a very long process
+for complex `configure.ac'.
+
+   This is why all these tools, instead of running directly M4, invoke
+`autom4te' (*note autom4te Invocation::) which, while answering to a
+specific demand, stores additional information in `autom4te.cache' for
+future runs.  For instance, if you run `autoconf', behind the scenes,
+`autom4te' will also store information for the other tools, so that
+when you invoke `autoheader' or `automake' etc., re-processing
+`configure.ac' is not needed.  The speed up is frequently of 30, and is
+increasing with the size of `configure.ac'.
+
+   But it is and remains being simply a cache: you can safely remove it.
+
+
+     Can I permanently get rid of it?
+
+   The creation of this cache can be disabled from `~/.autom4te.cfg',
+see *Note Customizing autom4te::, for more details.  You should be
+aware that disabling the cache slows down the Autoconf test suite by
+40%.  The more GNU Build System components are used, the more the cache
+is useful; for instance running `autoreconf -f' on the Coreutils is
+twice slower without the cache _although `--force' implies that the
+cache is not fully exploited_, and eight times slower than without
+`--force'.
 
 
 File: autoconf.info,  Node: History,  Next: Copying This Manual,  Prev: FAQ,  Up: Top
@@ -12099,18 +12591,17 @@ after the Holy Grail of portability (er, that is, alpha testers) to
 give me feedback as I encapsulated pieces of my handwritten scripts in
 M4 macros and continued to add features and improve the techniques used
 in the checks.  Prominent among the testers were Franc,ois Pinard, who
-came up with the idea of making an Autoconf shell script to run `m4'
-and check for unresolved macro calls; Richard Pixley, who suggested
-running the compiler instead of searching the file system to find
-include files and symbols, for more accurate results; Karl Berry, who
-got Autoconf to configure TeX and added the macro index to the
-documentation; and Ian Lance Taylor, who added support for creating a C
-header file as an alternative to putting `-D' options in a `Makefile',
-so he could use Autoconf for his UUCP package.  The alpha testers
-cheerfully adjusted their files again and again as the names and
-calling conventions of the Autoconf macros changed from release to
-release.  They all contributed many specific checks, great ideas, and
-bug fixes.
+came up with the idea of making an Autoconf shell script to run M4 and
+check for unresolved macro calls; Richard Pixley, who suggested running
+the compiler instead of searching the file system to find include files
+and symbols, for more accurate results; Karl Berry, who got Autoconf to
+configure TeX and added the macro index to the documentation; and Ian
+Lance Taylor, who added support for creating a C header file as an
+alternative to putting `-D' options in a `Makefile', so he could use
+Autoconf for his UUCP package.  The alpha testers cheerfully adjusted
+their files again and again as the names and calling conventions of the
+Autoconf macros changed from release to release.  They all contributed
+many specific checks, great ideas, and bug fixes.
 
 
 File: autoconf.info,  Node: Numbers,  Next: Deuteronomy,  Prev: Leviticus,  Up: History
@@ -12127,10 +12618,10 @@ continued to improve rapidly, as many people using the `configure'
 scripts reported problems they encountered.
 
    Autoconf turned out to be a good torture test for M4 implementations.
-UNIX `m4' started to dump core because of the length of the macros that
-Autoconf defined, and several bugs showed up in GNU `m4' as well.
+UNIX M4 started to dump core because of the length of the macros that
+Autoconf defined, and several bugs showed up in GNU M4 as well.
 Eventually, we realized that we needed to use some features that only
-GNU M4 has.  4.3BSD `m4', in particular, has an impoverished set of
+GNU M4 has.  4.3BSD M4, in particular, has an impoverished set of
 builtin macros; the System V version is better, but still doesn't
 provide everything we need.
 
@@ -12186,7 +12677,7 @@ names of the macros and cleaned up coding style inconsistencies.  I
 added some auxiliary utilities that I had developed to help convert
 source code packages to use Autoconf.  With the help of Franc,ois
 Pinard, I made the macros not interrupt each others' messages.  (That
-feature revealed some performance bottlenecks in GNU `m4', which he
+feature revealed some performance bottlenecks in GNU M4, which he
 hastily corrected!)  I reorganized the documentation around problems
 people want to solve.  And I began a test suite, because experience had
 shown that Autoconf has a pronounced tendency to regress when we change
@@ -12634,11 +13125,18 @@ Autoconf checks.
 * IFS:                                   Special Shell Variables.
 * LANG:                                  Special Shell Variables.
 * LANGUAGE:                              Special Shell Variables.
+* LC_ADDRESS:                            Special Shell Variables.
 * LC_ALL:                                Special Shell Variables.
 * LC_COLLATE:                            Special Shell Variables.
 * LC_CTYPE:                              Special Shell Variables.
+* LC_IDENTIFICATION:                     Special Shell Variables.
+* LC_MEASUREMENT:                        Special Shell Variables.
 * LC_MESSAGES:                           Special Shell Variables.
+* LC_MONETARY:                           Special Shell Variables.
+* LC_NAME:                               Special Shell Variables.
 * LC_NUMERIC:                            Special Shell Variables.
+* LC_PAPER:                              Special Shell Variables.
+* LC_TELEPHONE:                          Special Shell Variables.
 * LC_TIME:                               Special Shell Variables.
 * LINENO:                                Special Shell Variables.
 * MAIL:                                  Special Shell Variables.
@@ -12652,8 +13150,9 @@ Autoconf checks.
 * RANDOM:                                Special Shell Variables.
 * SIMPLE_BACKUP_SUFFIX:                  autoupdate Invocation.
 * status:                                Special Shell Variables.
-* WARNINGS <1>:                          Invoking autom4te.
+* WARNINGS <1>:                          autom4te Invocation.
 * WARNINGS <2>:                          autoheader Invocation.
+* WARNINGS <3>:                          autoreconf Invocation.
 * WARNINGS:                              autoconf Invocation.
 
 
@@ -12809,6 +13308,7 @@ use these names in `#if' directives.
 * GETPGRP_VOID:                          Particular Functions.
 * gid_t:                                 Particular Types.
 * GWINSZ_IN_SYS_IOCTL:                   Particular Headers.
+* HAVE__BOOL:                            Particular Headers.
 * HAVE_ALLOCA_H:                         Particular Functions.
 * HAVE_CONFIG_H:                         Configuration Headers.
 * HAVE_DECL_STRERROR_R:                  Particular Functions.
@@ -12822,6 +13322,7 @@ use these names in `#if' directives.
 * HAVE_LONG_FILE_NAMES:                  System Services.
 * HAVE_LSTAT_EMPTY_STRING_BUG:           Particular Functions.
 * HAVE_MALLOC:                           Particular Functions.
+* HAVE_MBRTOWC:                          Particular Functions.
 * HAVE_MMAP:                             Particular Functions.
 * HAVE_NDIR_H:                           Particular Headers.
 * HAVE_NLIST_H:                          Particular Functions.
@@ -12832,6 +13333,7 @@ use these names in `#if' directives.
 * HAVE_ST_BLOCKS:                        Particular Structures.
 * HAVE_ST_RDEV:                          Particular Structures.
 * HAVE_STAT_EMPTY_STRING_BUG:            Particular Functions.
+* HAVE_STDBOOL_H:                        Particular Headers.
 * HAVE_STRCOLL:                          Particular Functions.
 * HAVE_STRERROR_R:                       Particular Functions.
 * HAVE_STRFTIME:                         Particular Functions.
@@ -12885,7 +13387,7 @@ use these names in `#if' directives.
 * STDC_HEADERS:                          Particular Headers.
 * STRERROR_R_CHAR_P:                     Particular Functions.
 * SVR4:                                  Particular Functions.
-* SYS_SIGLIST_DECLARED:                  Particular Declarations.
+* SYS_SIGLIST_DECLARED:                  Obsolete Macros.
 * SYSDIR:                                Obsolete Macros.
 * SYSNDIR:                               Obsolete Macros.
 * TIME_WITH_SYS_TIME:                    Particular Headers.
@@ -12964,6 +13466,7 @@ list easier to use, the macros are listed without their preceding `AC_'.
 * CHECK_TYPES:                           Generic Types.
 * CHECKING:                              Obsolete Macros.
 * COMPILE_CHECK:                         Obsolete Macros.
+* COMPILE_IFELSE:                        Running the Compiler.
 * CONFIG_AUX_DIR:                        Input.
 * CONFIG_COMMANDS:                       Configuration Commands.
 * CONFIG_FILES:                          Configuration Files.
@@ -12977,7 +13480,7 @@ list easier to use, the macros are listed without their preceding `AC_'.
 * COPYRIGHT:                             Notices.
 * CROSS_CHECK:                           Obsolete Macros.
 * CYGWIN:                                Obsolete Macros.
-* DECL_SYS_SIGLIST:                      Particular Declarations.
+* DECL_SYS_SIGLIST:                      Obsolete Macros.
 * DECL_YYTEXT:                           Obsolete Macros.
 * DEFINE:                                Defining Symbols.
 * DEFINE_UNQUOTED:                       Defining Symbols.
@@ -12986,8 +13489,8 @@ list easier to use, the macros are listed without their preceding `AC_'.
 * DIAGNOSE:                              Reporting Messages.
 * DIR_HEADER:                            Obsolete Macros.
 * DYNIX_SEQ:                             Obsolete Macros.
-* EGREP_CPP:                             Examining Declarations.
-* EGREP_HEADER:                          Examining Declarations.
+* EGREP_CPP:                             Running the Preprocessor.
+* EGREP_HEADER:                          Running the Preprocessor.
 * EMXOS2:                                Obsolete Macros.
 * ENABLE:                                Package Options.
 * ERROR:                                 Obsolete Macros.
@@ -13016,6 +13519,7 @@ list easier to use, the macros are listed without their preceding `AC_'.
 * FUNC_LSTAT:                            Particular Functions.
 * FUNC_LSTAT_FOLLOWS_SLASHED_SYMLINK:    Particular Functions.
 * FUNC_MALLOC:                           Particular Functions.
+* FUNC_MBRTOWC:                          Particular Functions.
 * FUNC_MEMCMP:                           Particular Functions.
 * FUNC_MKTIME:                           Particular Functions.
 * FUNC_MMAP:                             Particular Functions.
@@ -13047,6 +13551,7 @@ list easier to use, the macros are listed without their preceding `AC_'.
 * HEADER_EGREP:                          Obsolete Macros.
 * HEADER_MAJOR:                          Particular Headers.
 * HEADER_STAT:                           Particular Headers.
+* HEADER_STDBOOL:                        Particular Headers.
 * HEADER_STDC:                           Particular Headers.
 * HEADER_SYS_WAIT:                       Particular Headers.
 * HEADER_TIME:                           Particular Headers.
@@ -13059,16 +13564,22 @@ list easier to use, the macros are listed without their preceding `AC_'.
 * IRIX_SUN:                              Obsolete Macros.
 * ISC_POSIX:                             UNIX Variants.
 * LANG_C:                                Obsolete Macros.
+* LANG_CALL:                             Generating Sources.
+* LANG_CONFTEST:                         Generating Sources.
 * LANG_CPLUSPLUS:                        Obsolete Macros.
 * LANG_FORTRAN77:                        Obsolete Macros.
+* LANG_FUNC_LINK_TRY:                    Generating Sources.
 * LANG_POP:                              Language Choice.
+* LANG_PROGRAM:                          Generating Sources.
 * LANG_PUSH:                             Language Choice.
 * LANG_RESTORE:                          Obsolete Macros.
 * LANG_SAVE:                             Obsolete Macros.
+* LANG_SOURCE:                           Generating Sources.
 * LIBOBJ:                                Generic Functions.
 * LIBSOURCE:                             Generic Functions.
 * LIBSOURCES:                            Generic Functions.
 * LINK_FILES:                            Obsolete Macros.
+* LINK_IFELSE:                           Running the Linker.
 * LN_S:                                  Obsolete Macros.
 * LONG_64_BITS:                          Obsolete Macros.
 * LONG_DOUBLE:                           Obsolete Macros.
@@ -13082,6 +13593,7 @@ list easier to use, the macros are listed without their preceding `AC_'.
 * MODE_T:                                Obsolete Macros.
 * MSG_CHECKING:                          Printing Messages.
 * MSG_ERROR:                             Printing Messages.
+* MSG_FAILURE:                           Printing Messages.
 * MSG_NOTICE:                            Printing Messages.
 * MSG_RESULT:                            Printing Messages.
 * MSG_WARN:                              Printing Messages.
@@ -13107,6 +13619,7 @@ list easier to use, the macros are listed without their preceding `AC_'.
 * PREFIX:                                Obsolete Macros.
 * PREFIX_DEFAULT:                        Default Prefix.
 * PREFIX_PROGRAM:                        Default Prefix.
+* PREPROC_IFELSE:                        Running the Preprocessor.
 * PREREQ:                                Notices.
 * PROG_AWK:                              Particular Programs.
 * PROG_CC:                               C Compiler.
@@ -13140,6 +13653,7 @@ list easier to use, the macros are listed without their preceding `AC_'.
 * RETSIGTYPE:                            Obsolete Macros.
 * REVISION:                              Notices.
 * RSH:                                   Obsolete Macros.
+* RUN_IFELSE:                            Run Time.
 * SCO_INTL:                              Obsolete Macros.
 * SEARCH_LIBS:                           Libraries.
 * SET_MAKE:                              Obsolete Macros.
@@ -13172,11 +13686,11 @@ list easier to use, the macros are listed without their preceding `AC_'.
 * TIME_WITH_SYS_TIME:                    Obsolete Macros.
 * TIMEZONE:                              Obsolete Macros.
 * TOP:                                   Autoheader Macros.
-* TRY_COMPILE:                           Examining Syntax.
-* TRY_CPP:                               Examining Declarations.
-* TRY_LINK:                              Examining Libraries.
-* TRY_LINK_FUNC:                         Examining Libraries.
-* TRY_RUN:                               Test Programs.
+* TRY_COMPILE:                           Obsolete Macros.
+* TRY_CPP:                               Obsolete Macros.
+* TRY_LINK:                              Obsolete Macros.
+* TRY_LINK_FUNC:                         Obsolete Macros.
+* TRY_RUN:                               Obsolete Macros.
 * TYPE_GETGROUPS:                        Particular Types.
 * TYPE_MBSTATE_T:                        Particular Types.
 * TYPE_MODE_T:                           Particular Types.
@@ -13299,6 +13813,7 @@ portability is discussed in this document.
 * ls:                                    Limitations of Usual Tools.
 * lstat:                                 Particular Functions.
 * malloc:                                Particular Functions.
+* mbrtowc:                               Particular Functions.
 * memcmp:                                Particular Functions.
 * mkdir:                                 Limitations of Usual Tools.
 * mktime:                                Particular Functions.
@@ -13365,9 +13880,9 @@ introduced in this document.
 * Ash:                                   Shellology.
 * autoconf:                              autoconf Invocation.
 * autoheader:                            autoheader Invocation.
-* Autom4te Library:                      Invoking autom4te.
-* autom4te.cache:                        Invoking autom4te.
-* autom4te.cfg:                          Invoking autom4te.
+* Autom4te Library:                      autom4te Invocation.
+* autom4te.cache:                        autom4te Invocation.
+* autom4te.cfg:                          autom4te Invocation.
 * Automake:                              Automake.
 * automatic rule rewriting and VPATH:    Limitations of Make.
 * autoreconf:                            autoreconf Invocation.
@@ -13375,7 +13890,7 @@ introduced in this document.
 * Autotest:                              Using Autotest.
 * AUTOTEST_PATH:                         testsuite Invocation.
 * autoupdate:                            autoupdate Invocation.
-* Back trace <1>:                        Invoking autom4te.
+* Back trace <1>:                        autom4te Invocation.
 * Back trace:                            autoconf Invocation.
 * Bash:                                  Shellology.
 * Bash 2.05 and later:                   Shellology.
@@ -13418,7 +13933,7 @@ introduced in this document.
 * Links:                                 Configuration Links.
 * Listing directories:                   Limitations of Usual Tools.
 * M4sugar:                               Programming in M4sugar.
-* Macro invocation stack <1>:            Invoking autom4te.
+* Macro invocation stack <1>:            autom4te Invocation.
 * Macro invocation stack:                autoconf Invocation.
 * make -k:                               Limitations of Make.
 * make and SHELL:                        Limitations of Make.
@@ -13439,7 +13954,10 @@ introduced in this document.
 * quotation <1>:                         M4 Quotation.
 * quotation:                             Autoconf Language.
 * Revision:                              Notices.
+* Rule, Single Suffix Inference:         Limitations of Make.
+* Separated Dependencies:                Limitations of Make.
 * SHELL and make:                        Limitations of Make.
+* Single Suffix Inference Rule:          Limitations of Make.
 * Structure, checking:                   Structures.
 * suffix rules, $<, and VPATH:           Limitations of Make.
 * Symbolic links:                        Limitations of Usual Tools.
@@ -13465,224 +13983,229 @@ introduced in this document.
 
 
 Tag Table:
-Node: Top2373
-Node: Introduction16893
-Ref: Introduction-Footnote-121728
-Ref: Introduction-Footnote-221809
-Ref: Introduction-Footnote-321903
-Ref: Introduction-Footnote-422017
-Node: The GNU Build System22092
-Node: Automake23011
-Node: Libtool25404
-Node: Pointers26826
-Ref: Pointers-Footnote-128135
-Ref: Pointers-Footnote-228194
-Ref: Pointers-Footnote-328253
-Ref: Pointers-Footnote-428310
-Ref: Pointers-Footnote-528451
-Ref: Pointers-Footnote-628525
-Ref: Pointers-Footnote-728597
-Node: Making configure Scripts28672
-Node: Writing configure.ac31721
-Node: Shell Script Compiler33150
-Node: Autoconf Language35414
-Node: configure.ac Layout40037
-Node: autoscan Invocation41432
-Node: ifnames Invocation43929
-Node: autoconf Invocation45123
-Node: autoreconf Invocation52078
-Node: Setup54389
-Node: Initializing configure55649
-Node: Notices57388
-Node: Input59023
-Node: Output60604
-Node: Configuration Actions62598
-Node: Configuration Files67212
-Node: Makefile Substitutions68682
-Node: Preset Output Variables70363
-Node: Installation Directory Variables75419
-Node: Build Directories80291
-Node: Automatic Remaking81929
-Node: Configuration Headers84099
-Node: Header Templates86835
-Node: autoheader Invocation88084
-Node: Autoheader Macros91241
-Node: Configuration Commands93430
-Node: Configuration Links94872
-Node: Subdirectories96287
-Node: Default Prefix98723
-Node: Existing Tests100136
-Node: Common Behavior101853
-Node: Standard Symbols102486
-Node: Default Includes103054
-Node: Alternative Programs104977
-Node: Particular Programs105659
-Node: Generic Programs110903
-Node: Files114818
-Node: Libraries115696
-Node: Library Functions118551
-Node: Function Portability119169
-Node: Particular Functions123118
-Node: Generic Functions136471
-Node: Header Files141301
-Node: Header Portability141930
-Node: Particular Headers142772
-Node: Generic Headers149748
-Node: Declarations151851
-Node: Particular Declarations152435
-Node: Generic Declarations152827
-Node: Structures155231
-Node: Particular Structures155834
-Node: Generic Structures157522
-Node: Types158797
-Node: Particular Types159311
-Node: Generic Types160640
-Node: Compilers and Preprocessors162042
-Node: Specific Compiler Characteristics163117
-Node: Generic Compiler Characteristics164245
-Node: C Compiler165128
-Node: C++ Compiler173373
-Node: Fortran 77 Compiler175600
-Node: System Services184136
-Ref: System Services-Footnote-1187253
-Node: UNIX Variants187344
-Node: Writing Tests188758
-Node: Examining Declarations190689
-Node: Examining Syntax193070
-Node: Examining Libraries194539
-Node: Run Time197614
-Node: Test Programs198590
-Node: Guidelines201389
-Node: Test Functions202579
-Node: Systemology204124
-Ref: Systemology-Footnote-1205735
-Ref: Systemology-Footnote-2205800
-Ref: Systemology-Footnote-3205838
-Ref: Systemology-Footnote-4205906
-Ref: Systemology-Footnote-5206022
-Node: Multiple Cases206091
-Node: Language Choice207343
-Node: Results209367
-Node: Defining Symbols210116
-Node: Setting Output Variables213622
-Node: Caching Results218215
-Node: Cache Variable Names221892
-Node: Cache Files223449
-Node: Cache Checkpointing225470
-Node: Printing Messages226842
-Node: Programming in M4230022
-Node: M4 Quotation230816
-Node: Active Characters231659
-Ref: Active Characters-Footnote-1233007
-Node: One Macro Call233029
-Node: Quotation and Nested Macros234583
-Node: Changequote is Evil237547
-Node: Quadrigraphs240074
-Node: Quotation Rule Of Thumb242126
-Node: Invoking autom4te244753
-Ref: Invoking autom4te-Footnote-1253596
-Node: Programming in M4sugar253645
-Node: Redefined M4 Macros254251
-Node: Evaluation Macros256367
-Node: Forbidden Patterns257404
-Node: Programming in M4sh258760
-Node: Writing Autoconf Macros260185
-Node: Macro Definitions260986
-Node: Macro Names262763
-Node: Reporting Messages265373
-Node: Dependencies Between Macros266722
-Node: Prerequisite Macros267341
-Node: Suggested Ordering270092
-Node: Obsoleting Macros271601
-Node: Coding Style272716
-Node: Portable Shell279735
-Ref: Portable Shell-Footnote-1282108
-Node: Shellology282176
-Ref: Shellology-Footnote-1285707
-Node: Here-Documents285803
-Node: File Descriptors287996
-Node: File System Conventions290145
-Ref: File System Conventions-Footnote-1294234
-Node: Shell Substitutions294308
-Node: Assignments300373
-Node: Special Shell Variables302247
-Node: Limitations of Builtins309291
-Node: Limitations of Usual Tools325081
-Node: Limitations of Make342129
-Node: Manual Configuration359762
-Node: Specifying Names360588
-Node: Canonicalizing362871
-Node: Using System Type365118
-Node: Site Configuration366919
-Node: External Software367749
-Node: Package Options371042
-Node: Pretty Help Strings373901
-Node: Site Details375884
-Node: Transforming Names377111
-Node: Transformation Options378188
-Node: Transformation Examples378654
-Node: Transformation Rules380362
-Node: Site Defaults381902
-Node: Running configure Scripts385821
-Node: Basic Installation386832
-Node: Compilers and Options389673
-Node: Multiple Architectures390321
-Node: Installation Names391313
-Node: Optional Features392504
-Node: System Type393281
-Node: Sharing Defaults394597
-Node: Defining Variables395228
-Node: configure Invocation395900
-Node: config.status Invocation397022
-Node: Obsolete Constructs400914
-Node: Obsolete config.status Use401863
-Node: acconfig.h403629
-Node: autoupdate Invocation405639
-Node: Obsolete Macros407323
-Node: Autoconf 1423683
-Node: Changed File Names424742
-Node: Changed Makefiles425487
-Node: Changed Macros426569
-Node: Changed Results427821
-Node: Changed Macro Writing429922
-Node: Autoconf 2.13431191
-Node: Changed Quotation432318
-Node: New Macros434192
-Node: Hosts and Cross-Compilation435850
-Node: AC_LIBOBJ vs LIBOBJS440179
-Ref: AC_LIBOBJ vs LIBOBJS-Footnote-1442679
-Node: Using Autotest442755
-Node: Using an Autotest Test Suite445190
-Node: testsuite Scripts445473
-Node: Autotest Logs449389
-Ref: Autotest Logs-Footnote-1451757
-Node: Writing testsuite.at451997
-Node: testsuite Invocation455771
-Node: Making testsuite Scripts458858
-Node: FAQ462313
-Node: Distributing462918
-Node: Why GNU m4463957
-Node: Bootstrapping464849
-Node: Why Not Imake465449
-Node: Defining Directories470171
-Ref: Defining Directories-Footnote-1472211
-Ref: Defining Directories-Footnote-2472286
-Node: History472361
-Node: Genesis473145
-Node: Exodus474318
-Node: Leviticus477361
-Node: Numbers478886
-Node: Deuteronomy480800
-Node: Copying This Manual483466
-Node: GNU Free Documentation License483678
-Node: Indices503546
-Node: Environment Variable Index504164
-Node: Output Variable Index506583
-Node: Preprocessor Symbol Index513307
-Node: Autoconf Macro Index520787
-Node: M4 Macro Index538297
-Node: Autotest Macro Index539483
-Node: Program & Function Index540242
-Node: Concept Index545615
+Node: Top2372
+Node: Introduction17208
+Ref: Introduction-Footnote-122043
+Ref: Introduction-Footnote-222124
+Ref: Introduction-Footnote-322218
+Ref: Introduction-Footnote-422332
+Node: The GNU Build System22407
+Node: Automake23326
+Node: Libtool25719
+Node: Pointers27141
+Ref: Pointers-Footnote-128451
+Ref: Pointers-Footnote-228510
+Ref: Pointers-Footnote-328569
+Ref: Pointers-Footnote-428626
+Ref: Pointers-Footnote-528768
+Ref: Pointers-Footnote-628842
+Ref: Pointers-Footnote-728914
+Node: Making configure Scripts28989
+Node: Writing configure.ac32038
+Node: Shell Script Compiler33467
+Node: Autoconf Language35731
+Node: configure.ac Layout40354
+Node: autoscan Invocation41749
+Node: ifnames Invocation44246
+Node: autoconf Invocation45440
+Node: autoreconf Invocation50758
+Node: Setup54398
+Node: Initializing configure55658
+Node: Notices57397
+Node: Input59030
+Node: Output60611
+Node: Configuration Actions62610
+Node: Configuration Files67224
+Node: Makefile Substitutions68694
+Node: Preset Output Variables70375
+Node: Installation Directory Variables75431
+Node: Build Directories80936
+Node: Automatic Remaking82574
+Node: Configuration Headers84744
+Node: Header Templates87474
+Node: autoheader Invocation88999
+Node: Autoheader Macros92156
+Node: Configuration Commands94347
+Node: Configuration Links95789
+Node: Subdirectories97204
+Node: Default Prefix99640
+Node: Existing Tests101053
+Node: Common Behavior102770
+Node: Standard Symbols103403
+Node: Default Includes103971
+Node: Alternative Programs105894
+Node: Particular Programs106576
+Node: Generic Programs111820
+Node: Files115735
+Node: Libraries116613
+Node: Library Functions119504
+Node: Function Portability120122
+Node: Particular Functions124071
+Node: Generic Functions137629
+Node: Header Files142459
+Node: Header Portability143088
+Node: Particular Headers143930
+Node: Generic Headers151477
+Node: Declarations153903
+Node: Particular Declarations154494
+Node: Generic Declarations154709
+Node: Structures157113
+Node: Particular Structures157723
+Node: Generic Structures159411
+Node: Types160686
+Node: Particular Types161200
+Node: Generic Types162529
+Node: Compilers and Preprocessors163931
+Node: Specific Compiler Characteristics165006
+Node: Generic Compiler Characteristics166134
+Node: C Compiler167017
+Node: C++ Compiler176446
+Node: Fortran 77 Compiler178442
+Node: System Services186994
+Ref: System Services-Footnote-1190111
+Node: UNIX Variants190202
+Node: Writing Tests191616
+Node: Language Choice193640
+Node: Writing Test Programs195671
+Node: Guidelines196252
+Node: Test Functions198201
+Node: Generating Sources199786
+Node: Running the Preprocessor203662
+Node: Running the Compiler206795
+Node: Running the Linker207984
+Node: Run Time209901
+Node: Systemology213174
+Ref: Systemology-Footnote-1214785
+Ref: Systemology-Footnote-2214850
+Ref: Systemology-Footnote-3214888
+Ref: Systemology-Footnote-4214956
+Ref: Systemology-Footnote-5215072
+Node: Multiple Cases215141
+Node: Results216471
+Node: Defining Symbols217220
+Node: Setting Output Variables220726
+Node: Caching Results225319
+Node: Cache Variable Names228996
+Node: Cache Files230553
+Node: Cache Checkpointing232574
+Node: Printing Messages233946
+Node: Programming in M4237445
+Node: M4 Quotation238239
+Node: Active Characters239079
+Ref: Active Characters-Footnote-1240425
+Node: One Macro Call240447
+Node: Quotation and Nested Macros242001
+Node: Changequote is Evil244959
+Node: Quadrigraphs247486
+Node: Quotation Rule Of Thumb249538
+Node: Using autom4te252161
+Ref: Using autom4te-Footnote-1252765
+Node: autom4te Invocation252814
+Node: Customizing autom4te261643
+Node: Programming in M4sugar262878
+Node: Redefined M4 Macros263481
+Node: Evaluation Macros265597
+Node: Forbidden Patterns266634
+Node: Programming in M4sh267990
+Node: Writing Autoconf Macros269415
+Node: Macro Definitions270216
+Node: Macro Names271991
+Node: Reporting Messages274601
+Node: Dependencies Between Macros275950
+Node: Prerequisite Macros276569
+Node: Suggested Ordering279320
+Node: Obsoleting Macros280827
+Node: Coding Style281942
+Node: Portable Shell288964
+Ref: Portable Shell-Footnote-1291337
+Node: Shellology291405
+Ref: Shellology-Footnote-1294936
+Node: Here-Documents295032
+Node: File Descriptors297225
+Node: File System Conventions299374
+Ref: File System Conventions-Footnote-1303469
+Node: Shell Substitutions303543
+Node: Assignments309608
+Node: Special Shell Variables311482
+Node: Limitations of Builtins318829
+Node: Limitations of Usual Tools334619
+Node: Limitations of Make352545
+Node: Manual Configuration371487
+Node: Specifying Names372313
+Node: Canonicalizing374596
+Node: Using System Type376843
+Node: Site Configuration378644
+Node: External Software379474
+Node: Package Options382767
+Node: Pretty Help Strings385626
+Node: Site Details387609
+Node: Transforming Names388836
+Node: Transformation Options389913
+Node: Transformation Examples390379
+Node: Transformation Rules392087
+Node: Site Defaults393627
+Node: Running configure Scripts397546
+Node: Basic Installation398557
+Node: Compilers and Options401398
+Node: Multiple Architectures402046
+Node: Installation Names403038
+Node: Optional Features404229
+Node: System Type405006
+Node: Sharing Defaults406322
+Node: Defining Variables406953
+Node: configure Invocation407625
+Node: config.status Invocation408747
+Node: Obsolete Constructs412703
+Node: Obsolete config.status Use413652
+Node: acconfig.h415418
+Node: autoupdate Invocation417428
+Node: Obsolete Macros419112
+Node: Autoconf 1438400
+Node: Changed File Names439459
+Node: Changed Makefiles440204
+Node: Changed Macros441286
+Node: Changed Results442538
+Node: Changed Macro Writing444639
+Node: Autoconf 2.13445908
+Node: Changed Quotation447110
+Node: New Macros448984
+Node: Hosts and Cross-Compilation450642
+Node: AC_LIBOBJ vs LIBOBJS454971
+Ref: AC_LIBOBJ vs LIBOBJS-Footnote-1457507
+Node: AC_FOO_IFELSE vs AC_TRY_FOO457583
+Node: Using Autotest459593
+Node: Using an Autotest Test Suite462028
+Node: testsuite Scripts462311
+Node: Autotest Logs466223
+Ref: Autotest Logs-Footnote-1468591
+Node: Writing testsuite.at468831
+Node: testsuite Invocation472603
+Node: Making testsuite Scripts475690
+Node: FAQ479145
+Node: Distributing479812
+Node: Why GNU m4480851
+Node: Bootstrapping481743
+Node: Why Not Imake482343
+Node: Defining Directories487063
+Ref: Defining Directories-Footnote-1489126
+Ref: Defining Directories-Footnote-2489201
+Node: autom4te.cache489276
+Node: History491072
+Node: Genesis491856
+Node: Exodus493029
+Node: Leviticus496072
+Node: Numbers497595
+Node: Deuteronomy499503
+Node: Copying This Manual502167
+Node: GNU Free Documentation License502379
+Node: Indices522247
+Node: Environment Variable Index522865
+Node: Output Variable Index525812
+Node: Preprocessor Symbol Index532536
+Node: Autoconf Macro Index540193
+Node: M4 Macro Index558416
+Node: Autotest Macro Index559602
+Node: Program & Function Index560361
+Node: Concept Index565797
 
 End Tag Table
