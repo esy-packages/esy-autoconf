@@ -1,7 +1,23 @@
 {
-  "checksum": "0cc961f41dbf4ff5ab5654751a4ba36e",
+  "checksum": "25d14394ce5f630db71917a1705de995",
   "root": "esy-autoconf@link-dev:./package.json",
   "node": {
+    "esy-help2man@github:esy-packages/esy-help2man#e4fbf804b5bad60340b4fb127a75c8015bc2dc36@d41d8cd9": {
+      "id":
+        "esy-help2man@github:esy-packages/esy-help2man#e4fbf804b5bad60340b4fb127a75c8015bc2dc36@d41d8cd9",
+      "name": "esy-help2man",
+      "version":
+        "github:esy-packages/esy-help2man#e4fbf804b5bad60340b4fb127a75c8015bc2dc36",
+      "source": {
+        "type": "install",
+        "source": [
+          "github:esy-packages/esy-help2man#e4fbf804b5bad60340b4fb127a75c8015bc2dc36"
+        ]
+      },
+      "overrides": [],
+      "dependencies": [],
+      "devDependencies": []
+    },
     "esy-autoconf@link-dev:./package.json": {
       "id": "esy-autoconf@link-dev:./package.json",
       "name": "esy-autoconf",
@@ -12,7 +28,9 @@
         "manifest": "package.json"
       },
       "overrides": [],
-      "dependencies": [],
+      "dependencies": [
+        "esy-help2man@github:esy-packages/esy-help2man#e4fbf804b5bad60340b4fb127a75c8015bc2dc36@d41d8cd9"
+      ],
       "devDependencies": []
     }
   }

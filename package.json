@@ -14,5 +14,7 @@
       ["make"],
       ["make", "install"]
     ]
-  }
+  },
+  "dependencies": {"esy-help2man": "*"},
+  "resolutions": {"esy-help2man": "esy-packages/esy-help2man#e4fbf804b5bad60340b4fb127a75c8015bc2dc36"}
 }
