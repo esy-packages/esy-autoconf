@@ -15,7 +15,5 @@ jobs:
       displayName: 'Installing deps'
   - script: esy install
     displayName: 'Installing deps'
-  - script: esy build
-    displayName: 'Building'
   - script: esy x which autoconf
-    displayName: 'Dry run'
+    displayName: 'Building and dry run'
