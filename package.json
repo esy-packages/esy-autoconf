@@ -4,6 +4,9 @@
   "description": "Autoconf packaged for esy",
   "esy": {
     "buildsInSource": true,
+    "buildEnv": {
+      "PATH": "#{self.bin : $PATH }"
+    },
     "build": [
       ["chmod", "755", "./configure", "./test.bash"],
       ["ln", "-s", "/usr/bin/true", "#{ self.install / 'bin' / 'makeinfo' }"],
