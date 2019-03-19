@@ -1,6 +1,6 @@
 {
   "name": "esy-autoconf",
-  "version": "2.58.000",
+  "version": "2.60.000",
   "description": "Autoconf packaged for esy",
   "esy": {
     "buildsInSource": true,
@@ -16,5 +16,5 @@
     ]
   },
   "dependencies": {"esy-help2man": "*"},
-  "resolutions": {"esy-help2man": "esy-packages/esy-help2man#e4fbf804b5bad60340b4fb127a75c8015bc2dc36"}
+  "resolutions": {"esy-help2man": "esy-packages/esy-help2man#c8e6931d1dcf58a81bd801145a777fd3b115c443"}
 }
