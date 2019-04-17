@@ -1,10 +1,11 @@
 # autoconf -- create `configure' using m4 macros
-# Copyright (C) 2001, 2002, 2003, 2004 Free Software Foundation, Inc.
+# Copyright (C) 2001, 2002, 2003, 2004, 2006, 2007, 2009 Free Software
+# Foundation, Inc.
 
-# This program is free software; you can redistribute it and/or modify
+# This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2, or (at your option)
-# any later version.
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -12,9 +13,7 @@
 # GNU General Public License for more details.
 
 # You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-# 02110-1301, USA.
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 package Autom4te::General;
 
@@ -38,6 +37,7 @@ use Exporter;
 use Autom4te::ChannelDefs;
 use Autom4te::Channels;
 use File::Basename;
+use File::Path ();
 use File::stat;
 use IO::File;
 use Carp;
@@ -54,7 +54,7 @@ my @export_vars =
 # Functions we define and export.
 my @export_subs =
   qw (&debug
-      &getopt &mktmpdir
+      &getopt &shell_quote &mktmpdir
       &uniq);
 
 # Functions we forward (coming from modules we use).
@@ -191,24 +191,8 @@ sub END
 
   if (!$debug && defined $tmp && -d $tmp)
     {
-      if (<$tmp/*>)
-	{
-	  while (<$tmp/*>)
-	    {
-	      if (! unlink $_)
-		{
-		  print STDERR "$me: cannot empty $tmp ($_): $!\n";
-		  $? = 1;
-		  return;
-		}
-	    }
-	}
-      if (! rmdir $tmp)
-	{
-	  print STDERR "$me: cannot remove $tmp: $!\n";
-	  $? = 1;
-	  return;
-	}
+      local $SIG{__WARN__} = sub { $status = 1; warn $_[0] };
+      File::Path::rmtree $tmp;
     }
 
   # This is required if the code might send any output to stdout
@@ -298,6 +282,31 @@ sub getopt (%)
 }
 
 
+=item C<shell_quote ($file_name)>
+
+Quote C<$file_name> for the shell.
+
+=cut
+
+# $FILE_NAME
+# shell_quote ($FILE_NAME)
+# ------------------------
+# If the string $S is a well-behaved file name, simply return it.
+# If it contains white space, quotes, etc., quote it, and return
+# the new string.
+sub shell_quote($)
+{
+  my ($s) = @_;
+  if ($s =~ m![^\w+/.,-]!)
+    {
+      # Convert each single quote to '\''
+      $s =~ s/\'/\'\\\'\'/g;
+      # Then single quote the string.
+      $s = "'$s'";
+    }
+  return $s;
+}
+
 =item C<mktmpdir ($signature)>
 
 Create a temporary directory which name is based on C<$signature>.
@@ -312,10 +321,11 @@ sub mktmpdir ($)
 {
   my ($signature) = @_;
   my $TMPDIR = $ENV{'TMPDIR'} || '/tmp';
+  my $quoted_tmpdir = shell_quote ($TMPDIR);
 
   # If mktemp supports dirs, use it.
   $tmp = `(umask 077 &&
-	   mktemp -d "$TMPDIR/${signature}XXXXXX") 2>/dev/null`;
+	   mktemp -d $quoted_tmpdir/"${signature}XXXXXX") 2>/dev/null`;
   chomp $tmp;
 
   if (!$tmp || ! -d $tmp)

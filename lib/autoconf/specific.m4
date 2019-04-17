@@ -2,50 +2,29 @@
 # Macros that test for specific, unclassified, features.
 #
 # Copyright (C) 1992, 1993, 1994, 1995, 1996, 1998, 1999, 2000, 2001,
-# 2002, 2003, 2004, 2005, 2006 Free Software Foundation, Inc.
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2, or (at your option)
-# any later version.
+# 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Free Software
+# Foundation, Inc.
+
+# This file is part of Autoconf.  This program is free
+# software; you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the
+# Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
+# Under Section 7 of GPL version 3, you are granted additional
+# permissions described in the Autoconf Configure Script Exception,
+# version 3.0, as published by the Free Software Foundation.
+#
 # You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-# 02110-1301, USA.
-#
-# As a special exception, the Free Software Foundation gives unlimited
-# permission to copy, distribute and modify the configure scripts that
-# are the output of Autoconf.  You need not follow the terms of the GNU
-# General Public License when using or distributing such scripts, even
-# though portions of the text of Autoconf appear in them.  The GNU
-# General Public License (GPL) does govern all other use of the material
-# that constitutes the Autoconf program.
-#
-# Certain portions of the Autoconf source text are designed to be copied
-# (in certain cases, depending on the input) into the output of
-# Autoconf.  We call these the "data" portions.  The rest of the Autoconf
-# source text consists of comments plus executable code that decides which
-# of the data portions to output in any given case.  We call these
-# comments and executable code the "non-data" portions.  Autoconf never
-# copies any of the non-data portions into its output.
-#
-# This special exception to the GPL applies to versions of Autoconf
-# released by the Free Software Foundation.  When you make and
-# distribute a modified version of Autoconf, you may extend this special
-# exception to the GPL to apply to your modified version as well, *unless*
-# your modified version has the potential to copy into its output some
-# of the text that was the non-data portion of the version that you started
-# with.  (In other words, unless your change moves or copies text from
-# the non-data portions to the data portions.)  If your modification has
-# such potential, you must delete any notice of this special exception
-# to the GPL from your modified version.
-#
+# and a copy of the Autoconf Configure Script Exception along with
+# this program; see the files COPYINGv3 and COPYING.EXCEPTION
+# respectively.  If not, see <http://www.gnu.org/licenses/>.
+
 # Written by David MacKenzie, with help from
 # Franc,ois Pinard, Karl Berry, Richard Pixley, Ian Lance Taylor,
 # Roland McGrath, Noah Friedman, david d zuhn, and many others.
@@ -63,7 +42,7 @@ AU_DEFUN([AC_DECL_SYS_SIGLIST],
 [AC_CHECK_DECLS([sys_siglist],,,
 [#include <signal.h>
 /* NetBSD declares sys_siglist in unistd.h.  */
-#if HAVE_UNISTD_H
+#ifdef HAVE_UNISTD_H
 # include <unistd.h>
 #endif
 ])
@@ -85,7 +64,7 @@ AC_DEFUN([AC_SYS_INTERPRETER],
 exit 69
 ' >conftest
 chmod u+x conftest
-(SHELL=/bin/sh; export SHELL; ./conftest >/dev/null)
+(SHELL=/bin/sh; export SHELL; ./conftest >/dev/null 2>&1)
 if test $? -ne 69; then
    ac_cv_sys_interpreter=yes
 else
@@ -130,18 +109,21 @@ m4_define([_AC_SYS_LARGEFILE_TEST_INCLUDES],
 m4_define([_AC_SYS_LARGEFILE_MACRO_VALUE],
 [AC_CACHE_CHECK([for $1 value needed for large files], [$3],
 [while :; do
-  $3=no
-  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([$5], [$6])],
-		    [break])
-  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([@%:@define $1 $2
+  m4_ifval([$6], [AC_LINK_IFELSE], [AC_COMPILE_IFELSE])(
+    [AC_LANG_PROGRAM([$5], [$6])],
+    [$3=no; break])
+  m4_ifval([$6], [AC_LINK_IFELSE], [AC_COMPILE_IFELSE])(
+    [AC_LANG_PROGRAM([@%:@define $1 $2
 $5], [$6])],
-		    [$3=$2; break])
+    [$3=$2; break])
+  $3=unknown
   break
 done])
-if test "$$3" != no; then
-  AC_DEFINE_UNQUOTED([$1], [$$3], [$4])
-fi
-rm -f conftest*[]dnl
+case $$3 in #(
+  no | unknown) ;;
+  *) AC_DEFINE_UNQUOTED([$1], [$$3], [$4]);;
+esac
+rm -rf conftest*[]dnl
 ])# _AC_SYS_LARGEFILE_MACRO_VALUE
 
 
@@ -181,10 +163,12 @@ if test "$enable_largefile" != no; then
     ac_cv_sys_file_offset_bits,
     [Number of bits in a file offset, on hosts where this is settable.],
     [_AC_SYS_LARGEFILE_TEST_INCLUDES])
-  _AC_SYS_LARGEFILE_MACRO_VALUE(_LARGE_FILES, 1,
-    ac_cv_sys_large_files,
-    [Define for large files, on AIX-style hosts.],
-    [_AC_SYS_LARGEFILE_TEST_INCLUDES])
+  if test $ac_cv_sys_file_offset_bits = unknown; then
+    _AC_SYS_LARGEFILE_MACRO_VALUE(_LARGE_FILES, 1,
+      ac_cv_sys_large_files,
+      [Define for large files, on AIX-style hosts.],
+      [_AC_SYS_LARGEFILE_TEST_INCLUDES])
+  fi
 fi
 ])# AC_SYS_LARGEFILE
 
@@ -256,7 +240,7 @@ AC_CACHE_CHECK(for restartable system calls, ac_cv_sys_restartable_syscalls,
 
 AC_INCLUDES_DEFAULT
 #include <signal.h>
-#if HAVE_SYS_WAIT_H
+#ifdef HAVE_SYS_WAIT_H
 # include <sys/wait.h>
 #endif
 
@@ -323,16 +307,7 @@ AC_DEFUN([AC_SYS_POSIX_TERMIOS],
 
 # AC_GNU_SOURCE
 # --------------
-AC_DEFUN([AC_GNU_SOURCE],
-[AH_VERBATIM([_GNU_SOURCE],
-[/* Enable GNU extensions on systems that have them.  */
-#ifndef _GNU_SOURCE
-# undef _GNU_SOURCE
-#endif])dnl
-AC_BEFORE([$0], [AC_COMPILE_IFELSE])dnl
-AC_BEFORE([$0], [AC_RUN_IFELSE])dnl
-AC_DEFINE([_GNU_SOURCE])
-])
+AU_DEFUN([AC_GNU_SOURCE], [AC_USE_SYSTEM_EXTENSIONS])
 
 
 # AC_CYGWIN
@@ -381,23 +356,51 @@ matches *mingw32*])# AC_MINGW32
 # ------------------------
 # Enable extensions on systems that normally disable them,
 # typically due to standards-conformance issues.
-AC_DEFUN([AC_USE_SYSTEM_EXTENSIONS],
-[
-  AC_BEFORE([$0], [AC_COMPILE_IFELSE])
-  AC_BEFORE([$0], [AC_RUN_IFELSE])
+#
+# Remember that #undef in AH_VERBATIM gets replaced with #define by
+# AC_DEFINE.  The goal here is to define all known feature-enabling
+# macros, then, if reports of conflicts are made, disable macros that
+# cause problems on some platforms (such as __EXTENSIONS__).
+AC_DEFUN_ONCE([AC_USE_SYSTEM_EXTENSIONS],
+[AC_BEFORE([$0], [AC_COMPILE_IFELSE])dnl
+AC_BEFORE([$0], [AC_RUN_IFELSE])dnl
 
-  AC_REQUIRE([AC_GNU_SOURCE])
-  AC_REQUIRE([AC_AIX])
-  AC_REQUIRE([AC_MINIX])
+  AC_CHECK_HEADER([minix/config.h], [MINIX=yes], [MINIX=])
+  if test "$MINIX" = yes; then
+    AC_DEFINE([_POSIX_SOURCE], [1],
+      [Define to 1 if you need to in order for `stat' and other
+       things to work.])
+    AC_DEFINE([_POSIX_1_SOURCE], [2],
+      [Define to 2 if the system does not provide POSIX.1 features
+       except with this defined.])
+    AC_DEFINE([_MINIX], [1],
+      [Define to 1 if on MINIX.])
+  fi
 
-  AH_VERBATIM([__EXTENSIONS__],
-[/* Enable extensions on Solaris.  */
+dnl Use a different key than __EXTENSIONS__, as that name broke existing
+dnl configure.ac when using autoheader 2.62.
+  AH_VERBATIM([USE_SYSTEM_EXTENSIONS],
+[/* Enable extensions on AIX 3, Interix.  */
+#ifndef _ALL_SOURCE
+# undef _ALL_SOURCE
+#endif
+/* Enable GNU extensions on systems that have them.  */
+#ifndef _GNU_SOURCE
+# undef _GNU_SOURCE
+#endif
+/* Enable threading extensions on Solaris.  */
+#ifndef _POSIX_PTHREAD_SEMANTICS
+# undef _POSIX_PTHREAD_SEMANTICS
+#endif
+/* Enable extensions on HP NonStop.  */
+#ifndef _TANDEM_SOURCE
+# undef _TANDEM_SOURCE
+#endif
+/* Enable general extensions on Solaris.  */
 #ifndef __EXTENSIONS__
 # undef __EXTENSIONS__
 #endif
-#ifndef _POSIX_PTHREAD_SEMANTICS
-# undef _POSIX_PTHREAD_SEMANTICS
-#endif])
+])
   AC_CACHE_CHECK([whether it is safe to define __EXTENSIONS__],
     [ac_cv_safe_to_define___extensions__],
     [AC_COMPILE_IFELSE(
@@ -408,9 +411,11 @@ AC_DEFUN([AC_USE_SYSTEM_EXTENSIONS],
        [ac_cv_safe_to_define___extensions__=no])])
   test $ac_cv_safe_to_define___extensions__ = yes &&
     AC_DEFINE([__EXTENSIONS__])
+  AC_DEFINE([_ALL_SOURCE])
+  AC_DEFINE([_GNU_SOURCE])
   AC_DEFINE([_POSIX_PTHREAD_SEMANTICS])
-])
-
+  AC_DEFINE([_TANDEM_SOURCE])
+])# AC_USE_SYSTEM_EXTENSIONS
 
 
 
@@ -424,57 +429,24 @@ AC_DEFUN([AC_USE_SYSTEM_EXTENSIONS],
 
 # AC_AIX
 # ------
-AC_DEFUN([AC_AIX],
-[AH_VERBATIM([_ALL_SOURCE],
-[/* Define to 1 if on AIX 3.
-   System headers sometimes define this.
-   We just want to avoid a redefinition error message.  */
-@%:@ifndef _ALL_SOURCE
-@%:@ undef _ALL_SOURCE
-@%:@endif])dnl
-AC_BEFORE([$0], [AC_COMPILE_IFELSE])dnl
-AC_BEFORE([$0], [AC_RUN_IFELSE])dnl
-AC_MSG_CHECKING([for AIX])
-AC_EGREP_CPP(yes,
-[#ifdef _AIX
-  yes
-#endif
-],
-[AC_MSG_RESULT([yes])
-AC_DEFINE(_ALL_SOURCE)],
-[AC_MSG_RESULT([no])])
-])# AC_AIX
+AU_DEFUN([AC_AIX], [AC_USE_SYSTEM_EXTENSIONS])
 
 
 # AC_MINIX
 # --------
-AC_DEFUN([AC_MINIX],
-[AC_BEFORE([$0], [AC_COMPILE_IFELSE])dnl
-AC_BEFORE([$0], [AC_RUN_IFELSE])dnl
-AC_CHECK_HEADER(minix/config.h, MINIX=yes, MINIX=)
-if test "$MINIX" = yes; then
-  AC_DEFINE(_POSIX_SOURCE, 1,
-	    [Define to 1 if you need to in order for `stat' and other things to
-	     work.])
-  AC_DEFINE(_POSIX_1_SOURCE, 2,
-	    [Define to 2 if the system does not provide POSIX.1 features except
-	     with this defined.])
-  AC_DEFINE(_MINIX, 1,
-	    [Define to 1 if on MINIX.])
-fi
-])# AC_MINIX
+AU_DEFUN([AC_MINIX], [AC_USE_SYSTEM_EXTENSIONS])
 
 
 # AC_ISC_POSIX
 # ------------
-AC_DEFUN([AC_ISC_POSIX], [AC_SEARCH_LIBS(strerror, cposix)])
+AU_DEFUN([AC_ISC_POSIX], [AC_SEARCH_LIBS([strerror], [cposix])])
 
 
 # AC_XENIX_DIR
 # ------------
 AU_DEFUN([AC_XENIX_DIR],
 [AC_MSG_CHECKING([for Xenix])
-AC_EGREP_CPP(yes,
+AC_EGREP_CPP([yes],
 [#if defined M_XENIX && ! defined M_UNIX
   yes
 @%:@endif],
@@ -497,7 +469,7 @@ AU_DEFUN([AC_DYNIX_SEQ], [AC_FUNC_GETMNTENT])
 # -----------
 AU_DEFUN([AC_IRIX_SUN],
 [AC_FUNC_GETMNTENT
-AC_CHECK_LIB(sun, getpwnam)])
+AC_CHECK_LIB([sun], [getpwnam])])
 
 
 # AC_SCO_INTL

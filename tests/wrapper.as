@@ -1,12 +1,12 @@
 AS_INIT[]dnl                                            -*- shell-script -*-
 # wrapper.as -- running `@wrap_program@' as if it were installed.
 # @configure_input@
-# Copyright (C) 2003, 2004 Free Software Foundation, Inc.
+# Copyright (C) 2003, 2004, 2007, 2009 Free Software Foundation, Inc.
 
-# This program is free software; you can redistribute it and/or modify
+# This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2, or (at your option)
-# any later version.
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -14,14 +14,13 @@ AS_INIT[]dnl                                            -*- shell-script -*-
 # GNU General Public License for more details.
 
 # You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-# 02110-1301, USA.
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 testdir='@abs_top_builddir@/tests'
-AUTOCONF=$testdir/autoconf
-AUTOHEADER=$testdir/autoheader
-AUTOM4TE=$testdir/autom4te
+PATH=$testdir$PATH_SEPARATOR$PATH
+AUTOCONF=autoconf
+AUTOHEADER=autoheader
+AUTOM4TE=autom4te
 AUTOM4TE_CFG='@abs_top_builddir@/lib/autom4te.cfg'
 autom4te_perllibdir='@abs_top_srcdir@/lib'
 export AUTOCONF AUTOHEADER AUTOM4TE AUTOM4TE_CFG autom4te_perllibdir
