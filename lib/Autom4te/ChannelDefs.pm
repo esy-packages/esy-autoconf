@@ -1,9 +1,10 @@
-# Copyright (C) 2002, 2003 Free Software Foundation, Inc.
+# Copyright (C) 2002, 2003, 2006, 2008, 2009 Free Software Foundation,
+# Inc.
 
-# This program is free software; you can redistribute it and/or modify
+# This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2, or (at your option)
-# any later version.
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -11,9 +12,7 @@
 # GNU General Public License for more details.
 
 # You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-# 02110-1301, USA.
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 package Autom4te::ChannelDefs;
 
@@ -41,7 +40,7 @@ Autom4te::ChannelDefs - channel definitions for Automake and helper functions
 
 =head1 DESCRIPTION
 
-This packages defines channels that can be used in Automake to
+This package defines channels that can be used in Automake to
 output diagnostics and other messages (via C<msg()>).  It also defines
 some helper function to enable or disable these channels, and some
 shorthand function to output on specific channels.
@@ -135,7 +134,7 @@ Informative messages.
 # Do not forget to update &usage and the manual
 # if you add or change a warning channel.
 
-register_channel 'fatal', type => 'fatal';
+register_channel 'fatal', type => 'fatal', ordered => 0;
 register_channel 'error', type => 'error';
 register_channel 'error-gnu', type => 'error';
 register_channel 'error-gnu/warn', type => 'error';
@@ -144,7 +143,8 @@ register_channel 'automake', type => 'fatal', backtrace => 1,
   header => ("####################\n" .
 	     "## Internal Error ##\n" .
 	     "####################\n"),
-  footer => "\nPlease contact <bug-automake\@gnu.org>.";
+  footer => "\nPlease contact <bug-automake\@gnu.org>.",
+  ordered => 0;
 
 register_channel 'cross', type => 'warning', silent => 1;
 register_channel 'gnu', type => 'warning';
@@ -154,7 +154,7 @@ register_channel 'portability', type => 'warning', silent => 1;
 register_channel 'syntax', type => 'warning';
 register_channel 'unsupported', type => 'warning';
 
-register_channel 'verb', type => 'debug', silent => 1;
+register_channel 'verb', type => 'debug', silent => 1, ordered => 0;
 register_channel 'note', type => 'debug', silent => 0;
 
 =head2 FUNCTIONS
@@ -174,7 +174,7 @@ sub usage ()
   `gnu'           GNU coding standards (default in gnu and gnits modes)
   `obsolete'      obsolete features or constructions
   `override'      user redefinitions of Automake rules or variables
-  `portability'   portability issues
+  `portability'   portability issues (default in gnu and gnits modes)
   `syntax'        dubious syntactic constructs (default)
   `unsupported'   unsupported or incomplete features (default)
   `all'           all the warnings
@@ -305,7 +305,7 @@ Parse the argument of C<--warning=CATEGORY> or C<-WCATEGORY>.
 C<$OPTIONS> is C<"--warning"> or C<"-W">, C<@ARGUMENT> is a list of
 C<CATEGORY>.
 
-This can be used as a argument to C<Getopt>.
+This can be used as an argument to C<Getopt>.
 
 =cut
 
@@ -330,29 +330,12 @@ sub set_strictness ($)
 {
   my ($name) = @_;
 
-  # FIXME: 'portability' warnings are currently disabled by default.
-  # Eventually we want to turn them on in GNU and GNITS modes, but
-  # we don't do this yet in Automake 1.7 to help the 1.6/1.7 transition.
-  #
-  # Indeed there would be only two ways to get rid of these new warnings:
-  #  1. adjusting Makefile.am
-  #     This is not always easy (or wanted).  Consider %-rules or
-  #     $(function args) variables.
-  #  2. using -Wno-portability
-  #     This means there is no way to have the same Makefile.am
-  #     working both with Automake 1.6 and 1.7 (since 1.6 does not
-  #     understand -Wno-portability).
-  #
-  # In Automake 1.8 (or whatever it is called) we can turn these
-  # warnings on, since -Wno-portability will not be an issue for
-  # the 1.7/1.8 transition.
-
   if ($name eq 'gnu')
     {
       setup_channel 'error-gnu', silent => 0;
       setup_channel 'error-gnu/warn', silent => 0, type => 'error';
       setup_channel 'error-gnits', silent => 1;
-      # setup_channel 'portability', silent => 0;
+      setup_channel 'portability', silent => 0;
       setup_channel 'gnu', silent => 0;
     }
   elsif ($name eq 'gnits')
@@ -360,7 +343,7 @@ sub set_strictness ($)
       setup_channel 'error-gnu', silent => 0;
       setup_channel 'error-gnu/warn', silent => 0, type => 'error';
       setup_channel 'error-gnits', silent => 0;
-      # setup_channel 'portability', silent => 0;
+      setup_channel 'portability', silent => 0;
       setup_channel 'gnu', silent => 0;
     }
   elsif ($name eq 'foreign')
@@ -368,7 +351,7 @@ sub set_strictness ($)
       setup_channel 'error-gnu', silent => 1;
       setup_channel 'error-gnu/warn', silent => 0, type => 'warning';
       setup_channel 'error-gnits', silent => 1;
-      # setup_channel 'portability', silent => 1;
+      setup_channel 'portability', silent => 1;
       setup_channel 'gnu', silent => 1;
     }
   else

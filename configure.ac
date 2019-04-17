@@ -2,12 +2,12 @@
 # Process this file with autoconf to produce a configure script.
 
 # Copyright (C) 1992, 1993, 1994, 1995, 1999, 2000, 2001, 2002, 2003,
-# 2004, 2005, 2006 Free Software Foundation, Inc.
+# 2004, 2005, 2006, 2007, 2008, 2009 Free Software Foundation, Inc.
 
-# This program is free software; you can redistribute it and/or modify
+# This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2, or (at your option)
-# any later version.
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -15,21 +15,19 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-# 02110-1301, USA.
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# We need AC_CONFIG_TESTDIR.
-AC_PREREQ([2.59])
+# We need AC_CONFIG_TESTDIR, AC_PROG_SED, AC_PROG_GREP.
+AC_PREREQ([2.60])
 
-AC_INIT([GNU Autoconf], [2.60], [bug-autoconf@gnu.org])
-AC_SUBST([PACKAGE_NAME])dnl
+AC_INIT([GNU Autoconf],
+	m4_esyscmd([build-aux/git-version-gen .tarball-version]),
+	[bug-autoconf@gnu.org])
 AC_CONFIG_SRCDIR([ChangeLog])
 
-AC_CONFIG_AUX_DIR([config])
-AC_CONFIG_FILES([config/Makefile])
+AC_CONFIG_AUX_DIR([build-aux])
 
-AM_INIT_AUTOMAKE([check-news 1.7.9 dist-bzip2 readme-alpha])
+AM_INIT_AUTOMAKE([1.10 dist-bzip2 readme-alpha no-texinfo.tex std-options])
 
 # We use `/bin/sh -n script' to check that there are no syntax errors
 # in the scripts.  Although incredible, there are /bin/sh that go into
@@ -54,7 +52,7 @@ AM_INIT_AUTOMAKE([check-news 1.7.9 dist-bzip2 readme-alpha])
 # So before using `/bin/sh -n' to check our scripts, we first check
 # that `/bin/sh -n' is known to not have these problems.
 
-AC_CACHE_CHECK([whether /bin/sh -n is known to work], ac_cv_sh_n_works,
+AC_CACHE_CHECK([whether /bin/sh -n is known to work], [ac_cv_sh_n_works],
 [if (
     unset BASH_VERSION ZSH_VERSION
     /bin/sh -c '
@@ -68,7 +66,38 @@ then ac_cv_sh_n_works=yes
 else ac_cv_sh_n_works=no
 fi
 ])
-AC_SUBST(ac_cv_sh_n_works)
+AC_SUBST([ac_cv_sh_n_works])
+
+AC_MSG_CHECKING([for characters that cannot appear in file names])
+AC_CACHE_VAL([ac_cv_unsupported_fs_chars],
+[ac_cv_unsupported_fs_chars=
+for c in '\\' \" '<' '>' '*' '?' '|'
+do
+  touch "conftest.t${c}t" 2>/dev/null
+  test -f "conftest.t${c}t" && rm -f "conftest.t${c}t" && continue
+  # $c cannot be used in a file name.
+  ac_cv_unsupported_fs_chars=$ac_cv_unsupported_fs_chars$c
+done
+])
+if test -n "$ac_cv_unsupported_fs_chars"; then
+  AC_MSG_RESULT([$ac_cv_unsupported_fs_chars])
+else
+  AC_MSG_RESULT([none])
+fi
+
+AC_SUBST([ac_cv_unsupported_fs_chars])
+
+AC_CACHE_CHECK([whether directories can have trailing spaces],
+	       [ac_cv_dir_trailing_space],
+[rm -rf 'conftest.d ' && mkdir 'conftest.d ' && touch 'conftest.d /tfile' 2>/dev/null
+stat=$?
+rm -rf 'conftest.d '
+case $stat$? in #(
+   00) ac_cv_dir_trailing_space=yes ;; #(
+   *) ac_cv_dir_trailing_space=no ;;
+esac
+])
+AC_SUBST([ac_cv_dir_trailing_space])
 
 # Initialize the test suite.
 AC_CONFIG_TESTDIR([tests])
@@ -82,19 +111,16 @@ AC_PATH_PROG([EXPR], [expr])
 
 # We use an absolute name for GNU m4 so even if users have another m4 first in
 # their path, the installer can configure with a path that has GNU m4
-# first and get that path embedded in the installed autoconf and
+# on it and get that path embedded in the installed autoconf and
 # autoheader scripts.
 AC_PROG_GNU_M4
-if test x"$ac_cv_prog_gnu_m4" != xyes; then
-  AC_MSG_ERROR([GNU M4 1.4 is required])
-fi
 
 ## ----------- ##
 ## Man pages.  ##
 ## ----------- ##
 
-AC_CONFIG_FILES(man/Makefile)
-AM_MISSING_PROG(HELP2MAN, help2man)
+AC_CONFIG_FILES([man/Makefile])
+AM_MISSING_PROG([HELP2MAN], [help2man])
 
 
 ## ------ ##
@@ -102,7 +128,7 @@ AM_MISSING_PROG(HELP2MAN, help2man)
 ## ------ ##
 
 # We use an absolute name for perl so the #! line in autoscan will work.
-AC_PATH_PROG([PERL], perl, no)
+AC_PATH_PROG([PERL], [perl], [no])
 AC_SUBST([PERL])dnl
 if test "$PERL" = no; then
   AC_MSG_ERROR([perl is not found])
@@ -110,6 +136,22 @@ fi
 $PERL -e 'require 5.005_03;' || {
    AC_MSG_ERROR([Perl 5.005_03 or better is required])
 }
+
+# Find out whether the system supports flock
+# Note this test does not try to find out whether it works with this
+# particular file system.  It merely avoids us running flock on systems
+# where that bails out.
+AC_CACHE_CHECK([whether $PERL Fcntl::flock is implemented],
+  [ac_cv_perl_flock_implemented],
+  [echo lock me > conftest.fil
+   if $PERL -e 'use Fcntl ":flock"; flock("conftest.fil", LOCK_EX); 1;'; then
+     ac_cv_perl_flock_implemented=yes
+   else
+     ac_cv_perl_flock_implemented=no
+   fi
+   rm -f conftest.fil
+  ])
+AC_SUBST([PERL_FLOCK], [$ac_cv_perl_flock_implemented])
 
 
 ## ------- ##
@@ -152,19 +194,39 @@ AC_PROG_EGREP
 AC_PROG_SED
 
 
+## ----- ##
+## Make. ##
+## ----- ##
+AC_PROG_MAKE_CASE_SENSITIVE
+
+
 ## ------------ ##
 ## Conclusion.  ##
 ## ------------ ##
 
+dnl Allow maintainer rules under GNU make even in VPATH builds.  This does
+dnl not work in autoconf 2.61 or earlier, but we don't want to require
+dnl unreleased autoconf during bootstrap, hence the version test.
+dnl TODO remove the version check once we depend on autoconf 2.62.
+dnl Meanwhile, we must use a shell variable so that we bypass automake's
+dnl attempts to remove the sole copy of GNUmakefile in a non-VPATH build
+dnl during 'make distclean'.
+dnl TODO avoid the shell variable once automake is fixed.
+GNUmakefile=GNUmakefile
+m4_if(m4_version_compare([2.61a.100],
+	m4_defn([m4_PACKAGE_VERSION])), [1], [],
+      [AC_CONFIG_LINKS([$GNUmakefile:$GNUmakefile], [],
+	[GNUmakefile=$GNUmakefile])])
+
 AC_CONFIG_FILES([Makefile doc/Makefile
-                 lib/Makefile lib/Autom4te/Makefile lib/autoscan/Makefile
-                 lib/m4sugar/Makefile
-                 lib/autoconf/Makefile lib/autotest/Makefile
-                 bin/Makefile])
+		 lib/Makefile lib/Autom4te/Makefile lib/autoscan/Makefile
+		 lib/m4sugar/Makefile
+		 lib/autoconf/Makefile lib/autotest/Makefile
+		 bin/Makefile])
 
 AC_OUTPUT
 # Report the state of this version of Autoconf if this is a beta.
-m4_bmatch(m4_defn([AC_PACKAGE_VERSION]),  [[a-z]],
+m4_bmatch(m4_defn([AC_PACKAGE_VERSION]), [[-a-z]],
 [    cat <<EOF
 
 You are about to use an experimental version of Autoconf.  Be sure to
@@ -172,7 +234,7 @@ read the relevant mailing lists, most importantly <autoconf@gnu.org>.
 
 Below you will find information on the status of this version of Autoconf.
 
-
 EOF
     sed -n '/^\* Status/,$p' $srcdir/BUGS
-])
+echo
+])dnl

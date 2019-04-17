@@ -1,5 +1,5 @@
 {
-  "checksum": "1436bfc3e36eabf73215b4bcf01ef5a3",
+  "checksum": "ee27a02affc3a3abd7decbd2d43b6b75",
   "root": "esy-autoconf@link-dev:./package.json",
   "node": {
     "esy-help2man@github:esy-packages/esy-help2man#c8e6931d1dcf58a81bd801145a777fd3b115c443@d41d8cd9": {

@@ -1,65 +1,65 @@
 # This file is part of Autoconf.			-*- Autoconf -*-
 # Programming languages support.
-# Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006 Free Software
-# Foundation, Inc.
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2, or (at your option)
-# any later version.
+# Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009
+# Free Software Foundation, Inc.
+
+# This file is part of Autoconf.  This program is free
+# software; you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the
+# Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
+# Under Section 7 of GPL version 3, you are granted additional
+# permissions described in the Autoconf Configure Script Exception,
+# version 3.0, as published by the Free Software Foundation.
+#
 # You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-# 02110-1301, USA.
-#
-# As a special exception, the Free Software Foundation gives unlimited
-# permission to copy, distribute and modify the configure scripts that
-# are the output of Autoconf.  You need not follow the terms of the GNU
-# General Public License when using or distributing such scripts, even
-# though portions of the text of Autoconf appear in them.  The GNU
-# General Public License (GPL) does govern all other use of the material
-# that constitutes the Autoconf program.
-#
-# Certain portions of the Autoconf source text are designed to be copied
-# (in certain cases, depending on the input) into the output of
-# Autoconf.  We call these the "data" portions.  The rest of the Autoconf
-# source text consists of comments plus executable code that decides which
-# of the data portions to output in any given case.  We call these
-# comments and executable code the "non-data" portions.  Autoconf never
-# copies any of the non-data portions into its output.
-#
-# This special exception to the GPL applies to versions of Autoconf
-# released by the Free Software Foundation.  When you make and
-# distribute a modified version of Autoconf, you may extend this special
-# exception to the GPL to apply to your modified version as well, *unless*
-# your modified version has the potential to copy into its output some
-# of the text that was the non-data portion of the version that you started
-# with.  (In other words, unless your change moves or copies text from
-# the non-data portions to the data portions.)  If your modification has
-# such potential, you must delete any notice of this special exception
-# to the GPL from your modified version.
-#
+# and a copy of the Autoconf Configure Script Exception along with
+# this program; see the files COPYINGv3 and COPYING.EXCEPTION
+# respectively.  If not, see <http://www.gnu.org/licenses/>.
+
 # Written by David MacKenzie, with help from
 # Akim Demaille, Paul Eggert,
 # Franc,ois Pinard, Karl Berry, Richard Pixley, Ian Lance Taylor,
 # Roland McGrath, Noah Friedman, david d zuhn, and many others.
 
 
-# -------------------- #
-# 1b. The C language.  #
-# -------------------- #
+# Table of Contents:
+#
+# 1. Language selection
+# 2. and routines to produce programs in a given language.
+#      1a. C   2a. C
+#      1b. C++
+#      1c. Objective C
+#      1d. Objective C++
+#
+# 3. Looking for a compiler
+#    And possibly the associated preprocessor.
+#      3a. C   3b. C++   3c. Objective C   3d. Objective C++
+#
+# 4. Compilers' characteristics.
+#      4a. C
 
+
+
+## ----------------------- ##
+## 1a/2a. The C language.  ##
+## ----------------------- ##
+
+
+# ------------------------ #
+# 1a. Language selection.  #
+# ------------------------ #
 
 # AC_LANG(C)
 # ----------
 # CFLAGS is not in ac_cpp because -g, -O, etc. are not valid cpp options.
-m4_define([AC_LANG(C)],
+AC_LANG_DEFINE([C], [c], [C], [CC], [],
 [ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&AS_MESSAGE_LOG_FD'
@@ -73,103 +73,22 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 AU_DEFUN([AC_LANG_C], [AC_LANG(C)])
 
 
-# _AC_LANG_ABBREV(C)
-# ------------------
-m4_define([_AC_LANG_ABBREV(C)], [c])
+# ------------------------ #
+# 2a. Producing programs.  #
+# ------------------------ #
 
 
-# _AC_LANG_PREFIX(C)
-# ------------------
-m4_define([_AC_LANG_PREFIX(C)], [C])
-
-
-# ---------------------- #
-# 1c. The C++ language.  #
-# ---------------------- #
-
-
-# AC_LANG(C++)
-# ------------
-# CXXFLAGS is not in ac_cpp because -g, -O, etc. are not valid cpp options.
-m4_define([AC_LANG(C++)],
-[ac_ext=cpp
-ac_cpp='$CXXCPP $CPPFLAGS'
-ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&AS_MESSAGE_LOG_FD'
-ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&AS_MESSAGE_LOG_FD'
-ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
-])
-
-
-# AC_LANG_CPLUSPLUS
-# -----------------
-AU_DEFUN([AC_LANG_CPLUSPLUS], [AC_LANG(C++)])
-
-
-# _AC_LANG_ABBREV(C++)
-# --------------------
-m4_define([_AC_LANG_ABBREV(C++)], [cxx])
-
-
-# _AC_LANG_PREFIX(C++)
-# --------------------
-m4_define([_AC_LANG_PREFIX(C++)], [CXX])
-
-
-
-# ------------------------------ #
-# 1d. The Objective C language.  #
-# ------------------------------ #
-
-
-# AC_LANG(Objective C)
-# --------------------
-m4_define([AC_LANG(Objective C)],
-[ac_ext=m
-ac_cpp='$OBJCPP $CPPFLAGS'
-ac_compile='$OBJC -c $OBJCFLAGS $CPPFLAGS conftest.$ac_ext >&AS_MESSAGE_LOG_FD'
-ac_link='$OBJC -o conftest$ac_exeext $OBJCFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&AS_MESSAGE_LOG_FD'
-ac_compiler_gnu=$ac_cv_objc_compiler_gnu
-])
-
-
-# AC_LANG_OBJC
-# ------------
-AU_DEFUN([AC_LANG_OBJC], [AC_LANG(Objective C)])
-
-
-# _AC_LANG_ABBREV(Objective C)
-# ----------------------------
-m4_define([_AC_LANG_ABBREV(Objective C)], [objc])
-
-
-# _AC_LANG_PREFIX(Objective C)
-# ----------------------------
-m4_define([_AC_LANG_PREFIX(Objective C)], [OBJC])
-
-
-
-## ---------------------- ##
-## 2.Producing programs.  ##
-## ---------------------- ##
-
-
-# --------------- #
-# 2b. C sources.  #
-# --------------- #
-
-# AC_LANG_SOURCE(C)(BODY)
+# AC_LANG_CONFTEST(C)(BODY)
 # -----------------------
 # We can't use '#line $LINENO "configure"' here, since
 # Sun c89 (Sun WorkShop 6 update 2 C 5.3 Patch 111679-08 2002/05/09)
 # rejects $LINENO greater than 32767, and some configure scripts
 # are longer than 32767 lines.
-m4_define([AC_LANG_SOURCE(C)],
-[/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
+m4_define([AC_LANG_CONFTEST(C)],
+[cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-$1])
+$1
+_ACEOF])
 
 
 # AC_LANG_PROGRAM(C)([PROLOGUE], [BODY])
@@ -187,6 +106,17 @@ $2
   ;
   return 0;
 }])
+
+
+# _AC_LANG_IO_PROGRAM(C)
+# ----------------------
+# Produce source that performs I/O, necessary for proper
+# cross-compiler detection.
+m4_define([_AC_LANG_IO_PROGRAM(C)],
+[AC_LANG_PROGRAM([@%:@include <stdio.h>],
+[FILE *f = fopen ("conftest.out", "w");
+ return ferror (f) || fclose (f) != 0;
+])])
 
 
 # AC_LANG_CALL(C)(PROLOGUE, FUNCTION)
@@ -284,86 +214,81 @@ static unsigned long int ulongval () { return $2; }
       long int i = longval ();
       if (i != ($2))
 	return 1;
-      fprintf (f, "%ld\n", i);
+      fprintf (f, "%ld", i);
     }
   else
     {
       unsigned long int i = ulongval ();
       if (i != ($2))
 	return 1;
-      fprintf (f, "%lu\n", i);
+      fprintf (f, "%lu", i);
     }
+  /* Do not output a trailing newline, as this causes \r\n confusion
+     on some platforms.  */
   return ferror (f) || fclose (f) != 0;
 ])])
 
 
-# ----------------- #
-# 2c. C++ sources.  #
-# ----------------- #
 
-# AC_LANG_SOURCE(C++)(BODY)
-# -------------------------
-m4_copy([AC_LANG_SOURCE(C)], [AC_LANG_SOURCE(C++)])
+## ---------------------- ##
+## 1b. The C++ language.  ##
+## ---------------------- ##
 
 
-# AC_LANG_PROGRAM(C++)([PROLOGUE], [BODY])
-# ----------------------------------------
-m4_copy([AC_LANG_PROGRAM(C)], [AC_LANG_PROGRAM(C++)])
+# AC_LANG(C++)
+# ------------
+# CXXFLAGS is not in ac_cpp because -g, -O, etc. are not valid cpp options.
+AC_LANG_DEFINE([C++], [cxx], [CXX], [CXX], [C],
+[ac_ext=cpp
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&AS_MESSAGE_LOG_FD'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&AS_MESSAGE_LOG_FD'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+])
 
 
-# AC_LANG_CALL(C++)(PROLOGUE, FUNCTION)
-# -------------------------------------
-m4_copy([AC_LANG_CALL(C)], [AC_LANG_CALL(C++)])
-
-
-# AC_LANG_FUNC_LINK_TRY(C++)(FUNCTION)
-# ------------------------------------
-m4_copy([AC_LANG_FUNC_LINK_TRY(C)], [AC_LANG_FUNC_LINK_TRY(C++)])
-
-
-# AC_LANG_BOOL_COMPILE_TRY(C++)(PROLOGUE, EXPRESSION)
-# ---------------------------------------------------
-m4_copy([AC_LANG_BOOL_COMPILE_TRY(C)], [AC_LANG_BOOL_COMPILE_TRY(C++)])
-
-
-# AC_LANG_INT_SAVE(C++)(PROLOGUE, EXPRESSION)
-# -------------------------------------------
-m4_copy([AC_LANG_INT_SAVE(C)], [AC_LANG_INT_SAVE(C++)])
+# AC_LANG_CPLUSPLUS
+# -----------------
+AU_DEFUN([AC_LANG_CPLUSPLUS], [AC_LANG(C++)])
 
 
 
-# ------------------------- #
-# 2d. Objective C sources.  #
-# ------------------------- #
-
-# AC_LANG_SOURCE(Objective C)(BODY)
-# ---------------------------------
-m4_copy([AC_LANG_SOURCE(C)], [AC_LANG_SOURCE(Objective C)])
+## ------------------------------ ##
+## 1c. The Objective C language.  ##
+## ------------------------------ ##
 
 
-# AC_LANG_PROGRAM(Objective C)([PROLOGUE], [BODY])
-# ------------------------------------------------
-m4_copy([AC_LANG_PROGRAM(C)], [AC_LANG_PROGRAM(Objective C)])
+# AC_LANG(Objective C)
+# --------------------
+AC_LANG_DEFINE([Objective C], [objc], [OBJC], [OBJC], [C],
+[ac_ext=m
+ac_cpp='$OBJCPP $CPPFLAGS'
+ac_compile='$OBJC -c $OBJCFLAGS $CPPFLAGS conftest.$ac_ext >&AS_MESSAGE_LOG_FD'
+ac_link='$OBJC -o conftest$ac_exeext $OBJCFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&AS_MESSAGE_LOG_FD'
+ac_compiler_gnu=$ac_cv_objc_compiler_gnu
+])
 
 
-# AC_LANG_CALL(Objective C)(PROLOGUE, FUNCTION)
-# ---------------------------------------------
-m4_copy([AC_LANG_CALL(C)], [AC_LANG_CALL(Objective C)])
+# AC_LANG_OBJC
+# ------------
+AU_DEFUN([AC_LANG_OBJC], [AC_LANG(Objective C)])
 
 
-# AC_LANG_FUNC_LINK_TRY(Objective C)(FUNCTION)
-# --------------------------------------------
-m4_copy([AC_LANG_FUNC_LINK_TRY(C)], [AC_LANG_FUNC_LINK_TRY(Objective C)])
+
+## -------------------------------- ##
+## 1d. The Objective C++ language.  ##
+## -------------------------------- ##
 
 
-# AC_LANG_BOOL_COMPILE_TRY(Objective C)(PROLOGUE, EXPRESSION)
-# -----------------------------------------------------------
-m4_copy([AC_LANG_BOOL_COMPILE_TRY(C)], [AC_LANG_BOOL_COMPILE_TRY(Objective C)])
-
-
-# AC_LANG_INT_SAVE(Objective C)(PROLOGUE, EXPRESSION)
-# ---------------------------------------------------
-m4_copy([AC_LANG_INT_SAVE(C)], [AC_LANG_INT_SAVE(Objective C)])
+# AC_LANG(Objective C++)
+# ----------------------
+AC_LANG_DEFINE([Objective C++], [objcxx], [OBJCXX], [OBJCXX], [C++],
+[ac_ext=mm
+ac_cpp='$OBJCXXCPP $CPPFLAGS'
+ac_compile='$OBJCXX -c $OBJCXXFLAGS $CPPFLAGS conftest.$ac_ext >&AS_MESSAGE_LOG_FD'
+ac_link='$OBJCXX -o conftest$ac_exeext $OBJCXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&AS_MESSAGE_LOG_FD'
+ac_compiler_gnu=$ac_cv_objcxx_compiler_gnu
+])
 
 
 
@@ -372,29 +297,37 @@ m4_copy([AC_LANG_INT_SAVE(C)], [AC_LANG_INT_SAVE(Objective C)])
 ## -------------------------------------------- ##
 
 # -------------------- #
-# 3b. The C compiler.  #
+# 3a. The C compiler.  #
 # -------------------- #
 
 
 # _AC_ARG_VAR_CPPFLAGS
 # --------------------
 # Document and register CPPFLAGS, which is used by
-# AC_PROG_{CC, CPP, CXX, CXXCPP, OBJC, OBJCPP}.
+# AC_PROG_{CC, CPP, CXX, CXXCPP, OBJC, OBJCPP, OBJCXX, OBJCXXCPP}.
 AC_DEFUN([_AC_ARG_VAR_CPPFLAGS],
 [AC_ARG_VAR([CPPFLAGS],
-	    [C/C++/Objective C preprocessor flags, e.g. -I<include dir>
+	    [(Objective) C/C++ preprocessor flags, e.g. -I<include dir>
 	     if you have headers in a nonstandard directory <include dir>])])
 
 
 # _AC_ARG_VAR_LDFLAGS
 # -------------------
 # Document and register LDFLAGS, which is used by
-# AC_PROG_{CC, CXX, F77}.
+# AC_PROG_{CC, CXX, F77, FC, OBJC, OBJCXX}.
 AC_DEFUN([_AC_ARG_VAR_LDFLAGS],
 [AC_ARG_VAR([LDFLAGS],
 	    [linker flags, e.g. -L<lib dir> if you have libraries in a
 	     nonstandard directory <lib dir>])])
 
+
+# _AC_ARG_VAR_LIBS
+# ----------------
+# Document and register LIBS, which is used by
+# AC_PROG_{CC, CXX, F77, FC, OBJC, OBJCXX}.
+AC_DEFUN([_AC_ARG_VAR_LIBS],
+[AC_ARG_VAR([LIBS],
+	    [libraries to pass to the linker, e.g. -l<library>])])
 
 
 # AC_LANG_PREPROC(C)
@@ -408,7 +341,6 @@ AC_DEFUN([AC_LANG_PREPROC(C)],
 # -----------------------------------------------
 # Check if $ac_cpp is a working preprocessor that can flag absent
 # includes either by the exit status or by warnings.
-# Set ac_cpp_err to a non-empty value if the preprocessor failed.
 # This macro is for all languages, not only C.
 AC_DEFUN([_AC_PROG_PREPROC_WORKS_IFELSE],
 [ac_preproc_ok=false
@@ -442,7 +374,8 @@ break])
 done
 # Because of `break', _AC_PREPROC_IFELSE's cleaning code was skipped.
 rm -f conftest.err conftest.$ac_ext
-AS_IF([$ac_preproc_ok], [$1], [$2])])# _AC_PROG_PREPROC_WORKS_IFELSE
+AS_IF([$ac_preproc_ok], [$1], [$2])
+])# _AC_PROG_PREPROC_WORKS_IFELSE
 
 
 # AC_PROG_CPP
@@ -517,6 +450,7 @@ AC_DEFUN([AC_PROG_CC],
 AC_ARG_VAR([CC],     [C compiler command])dnl
 AC_ARG_VAR([CFLAGS], [C compiler flags])dnl
 _AC_ARG_VAR_LDFLAGS()dnl
+_AC_ARG_VAR_LIBS()dnl
 _AC_ARG_VAR_CPPFLAGS()dnl
 m4_ifval([$1],
       [AC_CHECK_TOOLS(CC, [$1])],
@@ -542,15 +476,20 @@ test -z "$CC" && AC_MSG_FAILURE([no acceptable C compiler found in \$PATH])
 
 # Provide some information about the compiler.
 _AS_ECHO_LOG([checking for _AC_LANG compiler version])
-ac_compiler=`set X $ac_compile; echo $[2]`
-_AC_DO([$ac_compiler --version >&AS_MESSAGE_LOG_FD])
-_AC_DO([$ac_compiler -v >&AS_MESSAGE_LOG_FD])
-_AC_DO([$ac_compiler -V >&AS_MESSAGE_LOG_FD])
+set X $ac_compile
+ac_compiler=$[2]
+for ac_option in --version -v -V -qversion; do
+  _AC_DO_LIMIT([$ac_compiler $ac_option >&AS_MESSAGE_LOG_FD])
+done
 
 m4_expand_once([_AC_COMPILER_EXEEXT])[]dnl
 m4_expand_once([_AC_COMPILER_OBJEXT])[]dnl
 _AC_LANG_COMPILER_GNU
-GCC=`test $ac_compiler_gnu = yes && echo yes`
+if test $ac_compiler_gnu = yes; then
+  GCC=yes
+else
+  GCC=
+fi
 _AC_PROG_CC_G
 _AC_PROG_CC_C89
 AC_LANG_POP(C)dnl
@@ -601,9 +540,9 @@ fi[]dnl
 
 # AC_PROG_GCC_TRADITIONAL
 # -----------------------
-AN_FUNCTION([ioctl],   [AC_PROG_GCC_TRADITIONAL])
 AC_DEFUN([AC_PROG_GCC_TRADITIONAL],
-[if test $ac_cv_c_compiler_gnu = yes; then
+[AC_REQUIRE([AC_PROG_CC])dnl
+if test $ac_cv_c_compiler_gnu = yes; then
     AC_CACHE_CHECK(whether $CC needs -traditional,
       ac_cv_prog_gcc_traditional,
 [  ac_pattern="Autoconf.*'x'"
@@ -632,7 +571,7 @@ if test "x$CC" != xcc; then
 else
   AC_MSG_CHECKING([whether cc understands -c and -o together])
 fi
-set dummy $CC; ac_cc=`echo $[2] |
+set dummy $CC; ac_cc=`AS_ECHO(["$[2]"]) |
 		      sed 's/[[^a-zA-Z0-9_]]/_/g;s/^[[0-9]]/_/'`
 AC_CACHE_VAL(ac_cv_prog_cc_${ac_cc}_c_o,
 [AC_LANG_CONFTEST([AC_LANG_PROGRAM([])])
@@ -676,8 +615,9 @@ fi
 ])# AC_PROG_CC_C_O
 
 
+
 # ---------------------- #
-# 3c. The C++ compiler.  #
+# 3b. The C++ compiler.  #
 # ---------------------- #
 
 
@@ -756,6 +696,7 @@ AC_DEFUN([AC_PROG_CXX],
 AC_ARG_VAR([CXX],      [C++ compiler command])dnl
 AC_ARG_VAR([CXXFLAGS], [C++ compiler flags])dnl
 _AC_ARG_VAR_LDFLAGS()dnl
+_AC_ARG_VAR_LIBS()dnl
 _AC_ARG_VAR_CPPFLAGS()dnl
 _AC_ARG_VAR_PRECIOUS([CCC])dnl
 if test -z "$CXX"; then
@@ -770,15 +711,20 @@ if test -z "$CXX"; then
 fi
 # Provide some information about the compiler.
 _AS_ECHO_LOG([checking for _AC_LANG compiler version])
-ac_compiler=`set X $ac_compile; echo $[2]`
-_AC_DO([$ac_compiler --version >&AS_MESSAGE_LOG_FD])
-_AC_DO([$ac_compiler -v >&AS_MESSAGE_LOG_FD])
-_AC_DO([$ac_compiler -V >&AS_MESSAGE_LOG_FD])
+set X $ac_compile
+ac_compiler=$[2]
+for ac_option in --version -v -V -qversion; do
+  _AC_DO_LIMIT([$ac_compiler $ac_option >&AS_MESSAGE_LOG_FD])
+done
 
 m4_expand_once([_AC_COMPILER_EXEEXT])[]dnl
 m4_expand_once([_AC_COMPILER_OBJEXT])[]dnl
 _AC_LANG_COMPILER_GNU
-GXX=`test $ac_compiler_gnu = yes && echo yes`
+if test $ac_compiler_gnu = yes; then
+  GXX=yes
+else
+  GXX=
+fi
 _AC_PROG_CXX_G
 AC_LANG_POP(C++)dnl
 ])# AC_PROG_CXX
@@ -834,7 +780,7 @@ AC_DEFUN([AC_PROG_CXX_C_O],
 [AC_REQUIRE([AC_PROG_CXX])dnl
 AC_LANG_PUSH([C++])dnl
 AC_CACHE_CHECK([whether $CXX understands -c and -o together],
-               [ac_cv_prog_cxx_c_o],
+	       [ac_cv_prog_cxx_c_o],
 [AC_LANG_CONFTEST([AC_LANG_PROGRAM([])])
 # We test twice because some compilers refuse to overwrite an existing
 # `.o' file with `-o', although they will create one.
@@ -850,15 +796,16 @@ fi
 rm -f conftest*])
 if test $ac_cv_prog_cxx_c_o = no; then
   AC_DEFINE(CXX_NO_MINUS_C_MINUS_O, 1,
-            [Define to 1 if your C++ compiler doesn't accept
-             -c and -o together.])
+	    [Define to 1 if your C++ compiler doesn't accept
+	     -c and -o together.])
 fi
 AC_LANG_POP([C++])dnl
 ])# AC_PROG_CXX_C_O
 
 
+
 # ------------------------------ #
-# 3d. The Objective C compiler.  #
+# 3c. The Objective C compiler.  #
 # ------------------------------ #
 
 
@@ -926,6 +873,7 @@ AC_DEFUN([AC_PROG_OBJC],
 AC_ARG_VAR([OBJC],      [Objective C compiler command])dnl
 AC_ARG_VAR([OBJCFLAGS], [Objective C compiler flags])dnl
 _AC_ARG_VAR_LDFLAGS()dnl
+_AC_ARG_VAR_LIBS()dnl
 _AC_ARG_VAR_CPPFLAGS()dnl
 _AC_ARG_VAR_PRECIOUS([OBJC])dnl
 AC_CHECK_TOOLS(OBJC,
@@ -933,15 +881,20 @@ AC_CHECK_TOOLS(OBJC,
 	       gcc)
 # Provide some information about the compiler.
 _AS_ECHO_LOG([checking for _AC_LANG compiler version])
-ac_compiler=`set X $ac_compile; echo $[2]`
-_AC_DO([$ac_compiler --version >&AS_MESSAGE_LOG_FD])
-_AC_DO([$ac_compiler -v >&AS_MESSAGE_LOG_FD])
-_AC_DO([$ac_compiler -V >&AS_MESSAGE_LOG_FD])
+set X $ac_compile
+ac_compiler=$[2]
+for ac_option in --version -v -V -qversion; do
+  _AC_DO_LIMIT([$ac_compiler $ac_option >&AS_MESSAGE_LOG_FD])
+done
 
 m4_expand_once([_AC_COMPILER_EXEEXT])[]dnl
 m4_expand_once([_AC_COMPILER_OBJEXT])[]dnl
 _AC_LANG_COMPILER_GNU
-GOBJC=`test $ac_compiler_gnu = yes && echo yes`
+if test $ac_compiler_gnu = yes; then
+  GOBJC=yes
+else
+  GOBJC=
+fi
 _AC_PROG_OBJC_G
 AC_LANG_POP(Objective C)dnl
 ])# AC_PROG_OBJC
@@ -990,6 +943,142 @@ fi[]dnl
 
 
 
+# -------------------------------- #
+# 3d. The Objective C++ compiler.  #
+# -------------------------------- #
+
+
+# AC_LANG_PREPROC(Objective C++)
+# ------------------------------
+# Find the Objective C++ preprocessor.  Must be AC_DEFUN'd to be AC_REQUIRE'able.
+AC_DEFUN([AC_LANG_PREPROC(Objective C++)],
+[AC_REQUIRE([AC_PROG_OBJCXXCPP])])
+
+
+# AC_PROG_OBJCXXCPP
+# -----------------
+# Find a working Objective C++ preprocessor.
+AC_DEFUN([AC_PROG_OBJCXXCPP],
+[AC_REQUIRE([AC_PROG_OBJCXX])dnl
+AC_ARG_VAR([OBJCXXCPP],   [Objective C++ preprocessor])dnl
+_AC_ARG_VAR_CPPFLAGS()dnl
+AC_LANG_PUSH(Objective C++)dnl
+AC_MSG_CHECKING([how to run the Objective C++ preprocessor])
+if test -z "$OBJCXXCPP"; then
+  AC_CACHE_VAL(ac_cv_prog_OBJCXXCPP,
+  [dnl
+    # Double quotes because OBJCXXCPP needs to be expanded
+    for OBJCXXCPP in "$OBJCXX -E" "/lib/cpp"
+    do
+      _AC_PROG_PREPROC_WORKS_IFELSE([break])
+    done
+    ac_cv_prog_OBJCXXCPP=$OBJCXXCPP
+  ])dnl
+  OBJCXXCPP=$ac_cv_prog_OBJCXXCPP
+else
+  ac_cv_prog_OBJCXXCPP=$OBJCXXCPP
+fi
+AC_MSG_RESULT([$OBJCXXCPP])
+_AC_PROG_PREPROC_WORKS_IFELSE([],
+	  [AC_MSG_FAILURE([Objective C++ preprocessor "$OBJCXXCPP" fails sanity check])])
+AC_SUBST(OBJCXXCPP)dnl
+AC_LANG_POP(Objective C++)dnl
+])# AC_PROG_OBJCXXCPP
+
+
+# AC_LANG_COMPILER(Objective C++)
+# -------------------------------
+# Find the Objective C++ compiler.  Must be AC_DEFUN'd to be AC_REQUIRE'able.
+AC_DEFUN([AC_LANG_COMPILER(Objective C++)],
+[AC_REQUIRE([AC_PROG_OBJCXX])])
+
+
+
+# AC_PROG_OBJCXX([LIST-OF-COMPILERS])
+# ---------------------------------
+# LIST-OF-COMPILERS is a space separated list of Objective C++ compilers to
+# search for (if not specified, a default list is used).  This just gives
+# the user an opportunity to specify an alternative search list for the
+# Objective C++ compiler.
+# FIXME: this list is pure guesswork
+# objc++ StepStone Objective-C++ compiler (also "standard" name for OBJCXX)
+# objcxx David Stes' POC.  If you installed this, you likely want it.
+# c++    Native C++ compiler (for instance, Apple).
+# CXX    You never know.
+AN_MAKEVAR([OBJCXX],  [AC_PROG_OBJCXX])
+AN_PROGRAM([objcxx],  [AC_PROG_OBJCXX])
+AC_DEFUN([AC_PROG_OBJCXX],
+[AC_LANG_PUSH(Objective C++)dnl
+AC_ARG_VAR([OBJCXX],      [Objective C++ compiler command])dnl
+AC_ARG_VAR([OBJCXXFLAGS], [Objective C++ compiler flags])dnl
+_AC_ARG_VAR_LDFLAGS()dnl
+_AC_ARG_VAR_LIBS()dnl
+_AC_ARG_VAR_CPPFLAGS()dnl
+_AC_ARG_VAR_PRECIOUS([OBJCXX])dnl
+AC_CHECK_TOOLS(OBJCXX,
+	       [m4_default([$1], [g++ objc++ objcxx c++ CXX])],
+	       g++)
+# Provide some information about the compiler.
+_AS_ECHO_LOG([checking for _AC_LANG compiler version])
+set X $ac_compile
+ac_compiler=$[2]
+for ac_option in --version -v -V -qversion; do
+  _AC_DO_LIMIT([$ac_compiler $ac_option >&AS_MESSAGE_LOG_FD])
+done
+
+m4_expand_once([_AC_COMPILER_EXEEXT])[]dnl
+m4_expand_once([_AC_COMPILER_OBJEXT])[]dnl
+_AC_LANG_COMPILER_GNU
+if test $ac_compiler_gnu = yes; then
+  GOBJCXX=yes
+else
+  GOBJCXX=
+fi
+_AC_PROG_OBJCXX_G
+AC_LANG_POP(Objective C++)dnl
+])# AC_PROG_OBJCXX
+
+
+# _AC_PROG_OBJCXX_G
+# -----------------
+# Check whether -g works, even if OBJCFLAGS is set, in case the package
+# plays around with OBJCFLAGS (such as to build both debugging and
+# normal versions of a library), tasteless as that idea is.
+# Don't consider -g to work if it generates warnings when plain compiles don't.
+m4_define([_AC_PROG_OBJCXX_G],
+[ac_test_OBJCXXFLAGS=${OBJCXXFLAGS+set}
+ac_save_OBJCXXFLAGS=$OBJCXXFLAGS
+AC_CACHE_CHECK(whether $OBJCXX accepts -g, ac_cv_prog_objcxx_g,
+  [ac_save_objcxx_werror_flag=$ac_objcxx_werror_flag
+   ac_objcxx_werror_flag=yes
+   ac_cv_prog_objcxx_g=no
+   OBJCXXFLAGS="-g"
+   _AC_COMPILE_IFELSE([AC_LANG_PROGRAM()],
+     [ac_cv_prog_objcxx_g=yes],
+     [OBJCXXFLAGS=""
+      _AC_COMPILE_IFELSE([AC_LANG_PROGRAM()],
+	[],
+	[ac_objcxx_werror_flag=$ac_save_objcxx_werror_flag
+	 OBJCXXFLAGS="-g"
+	 _AC_COMPILE_IFELSE([AC_LANG_PROGRAM()],
+	   [ac_cv_prog_objcxx_g=yes])])])
+   ac_objcxx_werror_flag=$ac_save_objcx_werror_flag])
+if test "$ac_test_OBJCXXFLAGS" = set; then
+  OBJCXXFLAGS=$ac_save_OBJCXXFLAGS
+elif test $ac_cv_prog_objcxx_g = yes; then
+  if test "$GOBJCXX" = yes; then
+    OBJCXXFLAGS="-g -O2"
+  else
+    OBJCXXFLAGS="-g"
+  fi
+else
+  if test "$GOBJCXX" = yes; then
+    OBJCXXFLAGS="-O2"
+  else
+    OBJCXXFLAGS=
+  fi
+fi[]dnl
+])# _AC_PROG_OBJCXX_G
 
 
 
@@ -997,10 +1086,10 @@ fi[]dnl
 ## 4. Compilers' characteristics.  ##
 ## ------------------------------- ##
 
+# -------------------------------- #
+# 4a. C compiler characteristics.  #
+# -------------------------------- #
 
-# -------------------------------- #
-# 4b. C compiler characteristics.  #
-# -------------------------------- #
 
 # _AC_PROG_CC_C89 ([ACTION-IF-AVAILABLE], [ACTION-IF-UNAVAILABLE])
 # ----------------------------------------------------------------
@@ -1109,8 +1198,11 @@ AS_IF([test "x$ac_cv_prog_cc_$1" != xno], [$5], [$6])
 # If the C compiler is not in ISO C99 mode by default, try to add an
 # option to output variable CC to make it so.  This macro tries
 # various options that select ISO C99 on some system or another.  It
-# considers the compiler to be in ISO C99 mode if it handles mixed
-# code and declarations, _Bool, inline and restrict.
+# considers the compiler to be in ISO C99 mode if it handles _Bool,
+# // comments, flexible array members, inline, long long int, mixed
+# code and declarations, named initialization of structs, restrict,
+# va_copy, varargs macros, variable declarations in for loops and
+# variable length arrays.
 AC_DEFUN([_AC_PROG_CC_C99],
 [_AC_C_STD_TRY([c99],
 [[#include <stdarg.h>
@@ -1118,6 +1210,35 @@ AC_DEFUN([_AC_PROG_CC_C99],
 #include <stdlib.h>
 #include <wchar.h>
 #include <stdio.h>
+
+// Check varargs macros.  These examples are taken from C99 6.10.3.5.
+#define debug(...) fprintf (stderr, __VA_ARGS__)
+#define showlist(...) puts (#__VA_ARGS__)
+#define report(test,...) ((test) ? puts (#test) : printf (__VA_ARGS__))
+static void
+test_varargs_macros (void)
+{
+  int x = 1234;
+  int y = 5678;
+  debug ("Flag");
+  debug ("X = %d\n", x);
+  showlist (The first, second, and third items.);
+  report (x>y, "x is %d but y is %d", x, y);
+}
+
+// Check long long types.
+#define BIG64 18446744073709551615ull
+#define BIG32 4294967295ul
+#define BIG_OK (BIG64 / BIG32 == 4294967297ull && BIG64 % BIG32 == 0)
+#if !BIG_OK
+  your preprocessor is broken;
+#endif
+#if BIG_OK
+#else
+  your preprocessor is broken;
+#endif
+static long long int bignum = -9223372036854775807LL;
+static unsigned long long int ubignum = BIG64;
 
 struct incomplete_array
 {
@@ -1134,7 +1255,7 @@ struct named_init {
 typedef const char *ccp;
 
 static inline int
-test_restrict(ccp restrict text)
+test_restrict (ccp restrict text)
 {
   // See if C++-style comments work.
   // Iterate through items via the restricted pointer.
@@ -1144,14 +1265,14 @@ test_restrict(ccp restrict text)
   return 0;
 }
 
-// Check varargs and va_copy work.
+// Check varargs and va_copy.
 static void
-test_varargs(const char *format, ...)
+test_varargs (const char *format, ...)
 {
   va_list args;
-  va_start(args, format);
+  va_start (args, format);
   va_list args_copy;
-  va_copy(args_copy, args);
+  va_copy (args_copy, args);
 
   const char *str;
   int number;
@@ -1162,44 +1283,43 @@ test_varargs(const char *format, ...)
       switch (*format++)
 	{
 	case 's': // string
-	  str = va_arg(args_copy, const char *);
+	  str = va_arg (args_copy, const char *);
 	  break;
 	case 'd': // int
-	  number = va_arg(args_copy, int);
+	  number = va_arg (args_copy, int);
 	  break;
 	case 'f': // float
-	  fnumber = (float) va_arg(args_copy, double);
+	  fnumber = va_arg (args_copy, double);
 	  break;
 	default:
 	  break;
 	}
     }
-  va_end(args_copy);
-  va_end(args);
+  va_end (args_copy);
+  va_end (args);
 }
 ]],
 [[
-  // Check bool and long long datatypes.
+  // Check bool.
   _Bool success = false;
-  long long int bignum = -1234567890LL;
-  unsigned long long int ubignum = 1234567890uLL;
 
   // Check restrict.
-  if (test_restrict("String literal") != 0)
+  if (test_restrict ("String literal") == 0)
     success = true;
   char *restrict newvar = "Another string";
 
   // Check varargs.
-  test_varargs("s, d' f .", "string", 65, 34.234);
+  test_varargs ("s, d' f .", "string", 65, 34.234);
+  test_varargs_macros ();
 
-  // Check incomplete arrays work.
+  // Check flexible array members.
   struct incomplete_array *ia =
-    malloc(sizeof(struct incomplete_array) + (sizeof(double) * 10));
+    malloc (sizeof (struct incomplete_array) + (sizeof (double) * 10));
   ia->datasize = 10;
   for (int i = 0; i < ia->datasize; ++i)
-    ia->data[i] = (double) i * 1.234;
+    ia->data[i] = i * 1.234;
 
-  // Check named initialisers.
+  // Check named initializers.
   struct named_init ni = {
     .number = 34,
     .name = L"Test wide string",
@@ -1209,21 +1329,23 @@ test_varargs(const char *format, ...)
   ni.number = 58;
 
   int dynamic_array[ni.number];
-  dynamic_array[43] = 543;
+  dynamic_array[ni.number - 1] = 543;
 
   // work around unused variable warnings
-  return  bignum == 0LL || ubignum == 0uLL || newvar[0] == 'x';
+  return (!success || bignum == 0LL || ubignum == 0uLL || newvar[0] == 'x'
+	  || dynamic_array[ni.number - 1] != 543);
 ]],
 dnl Try
 dnl GCC		-std=gnu99 (unused restrictive modes: -std=c99 -std=iso9899:1999)
 dnl AIX		-qlanglvl=extc99 (unused restrictive mode: -qlanglvl=stdc99)
-dnl Intel ICC	-c99
+dnl HP cc	-AC99
+dnl Intel ICC	-std=c99, -c99 (deprecated)
 dnl IRIX	-c99
-dnl Solaris	(unused because it causes the compiler to assume C99 semantics for
-dnl		library functions, and this is invalid before Solaris 10: -xc99)
+dnl Solaris	-xc99=all (Forte Developer 7 C mishandles -xc99 on Solaris 9,
+dnl		as it incorrectly assumes C99 semantics for library functions)
 dnl Tru64	-c99
 dnl with extended modes being tried first.
-[[-std=gnu99 -c99 -qlanglvl=extc99]], [$1], [$2])[]dnl
+[[-std=gnu99 -std=c99 -c99 -AC99 -xc99=all -qlanglvl=extc99]], [$1], [$2])[]dnl
 ])# _AC_PROG_CC_C99
 
 
@@ -1251,13 +1373,13 @@ AC_DEFUN([AC_PROG_CC_STDC],
     [no], [ac_cv_prog_cc_c99=no; ac_cv_prog_cc_c89=no],
 	  [_AC_PROG_CC_C99([ac_cv_prog_cc_stdc=$ac_cv_prog_cc_c99],
 	     [_AC_PROG_CC_C89([ac_cv_prog_cc_stdc=$ac_cv_prog_cc_c89],
-			      [ac_cv_prog_cc_stdc=no])])])dnl
+			      [ac_cv_prog_cc_stdc=no])])])
   AC_MSG_CHECKING([for $CC option to accept ISO Standard C])
   AC_CACHE_VAL([ac_cv_prog_cc_stdc], [])
   AS_CASE([$ac_cv_prog_cc_stdc],
     [no], [AC_MSG_RESULT([unsupported])],
     [''], [AC_MSG_RESULT([none needed])],
-          [AC_MSG_RESULT([$ac_cv_prog_cc_stdc])])
+	  [AC_MSG_RESULT([$ac_cv_prog_cc_stdc])])
 ])
 
 
@@ -1308,73 +1430,173 @@ fi
 ])# AC_C_CHAR_UNSIGNED
 
 
-# AC_C_BIGENDIAN ([ACTION-IF-TRUE], [ACTION-IF-FALSE], [ACTION-IF-UNKNOWN])
+# AC_C_BIGENDIAN ([ACTION-IF-TRUE], [ACTION-IF-FALSE], [ACTION-IF-UNKNOWN],
+#                 [ACTION-IF-UNIVERSAL])
 # -------------------------------------------------------------------------
 AC_DEFUN([AC_C_BIGENDIAN],
-[AC_CACHE_CHECK(whether byte ordering is bigendian, ac_cv_c_bigendian,
-[# See if sys/param.h defines the BYTE_ORDER macro.
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([#include <sys/types.h>
-#include <sys/param.h>
-],
-[#if !BYTE_ORDER || !BIG_ENDIAN || !LITTLE_ENDIAN
- bogus endian macros
-#endif
-])],
-[# It does; now see whether it defined to BIG_ENDIAN or not.
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([#include <sys/types.h>
-#include <sys/param.h>
-], [#if BYTE_ORDER != BIG_ENDIAN
- not big endian
-#endif
-])], [ac_cv_c_bigendian=yes], [ac_cv_c_bigendian=no])],
-[# It does not; compile a test program.
-AC_RUN_IFELSE(
-[AC_LANG_PROGRAM([AC_INCLUDES_DEFAULT], [[
-  /* Are we little or big endian?  From Harbison&Steele.  */
-  union
-  {
-    long int l;
-    char c[sizeof (long int)];
-  } u;
-  u.l = 1;
-  return u.c[sizeof (long int) - 1] == 1;
-]])],
-	      [ac_cv_c_bigendian=no],
-	      [ac_cv_c_bigendian=yes],
-[# try to guess the endianness by grepping values into an object file
-  ac_cv_c_bigendian=unknown
-  AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
-[[short int ascii_mm[] = { 0x4249, 0x4765, 0x6E44, 0x6961, 0x6E53, 0x7953, 0 };
-short int ascii_ii[] = { 0x694C, 0x5454, 0x656C, 0x6E45, 0x6944, 0x6E61, 0 };
-void _ascii () { char *s = (char *) ascii_mm; s = (char *) ascii_ii; }
-short int ebcdic_ii[] = { 0x89D3, 0xE3E3, 0x8593, 0x95C5, 0x89C4, 0x9581, 0 };
-short int ebcdic_mm[] = { 0xC2C9, 0xC785, 0x95C4, 0x8981, 0x95E2, 0xA8E2, 0 };
-void _ebcdic () { char *s = (char *) ebcdic_mm; s = (char *) ebcdic_ii; }]],
-[[ _ascii (); _ebcdic (); ]])],
-[if grep BIGenDianSyS conftest.$ac_objext >/dev/null ; then
-  ac_cv_c_bigendian=yes
-fi
-if grep LiTTleEnDian conftest.$ac_objext >/dev/null ; then
-  if test "$ac_cv_c_bigendian" = unknown; then
-    ac_cv_c_bigendian=no
-  else
-    # finding both strings is unlikely to happen, but who knows?
-    ac_cv_c_bigendian=unknown
-  fi
-fi])])])])
-case $ac_cv_c_bigendian in
-  yes)
-    m4_default([$1],
-      [AC_DEFINE([WORDS_BIGENDIAN], 1,
-	[Define to 1 if your processor stores words with the most significant
-	 byte first (like Motorola and SPARC, unlike Intel and VAX).])]) ;;
-  no)
-    $2 ;;
-  *)
-    m4_default([$3],
-      [AC_MSG_ERROR([unknown endianness
-presetting ac_cv_c_bigendian=no (or yes) will help])]) ;;
-esac
+[AH_VERBATIM([WORDS_BIGENDIAN],
+[/* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
+   significant byte first (like Motorola and SPARC, unlike Intel). */
+#if defined AC_APPLE_UNIVERSAL_BUILD
+# if defined __BIG_ENDIAN__
+#  define WORDS_BIGENDIAN 1
+# endif
+#else
+# ifndef WORDS_BIGENDIAN
+#  undef WORDS_BIGENDIAN
+# endif
+#endif])dnl
+ AC_CACHE_CHECK([whether byte ordering is bigendian], [ac_cv_c_bigendian],
+   [ac_cv_c_bigendian=unknown
+    # See if we're dealing with a universal compiler.
+    AC_COMPILE_IFELSE(
+	 [AC_LANG_SOURCE(
+	    [[#ifndef __APPLE_CC__
+	       not a universal capable compiler
+	     #endif
+	     typedef int dummy;
+	    ]])],
+	 [
+	# Check for potential -arch flags.  It is not universal unless
+	# there are at least two -arch flags with different values.
+	ac_arch=
+	ac_prev=
+	for ac_word in $CC $CFLAGS $CPPFLAGS $LDFLAGS; do
+	 if test -n "$ac_prev"; then
+	   case $ac_word in
+	     i?86 | x86_64 | ppc | ppc64)
+	       if test -z "$ac_arch" || test "$ac_arch" = "$ac_word"; then
+		 ac_arch=$ac_word
+	       else
+		 ac_cv_c_bigendian=universal
+		 break
+	       fi
+	       ;;
+	   esac
+	   ac_prev=
+	 elif test "x$ac_word" = "x-arch"; then
+	   ac_prev=arch
+	 fi
+       done])
+    if test $ac_cv_c_bigendian = unknown; then
+      # See if sys/param.h defines the BYTE_ORDER macro.
+      AC_COMPILE_IFELSE(
+	[AC_LANG_PROGRAM(
+	   [[#include <sys/types.h>
+	     #include <sys/param.h>
+	   ]],
+	   [[#if ! (defined BYTE_ORDER && defined BIG_ENDIAN \
+		     && defined LITTLE_ENDIAN && BYTE_ORDER && BIG_ENDIAN \
+		     && LITTLE_ENDIAN)
+	      bogus endian macros
+	     #endif
+	   ]])],
+	[# It does; now see whether it defined to BIG_ENDIAN or not.
+	 AC_COMPILE_IFELSE(
+	   [AC_LANG_PROGRAM(
+	      [[#include <sys/types.h>
+		#include <sys/param.h>
+	      ]],
+	      [[#if BYTE_ORDER != BIG_ENDIAN
+		 not big endian
+		#endif
+	      ]])],
+	   [ac_cv_c_bigendian=yes],
+	   [ac_cv_c_bigendian=no])])
+    fi
+    if test $ac_cv_c_bigendian = unknown; then
+      # See if <limits.h> defines _LITTLE_ENDIAN or _BIG_ENDIAN (e.g., Solaris).
+      AC_COMPILE_IFELSE(
+	[AC_LANG_PROGRAM(
+	   [[#include <limits.h>
+	   ]],
+	   [[#if ! (defined _LITTLE_ENDIAN || defined _BIG_ENDIAN)
+	      bogus endian macros
+	     #endif
+	   ]])],
+	[# It does; now see whether it defined to _BIG_ENDIAN or not.
+	 AC_COMPILE_IFELSE(
+	   [AC_LANG_PROGRAM(
+	      [[#include <limits.h>
+	      ]],
+	      [[#ifndef _BIG_ENDIAN
+		 not big endian
+		#endif
+	      ]])],
+	   [ac_cv_c_bigendian=yes],
+	   [ac_cv_c_bigendian=no])])
+    fi
+    if test $ac_cv_c_bigendian = unknown; then
+      # Compile a test program.
+      AC_RUN_IFELSE(
+	[AC_LANG_PROGRAM([AC_INCLUDES_DEFAULT],
+	   [[
+	     /* Are we little or big endian?  From Harbison&Steele.  */
+	     union
+	     {
+	       long int l;
+	       char c[sizeof (long int)];
+	     } u;
+	     u.l = 1;
+	     return u.c[sizeof (long int) - 1] == 1;
+	   ]])],
+	[ac_cv_c_bigendian=no],
+	[ac_cv_c_bigendian=yes],
+	[# Try to guess by grepping values from an object file.
+	 AC_COMPILE_IFELSE(
+	   [AC_LANG_PROGRAM(
+	      [[short int ascii_mm[] =
+		  { 0x4249, 0x4765, 0x6E44, 0x6961, 0x6E53, 0x7953, 0 };
+		short int ascii_ii[] =
+		  { 0x694C, 0x5454, 0x656C, 0x6E45, 0x6944, 0x6E61, 0 };
+		int use_ascii (int i) {
+		  return ascii_mm[i] + ascii_ii[i];
+		}
+		short int ebcdic_ii[] =
+		  { 0x89D3, 0xE3E3, 0x8593, 0x95C5, 0x89C4, 0x9581, 0 };
+		short int ebcdic_mm[] =
+		  { 0xC2C9, 0xC785, 0x95C4, 0x8981, 0x95E2, 0xA8E2, 0 };
+		int use_ebcdic (int i) {
+		  return ebcdic_mm[i] + ebcdic_ii[i];
+		}
+		extern int foo;
+	      ]],
+	      [[return use_ascii (foo) == use_ebcdic (foo);]])],
+	   [if grep BIGenDianSyS conftest.$ac_objext >/dev/null; then
+	      ac_cv_c_bigendian=yes
+	    fi
+	    if grep LiTTleEnDian conftest.$ac_objext >/dev/null ; then
+	      if test "$ac_cv_c_bigendian" = unknown; then
+		ac_cv_c_bigendian=no
+	      else
+		# finding both strings is unlikely to happen, but who knows?
+		ac_cv_c_bigendian=unknown
+	      fi
+	    fi])])
+    fi])
+ case $ac_cv_c_bigendian in #(
+   yes)
+     m4_default([$1],
+       [AC_DEFINE([WORDS_BIGENDIAN], 1)]);; #(
+   no)
+     $2 ;; #(
+   universal)
+dnl Note that AC_APPLE_UNIVERSAL_BUILD sorts less than WORDS_BIGENDIAN;
+dnl this is a necessity for proper config header operation.  Warn if
+dnl the user did not specify a config header but is relying on the
+dnl default behavior for universal builds.
+     m4_default([$4],
+       [AC_CONFIG_COMMANDS_PRE([m4_ifset([AH_HEADER], [],
+	 [AC_DIAGNOSE([obsolete],
+	   [AC_C_BIGENDIAN should be used with AC_CONFIG_HEADERS])])])dnl
+	AC_DEFINE([AC_APPLE_UNIVERSAL_BUILD],1,
+	  [Define if building universal (internal helper macro)])])
+     ;; #(
+   *)
+     m4_default([$3],
+       [AC_MSG_ERROR([unknown endianness
+ presetting ac_cv_c_bigendian=no (or yes) will help])]) ;;
+ esac
 ])# AC_C_BIGENDIAN
 
 
@@ -1428,7 +1650,6 @@ esac
 
 # AC_C_CONST
 # ----------
-AN_IDENTIFIER([const],  [AC_C_CONST])
 AC_DEFUN([AC_C_CONST],
 [AC_CACHE_CHECK([for an ANSI C-conforming const], ac_cv_c_const,
 [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([],
@@ -1436,10 +1657,10 @@ AC_DEFUN([AC_C_CONST],
 #ifndef __cplusplus
   /* Ultrix mips cc rejects this.  */
   typedef int charset[2];
-  const charset x;
+  const charset cs;
   /* SunOS 4.1.1 cc rejects this.  */
-  char const *const *ccp;
-  char **p;
+  char const *const *pcpcc;
+  char **ppc;
   /* NEC SVR4.0.2 mips cc rejects this.  */
   struct point {int x, y;};
   static struct point const zero = {0,0};
@@ -1448,11 +1669,11 @@ AC_DEFUN([AC_C_CONST],
      an arm of an if-expression whose if-part is not a constant
      expression */
   const char *g = "string";
-  ccp = &g + (g ? g-g : 0);
+  pcpcc = &g + (g ? g-g : 0);
   /* HPUX 7.0 cc rejects these. */
-  ++ccp;
-  p = (char**) ccp;
-  ccp = (char const *const *) p;
+  ++pcpcc;
+  ppc = (char**) pcpcc;
+  pcpcc = (char const *const *) ppc;
   { /* SCO 3.2v4 cc rejects this.  */
     char *t;
     char const *s = 0 ? (char *) 0 : (char const *) 0;
@@ -1479,7 +1700,7 @@ AC_DEFUN([AC_C_CONST],
     const int foo = 10;
     if (!foo) return 0;
   }
-  return !x[0] && !zero.x;
+  return !cs[0] && !zero.x;
 #endif
 ]])],
 		   [ac_cv_c_const=yes],
@@ -1497,9 +1718,10 @@ fi
 # http://autoconf-archive.cryp.to/acx_restrict.html
 #
 # Determine whether the C/C++ compiler supports the "restrict" keyword
-# introduced in ANSI C99, or an equivalent.  Do nothing if the compiler
-# accepts it.  Otherwise, if the compiler supports an equivalent,
-# define "restrict" to be that.  Here are some variants:
+# introduced in ANSI C99, or an equivalent.  Define "restrict" to the alternate
+# spelling, if any; these are more likely to work in both C and C++ compilers of
+# the same family, and in the presence of varying compiler options.  If only
+# plain "restrict" works, do nothing.  Here are some variants:
 # - GCC supports both __restrict and __restrict__
 # - older DEC Alpha C compilers support only __restrict
 # - _Restrict is the only spelling accepted by Sun WorkShop 6 update 2 C
@@ -1508,28 +1730,39 @@ AN_IDENTIFIER([restrict], [AC_C_RESTRICT])
 AC_DEFUN([AC_C_RESTRICT],
 [AC_CACHE_CHECK([for C/C++ restrict keyword], ac_cv_c_restrict,
   [ac_cv_c_restrict=no
-   # Try the official restrict keyword, then gcc's __restrict, and
-   # the less common variants.
-   for ac_kw in restrict __restrict __restrict__ _Restrict; do
+   # The order here caters to the fact that C++ does not require restrict.
+   for ac_kw in __restrict __restrict__ _Restrict restrict; do
      AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
       [[typedef int * int_ptr;
-        int foo (int_ptr $ac_kw ip) {
-        return ip[0];
+	int foo (int_ptr $ac_kw ip) {
+	return ip[0];
        }]],
       [[int s[1];
-        int * $ac_kw t = s;
-        t[0] = 0;
-        return foo(t)]])],
+	int * $ac_kw t = s;
+	t[0] = 0;
+	return foo(t)]])],
       [ac_cv_c_restrict=$ac_kw])
      test "$ac_cv_c_restrict" != no && break
    done
   ])
+ AH_VERBATIM([restrict],
+[/* Define to the equivalent of the C99 'restrict' keyword, or to
+   nothing if this is not supported.  Do not define if restrict is
+   supported directly.  */
+#undef restrict
+/* Work around a bug in Sun C++: it does not support _Restrict or
+   __restrict__, even though the corresponding Sun C compiler ends up with
+   "#define restrict _Restrict" or "#define restrict __restrict__" in the
+   previous line.  Perhaps some future version of Sun C++ will work with
+   restrict; if so, hopefully it defines __RESTRICT like Sun C does.  */
+#if defined __SUNPRO_CC && !defined __RESTRICT
+# define _Restrict
+# define __restrict__
+#endif])
  case $ac_cv_c_restrict in
    restrict) ;;
-   no) AC_DEFINE(restrict,,
-	[Define to equivalent of C99 restrict keyword, or to nothing if this
-	is not supported.  Do not define if restrict is supported directly.]) ;;
-   *)  AC_DEFINE_UNQUOTED(restrict, $ac_cv_c_restrict) ;;
+   no) AC_DEFINE([restrict], []) ;;
+   *)  AC_DEFINE_UNQUOTED([restrict], [$ac_cv_c_restrict]) ;;
  esac
 ])# AC_C_RESTRICT
 
@@ -1542,7 +1775,6 @@ AC_DEFUN([AC_C_RESTRICT],
 # optimizations that could break the user's code.  So, do not #define
 # volatile away unless it is really necessary to allow the user's code
 # to compile cleanly.  Benign compiler failures should be tolerated.
-AN_IDENTIFIER([volatile], [AC_C_VOLATILE])
 AC_DEFUN([AC_C_VOLATILE],
 [AC_CACHE_CHECK([for working volatile], ac_cv_c_volatile,
 [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [
@@ -1599,6 +1831,61 @@ fi
 ])# AC_C_PROTOTYPES
 
 
+# AC_C_FLEXIBLE_ARRAY_MEMBER
+# --------------------------
+# Check whether the C compiler supports flexible array members.
+AC_DEFUN([AC_C_FLEXIBLE_ARRAY_MEMBER],
+[
+  AC_CACHE_CHECK([for flexible array members],
+    ac_cv_c_flexmember,
+    [AC_COMPILE_IFELSE(
+       [AC_LANG_PROGRAM(
+	  [[#include <stdlib.h>
+	    #include <stdio.h>
+	    #include <stddef.h>
+	    struct s { int n; double d[]; };]],
+	  [[int m = getchar ();
+	    struct s *p = malloc (offsetof (struct s, d)
+				  + m * sizeof (double));
+	    p->d[0] = 0.0;
+	    return p->d != (double *) NULL;]])],
+       [ac_cv_c_flexmember=yes],
+       [ac_cv_c_flexmember=no])])
+  if test $ac_cv_c_flexmember = yes; then
+    AC_DEFINE([FLEXIBLE_ARRAY_MEMBER], [],
+      [Define to nothing if C supports flexible array members, and to
+       1 if it does not.  That way, with a declaration like `struct s
+       { int n; double d@<:@FLEXIBLE_ARRAY_MEMBER@:>@; };', the struct hack
+       can be used with pre-C99 compilers.
+       When computing the size of such an object, don't use 'sizeof (struct s)'
+       as it overestimates the size.  Use 'offsetof (struct s, d)' instead.
+       Don't use 'offsetof (struct s, d@<:@0@:>@)', as this doesn't work with
+       MSVC and with C++ compilers.])
+  else
+    AC_DEFINE([FLEXIBLE_ARRAY_MEMBER], 1)
+  fi
+])
+
+
+# AC_C_VARARRAYS
+# --------------
+# Check whether the C compiler supports variable-length arrays.
+AC_DEFUN([AC_C_VARARRAYS],
+[
+  AC_CACHE_CHECK([for variable-length arrays],
+    ac_cv_c_vararrays,
+    [AC_COMPILE_IFELSE(
+       [AC_LANG_PROGRAM([],
+	  [[static int x; char a[++x]; a[sizeof a - 1] = 0; return a[0];]])],
+       [ac_cv_c_vararrays=yes],
+       [ac_cv_c_vararrays=no])])
+  if test $ac_cv_c_vararrays = yes; then
+    AC_DEFINE([HAVE_C_VARARRAYS], 1,
+      [Define to 1 if C supports variable-length arrays.])
+  fi
+])
+
+
 # AC_C_TYPEOF
 # -----------
 # Check if the C compiler supports GCC's typeof syntax.
@@ -1635,4 +1922,90 @@ AC_DEFUN([AC_C_TYPEOF],
 	[Define to __typeof__ if your compiler spells it that way.])
     fi
   fi
+])
+
+
+# _AC_LANG_OPENMP
+# ---------------
+# Expands to some language dependent source code for testing the presence of
+# OpenMP.
+AC_DEFUN([_AC_LANG_OPENMP],
+[_AC_LANG_DISPATCH([$0], _AC_LANG, $@)])
+
+# _AC_LANG_OPENMP(C)
+# ------------------
+m4_define([_AC_LANG_OPENMP(C)],
+[
+#ifndef _OPENMP
+ choke me
+#endif
+#include <omp.h>
+int main () { return omp_get_num_threads (); }
+])
+
+# _AC_LANG_OPENMP(C++)
+# --------------------
+m4_copy([_AC_LANG_OPENMP(C)], [_AC_LANG_OPENMP(C++)])
+
+# _AC_LANG_OPENMP(Fortran 77)
+# ---------------------------
+m4_define([_AC_LANG_OPENMP(Fortran 77)],
+[AC_LANG_FUNC_LINK_TRY([omp_get_num_threads])])
+
+# _AC_LANG_OPENMP(Fortran)
+# ---------------------------
+m4_copy([_AC_LANG_OPENMP(Fortran 77)], [_AC_LANG_OPENMP(Fortran)])
+
+# AC_OPENMP
+# ---------
+# Check which options need to be passed to the C compiler to support OpenMP.
+# Set the OPENMP_CFLAGS / OPENMP_CXXFLAGS / OPENMP_FFLAGS variable to these
+# options.
+# The options are necessary at compile time (so the #pragmas are understood)
+# and at link time (so the appropriate library is linked with).
+# This macro takes care to not produce redundant options if $CC $CFLAGS already
+# supports OpenMP. It also is careful to not pass options to compilers that
+# misinterpret them; for example, most compilers accept "-openmp" and create
+# an output file called 'penmp' rather than activating OpenMP support.
+AC_DEFUN([AC_OPENMP],
+[
+  OPENMP_[]_AC_LANG_PREFIX[]FLAGS=
+  AC_ARG_ENABLE([openmp],
+    [AS_HELP_STRING([--disable-openmp], [do not use OpenMP])])
+  if test "$enable_openmp" != no; then
+    AC_CACHE_CHECK([for $[]_AC_CC[] option to support OpenMP],
+      [ac_cv_prog_[]_AC_LANG_ABBREV[]_openmp],
+      [AC_LINK_IFELSE([_AC_LANG_OPENMP],
+	 [ac_cv_prog_[]_AC_LANG_ABBREV[]_openmp='none needed'],
+	 [ac_cv_prog_[]_AC_LANG_ABBREV[]_openmp='unsupported'
+	  dnl Try these flags:
+	  dnl   GCC >= 4.2           -fopenmp
+	  dnl   SunPRO C             -xopenmp
+	  dnl   Intel C              -openmp
+	  dnl   SGI C, PGI C         -mp
+	  dnl   Tru64 Compaq C       -omp
+	  dnl   IBM C (AIX, Linux)   -qsmp=omp
+	  dnl If in this loop a compiler is passed an option that it doesn't
+	  dnl understand or that it misinterprets, the AC_LINK_IFELSE test
+	  dnl will fail (since we know that it failed without the option),
+	  dnl therefore the loop will continue searching for an option, and
+	  dnl no output file called 'penmp' or 'mp' is created.
+	  for ac_option in -fopenmp -xopenmp -openmp -mp -omp -qsmp=omp; do
+	    ac_save_[]_AC_LANG_PREFIX[]FLAGS=$[]_AC_LANG_PREFIX[]FLAGS
+	    _AC_LANG_PREFIX[]FLAGS="$[]_AC_LANG_PREFIX[]FLAGS $ac_option"
+	    AC_LINK_IFELSE([_AC_LANG_OPENMP],
+	      [ac_cv_prog_[]_AC_LANG_ABBREV[]_openmp=$ac_option])
+	    _AC_LANG_PREFIX[]FLAGS=$ac_save_[]_AC_LANG_PREFIX[]FLAGS
+	    if test "$ac_cv_prog_[]_AC_LANG_ABBREV[]_openmp" != unsupported; then
+	      break
+	    fi
+	  done])])
+    case $ac_cv_prog_[]_AC_LANG_ABBREV[]_openmp in #(
+      "none needed" | unsupported)
+	;; #(
+      *)
+	OPENMP_[]_AC_LANG_PREFIX[]FLAGS=$ac_cv_prog_[]_AC_LANG_ABBREV[]_openmp ;;
+    esac
+  fi
+  AC_SUBST([OPENMP_]_AC_LANG_PREFIX[FLAGS])
 ])
