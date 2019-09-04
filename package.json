@@ -8,6 +8,7 @@
       "PATH": "#{self.bin : $PATH }"
     },
     "build": [
+      "find ./ -exec touch -t 200905010101 {} +",
       [
         "chmod",
         "755",
