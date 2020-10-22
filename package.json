@@ -35,6 +35,7 @@
     ]
   },
   "dependencies": {
-    "esy-help2man": "esy-packages/esy-help2man#c8e6931d1dcf58a81bd801145a777fd3b115c443"
+    "esy-m4": "esy-packages/esy-m4",
+    "esy-help2man": "esy-packages/esy-help2man"
   }
 }
